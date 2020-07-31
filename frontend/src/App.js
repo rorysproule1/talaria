@@ -1,14 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import axios from 'axios'
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    fetch('/time').then(res => res.json()).then(data => {
-      setCurrentTime(data.time);
-    });
+    const data = {
+      "name": "Rory Sproule",
+      "type": "Admin",
+      "age": 22,
+    }
+
+    // axios.post(`/users`, data, {})
+    //   .then((response) => {
+    //     console.log(response)
+
+    //   })
+    //   .catch((error) => {
+    //     console.log('Error while posting user')
+    //     console.log(error)
+    //   })
+
+
+    axios.get(`/users`, data, {})
+      .then((response) => {
+        console.log(response)
+
+      })
+      .catch((error) => {
+        console.log('Error while posting user')
+        console.log(error)
+      })
+    // axios.get(`/time`, {})
+    //       .then((response) => {
+    //         const status = response.data
+    //         console.log(status)
+
+    //       })
+    //       .catch((error) => {
+    //         console.log('Error while polling for job status')
+    //         console.log(error)
+    //       })
+    // fetch('/time').then(res => res.json()).then(data => {
+    //   setCurrentTime(data.time);
+    // });
+
+
   }, []); // empty list to prevent recursive loop refreshing the time
 
   return (
