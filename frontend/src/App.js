@@ -13,6 +13,16 @@ function App() {
       "age": 22,
     }
 
+    let activities_url = `https://www.strava.com/api/v3/athlete/activities?access_token=4d65c4753c4244808f1d334f969c38f483c0eb77&per_page=50`
+    axios.get(activities_url, data, {})
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.log('Error while posting user')
+        console.log(error)
+      })
+
     // axios.post(`/users`, data, {})
     //   .then((response) => {
     //     console.log(response)
@@ -24,15 +34,14 @@ function App() {
     //   })
 
 
-    axios.get(`/users`, data, {})
-      .then((response) => {
-        console.log(response)
-
-      })
-      .catch((error) => {
-        console.log('Error while posting user')
-        console.log(error)
-      })
+    // axios.get(`/users`, data, {})
+    //   .then((response) => {
+    //     console.log(response)
+    //   })
+    //   .catch((error) => {
+    //     console.log('Error while posting user')
+    //     console.log(error)
+    //   })
     // axios.get(`/time`, {})
     //       .then((response) => {
     //         const status = response.data
