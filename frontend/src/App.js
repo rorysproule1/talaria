@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
+import Button from '@material-ui/core/Button';
+import SignIn from './SignInSide'
 
 
 function App() {
@@ -37,7 +39,9 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
+
+      <SignIn></SignIn>
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -56,7 +60,10 @@ function App() {
             {allActivities[0]["distance"]}
           </h2>
         }
-      </header>
+      </header> */}
+      {/* <Button variant="contained" color="primary">
+      Hello World
+      </Button> */}
     </div>
   );
 }

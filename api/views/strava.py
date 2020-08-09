@@ -1,10 +1,11 @@
 import time
 import logging
 import requests
-from decouple import config
 import urls
 import os
+
 from flask import Flask, Blueprint, request
+from decouple import config
 
 strava = Blueprint('strava', __name__)
 
