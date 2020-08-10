@@ -23,6 +23,7 @@ def get_activities():
 
     return {"activities": response.json()}
 
+@strava.route('/authorize')
 def get_access_token():
     payload = {
         'client_id': config('STRAVA_CLIENT_ID'),

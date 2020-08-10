@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
-import Button from '@material-ui/core/Button';
-import SignIn from './SignInSide'
+import SignInSide from './SignInSide'
+import { BrowserRouter as Switch, Route } from 'react-router-dom';
 
 
 function App() {
@@ -33,38 +32,15 @@ function App() {
     fetch('/time').then(res => res.json()).then(data => {
       setCurrentTime(data.time);
     });
-
-
-  }, []); // empty list to prevent recursive loop refreshing the time
+  }, []); // empty list to ensure code is only executed on initial loading of the page
 
   return (
-    <div className="App">
-
-      <SignIn></SignIn>
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo"/>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <p>The current time is {currentTime}.</p>
-        {allActivities.length > 0 &&
-          <h2>
-            {allActivities[0]["distance"]}
-          </h2>
-        }
-      </header> */}
-      {/* <Button variant="contained" color="primary">
-      Hello World
-      </Button> */}
-    </div>
+    <main>
+      {/* Full list of URLs used in the app */}
+      <Switch>
+        <Route exact path='/' component={SignInSide} />
+      </Switch>
+    </main>
   );
 }
 
