@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -60,6 +60,47 @@ const useStyles = makeStyles((theme) => ({
 export default function SignInSide() {
   const classes = useStyles();
 
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
+
+  function onClickHandler(e) {
+    // ensure both email and password are entered
+    if (email === null) {
+      alert("Enter an email address")
+      setEmailError(true)
+    }
+    if (password === null) {
+      alert("Enter a password")
+      setPasswordError(true)
+    }
+
+    // ensure a valid email address is entered (string@string.string)
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    if(email && !email.match(emailRegex)) {
+      alert("Invalid email")
+      setEmailError(true)
+    }
+
+    // ensure a valid password is entered (7-15 characters with 1 number and 1 special character)
+    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
+    if(password && !password.match(passwordRegex)) {
+      alert("Invalid password")
+      setPasswordError(true)
+    }
+  }
+  
+  function emailOnChangeHandler(e) {
+    setEmail(e.target.value)
+  }
+
+  function passwordOnChangeHandler(e) {
+    setPassword(e.target.value)
+  }
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -82,6 +123,9 @@ export default function SignInSide() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              onChange={emailOnChangeHandler}
+              error={emailError && true}
+              helperText={emailError && "sup"}
               autoFocus
             />
             <TextField
@@ -94,6 +138,9 @@ export default function SignInSide() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={passwordOnChangeHandler}
+              error={passwordError && true}
+              helperText={passwordError && "sup"}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -105,6 +152,7 @@ export default function SignInSide() {
               variant="contained"
               color="primary"
               className={classes.submit}
+              onClick={onClickHandler}
             >
               Sign In
             </Button>
