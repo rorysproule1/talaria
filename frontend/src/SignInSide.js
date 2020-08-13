@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -12,6 +14,12 @@ import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import { Redirect } from 'react-router-dom';
+import * as strings from './strings'
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function Copyright() {
   return (
@@ -62,35 +70,84 @@ export default function SignInSide() {
 
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
+  const [emailError, setEmailError] = useState({error: false, message: ""});
+  const [passwordError, setPasswordError] = useState({error: false, message: ""});
+  const [credentialsError, setCredentialsError] = useState(null)
 
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
 
-
-  function onClickHandler(e) {
-    // ensure both email and password are entered
-    if (email === null) {
-      alert("Enter an email address")
-      setEmailError(true)
-    }
-    if (password === null) {
-      alert("Enter a password")
-      setPasswordError(true)
+  function validateEmail() {
+    // ensure an email is entered
+    if (email === null || email == "") {
+      setEmailError({
+        ...emailError,
+        error: true,
+        message: strings.NullEmail,
+      })
+      return false
     }
 
     // ensure a valid email address is entered (string@string.string)
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    if(email && !email.match(emailRegex)) {
-      alert("Invalid email")
-      setEmailError(true)
+    if (!email.match(emailRegex)) {
+      setEmailError({
+        ...emailError,
+        error: true,
+        message: strings.InvalidEmail,
+      })
+      return false
+    }
+
+    // the email is valid, so reset the error state
+    setEmailError({
+      ...emailError,
+      error: false,
+      message: "",
+    })
+    return true
+  }
+
+  function validatePassword() {
+    // ensure a password is entered
+    if (password === null || password == "") {
+      setPasswordError({
+        ...passwordError,
+        error: true,
+        message: strings.NullPassword,
+      })
+      return false
     }
 
     // ensure a valid password is entered (7-15 characters with 1 number and 1 special character)
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
-    if(password && !password.match(passwordRegex)) {
-      alert("Invalid password")
-      setPasswordError(true)
+    if (!password.match(passwordRegex)) {
+      setPasswordError({
+        ...passwordError,
+        error: true,
+        message: strings.InvalidPassword,
+      })
+      return false
     }
+
+    // the password is valid, so reset error state
+    setPasswordError({
+      ...passwordError,
+      error: false,
+      message: "",
+    })
+    return true
+  }
+
+  function onClickHandler(e) {
+    var validPassword = validateEmail()
+    var validEmail = validatePassword()
+    
+    if (validEmail && validPassword) {
+      setCredentialsError(false)
+    }
+    else {
+      setCredentialsError(true)
+    }
+    
   }
   
   function emailOnChangeHandler(e) {
@@ -124,8 +181,8 @@ export default function SignInSide() {
               name="email"
               autoComplete="email"
               onChange={emailOnChangeHandler}
-              error={emailError && true}
-              helperText={emailError && "sup"}
+              error={emailError.error && true}
+              helperText={emailError.error && emailError.message}
               autoFocus
             />
             <TextField
@@ -139,15 +196,18 @@ export default function SignInSide() {
               id="password"
               autoComplete="current-password"
               onChange={passwordOnChangeHandler}
-              error={passwordError && true}
-              helperText={passwordError && "sup"}
+              error={passwordError.error && true}
+              helperText={passwordError.error && passwordError.message}
             />
+            {credentialsError &&
+              <Alert severity="error">{strings.InvalidCredentials}</Alert>
+            }
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
             <Button
-              type="submit"
+              type="button"
               fullWidth
               variant="contained"
               color="primary"
@@ -174,6 +234,15 @@ export default function SignInSide() {
           </form>
         </div>
       </Grid>
+
+      {credentialsError == false && 
+        <Redirect 
+          to={{
+            pathname: '/dashboard',
+          }} 
+        />
+      }
+
     </Grid>
   );
 }
