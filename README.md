@@ -18,7 +18,7 @@ Before being able to run the project, there are a few things we must set up and 
 	-    [Yarn](https://yarnpkg.com/): A package and project manager for Node.js applications.
 2. `cd frontend` and run the command `npm install`
 
-**API**
+**API:**
  1. The api requires 1 package to be installed:
 	 - [Python](https://python.org/): A recent Python 3 interpreter to run 	the Flask backend on.
 2.  `cd api` and create a virtualenv `py -m venv venv`
