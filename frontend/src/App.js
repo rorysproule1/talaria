@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
-import SignInSide from './SignInSide'
+import SignInSide from './SignIn'
 import Dashboard from './Dashboard'
 import { BrowserRouter as Switch, Route, Redirect } from 'react-router-dom';
 import SignUp from './SignUp';

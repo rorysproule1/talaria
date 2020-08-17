@@ -190,6 +190,7 @@ export default function SignInSide() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              spellCheck="false"
               onChange={emailOnChangeHandler}
               error={emailError.error && true}
               helperText={emailError.error && emailError.message}
@@ -205,6 +206,7 @@ export default function SignInSide() {
               type={passwordVisible ? "text" : "password"}
               id="password"
               autoComplete="current-password"
+              spellCheck="false"
               onChange={passwordOnChangeHandler}
               error={passwordError.error && true}
               helperText={passwordError.error && passwordError.message}
