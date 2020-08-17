@@ -22,8 +22,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # api side gitignores
-venv
 __pycache__
 .pyc
 .vscode/settings.json
 api/venv
+api/.flaskenv
