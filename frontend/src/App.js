@@ -4,6 +4,7 @@ import axios from 'axios';
 import SignInSide from './SignInSide'
 import Dashboard from './Dashboard'
 import { BrowserRouter as Switch, Route, Redirect } from 'react-router-dom';
+import SignUp from './SignUp';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
       {/* Full list of URLs used in the app */}
       <Switch>
         <Route exact path='/' component={SignInSide} />
+        <Route exact path='/sign-up' component={SignUp} />
         <Route exact path='/dashboard' component={Dashboard} />
       </Switch>
     </main>
