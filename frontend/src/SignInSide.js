@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -16,6 +15,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
 import * as strings from './strings'
+import InputAdornment from "@material-ui/core/InputAdornment";
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -73,6 +74,7 @@ export default function SignInSide() {
   const [emailError, setEmailError] = useState({error: false, message: ""});
   const [passwordError, setPasswordError] = useState({error: false, message: ""});
   const [credentialsError, setCredentialsError] = useState(null)
+  const [passwordVisible, setPasswordVisible] = useState(false)
 
 
   function validateEmail() {
@@ -158,6 +160,14 @@ export default function SignInSide() {
     setPassword(e.target.value)
   }
 
+  function onPasswordVisibleEnter() {
+    setPasswordVisible(true)
+  }
+
+  function onPasswordVisibleLeave() {
+    setPasswordVisible(false)
+  }
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -192,12 +202,23 @@ export default function SignInSide() {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={passwordVisible ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               onChange={passwordOnChangeHandler}
               error={passwordError.error && true}
               helperText={passwordError.error && passwordError.message}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment>
+                    <VisibilityIcon 
+                      color="disabled"
+                      onMouseEnter={onPasswordVisibleEnter}
+                      onMouseLeave={onPasswordVisibleLeave}
+                    />
+                  </InputAdornment>
+                )
+              }}
             />
             {credentialsError &&
               <Alert severity="error">{strings.InvalidCredentials}</Alert>
