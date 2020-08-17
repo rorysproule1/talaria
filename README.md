@@ -1,6 +1,6 @@
-# Welcome to [project name]
+# Welcome to Talaria!
 
-[Intro to project]
+**Talaria** is a web based tool that is used alongside [**Strava**](https://www.strava.com/) to help create, plan, execute and monitor any and all running goals you may have, from running your first ever 5km to getting ready for your next marathon!
 
 # Files
 
@@ -10,18 +10,23 @@ Similarly, the **api** folder holds all the code to handle the python flask back
 
 # Prerequisites
 
-Before being able to run the project, there are a few things we need to do.
+Before being able to run the project, there are a few things we must set up and install.
 
-1. [copy local env when set up]
-2. In your env file, you will need to populate the STRAVA_REFRESH_TOKEN variable with the refresh token relevant to your account. To do this I would suggest you follow the steps lined out in the following [video](https://www.youtube.com/watch?v=sgscChKfGyg&t=17s)
-3. Install yarn etc?
+**Frontend:**
+1. The frontend requires 2 packages to be installed:
+	-   [Node.js](https://nodejs.org/): The JavaScript runtime that you will use to run your frontend project.
+	-    [Yarn](https://yarnpkg.com/): A package and project manager for Node.js applications.
+2. `cd frontend` and run the command `npm install`
+
+**API**
+ 1. The api requires 1 package to be installed:
+	 - [Python](https://python.org/): A recent Python 3 interpreter to run 	the Flask backend on.
 
 # Running the app
 
-You will need two terminal tabs open, with both being in the frontend directory
+You will need two terminal tabs open, with one being in the `frontend` directory and the other in the `api` directory
 
-In the first tab run the command ```yarn start``` to run the react frontend
+ 1. In the frontend tab, run the command ```yarn start``` to run the 		react frontend
+ 2. In the api tab run the command ```flask run``` to run the flask backend
 
-In the second tab run the command ```start-api``` to run the flask backend
-
-Finally, direct your browser to ```localhost:3000``` and you should be in!
+Finally, direct your browser to ```localhost:3000``` and you should be good to go!
