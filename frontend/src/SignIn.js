@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import MuiAlert from '@material-ui/lab/Alert';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
-import * as strings from './strings'
+import React, { useState } from "react";
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import MuiAlert from "@material-ui/lab/Alert";
+import TextField from "@material-ui/core/TextField";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import Link from "@material-ui/core/Link";
+import Paper from "@material-ui/core/Paper";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
+import * as strings from "./strings";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityIcon from "@material-ui/icons/Visibility";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -25,40 +25,42 @@ function Alert(props) {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
+      {"Copyright © "}
       <Link color="inherit" href="https://material-ui.com/">
         Talaria
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: '100vh',
+    height: "100vh",
   },
   image: {
-    backgroundImage: 'url(https://source.unsplash.com/random?marathon,running)',
-    backgroundRepeat: 'no-repeat',
+    backgroundImage: "url(https://source.unsplash.com/random?marathon,running)",
+    backgroundRepeat: "no-repeat",
     backgroundColor:
-      theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
+      theme.palette.type === "light"
+        ? theme.palette.grey[50]
+        : theme.palette.grey[900],
+    backgroundSize: "cover",
+    backgroundPosition: "center",
   },
   paper: {
     margin: theme.spacing(8, 4),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -71,11 +73,13 @@ export default function SignInSide() {
 
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
-  const [emailError, setEmailError] = useState({error: false, message: ""});
-  const [passwordError, setPasswordError] = useState({error: false, message: ""});
-  const [credentialsError, setCredentialsError] = useState(null)
-  const [passwordVisible, setPasswordVisible] = useState(false)
-
+  const [emailError, setEmailError] = useState({ error: false, message: "" });
+  const [passwordError, setPasswordError] = useState({
+    error: false,
+    message: "",
+  });
+  const [credentialsError, setCredentialsError] = useState(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   function validateEmail() {
     // ensure an email is entered
@@ -84,19 +88,19 @@ export default function SignInSide() {
         ...emailError,
         error: true,
         message: strings.NullEmail,
-      })
-      return false
+      });
+      return false;
     }
 
     // ensure a valid email address is entered (string@string.string)
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!email.match(emailRegex)) {
       setEmailError({
         ...emailError,
         error: true,
         message: strings.InvalidEmail,
-      })
-      return false
+      });
+      return false;
     }
 
     // the email is valid, so reset the error state
@@ -104,8 +108,8 @@ export default function SignInSide() {
       ...emailError,
       error: false,
       message: "",
-    })
-    return true
+    });
+    return true;
   }
 
   function validatePassword() {
@@ -115,8 +119,8 @@ export default function SignInSide() {
         ...passwordError,
         error: true,
         message: strings.NullPassword,
-      })
-      return false
+      });
+      return false;
     }
 
     // ensure a valid password is entered (7-15 characters with 1 number and 1 special character)
@@ -126,8 +130,8 @@ export default function SignInSide() {
         ...passwordError,
         error: true,
         message: strings.InvalidPassword,
-      })
-      return false
+      });
+      return false;
     }
 
     // the password is valid, so reset error state
@@ -135,37 +139,35 @@ export default function SignInSide() {
       ...passwordError,
       error: false,
       message: "",
-    })
-    return true
+    });
+    return true;
   }
 
   function onClickHandler(e) {
-    var validPassword = validateEmail()
-    var validEmail = validatePassword()
-    
+    var validPassword = validatePassword();
+    var validEmail = validateEmail();
+
     if (validEmail && validPassword) {
-      setCredentialsError(false)
+      setCredentialsError(false);
+    } else {
+      setCredentialsError(true);
     }
-    else {
-      setCredentialsError(true)
-    }
-    
   }
-  
+
   function emailOnChangeHandler(e) {
-    setEmail(e.target.value)
+    setEmail(e.target.value);
   }
 
   function passwordOnChangeHandler(e) {
-    setPassword(e.target.value)
+    setPassword(e.target.value);
   }
 
   function onPasswordVisibleEnter() {
-    setPasswordVisible(true)
+    setPasswordVisible(true);
   }
 
   function onPasswordVisibleLeave() {
-    setPasswordVisible(false)
+    setPasswordVisible(false);
   }
 
   return (
@@ -213,18 +215,18 @@ export default function SignInSide() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment>
-                    <VisibilityIcon 
+                    <VisibilityIcon
                       color="disabled"
                       onMouseEnter={onPasswordVisibleEnter}
                       onMouseLeave={onPasswordVisibleLeave}
                     />
                   </InputAdornment>
-                )
+                ),
               }}
             />
-            {credentialsError &&
+            {credentialsError && (
               <Alert severity="error">{strings.InvalidCredentials}</Alert>
-            }
+            )}
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -258,14 +260,13 @@ export default function SignInSide() {
         </div>
       </Grid>
 
-      {credentialsError == false && 
-        <Redirect 
+      {credentialsError == false && (
+        <Redirect
           to={{
-            pathname: '/dashboard',
-          }} 
+            pathname: "/dashboard",
+          }}
         />
-      }
-
+      )}
     </Grid>
   );
 }
