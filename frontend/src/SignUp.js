@@ -15,6 +15,10 @@ import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import StepContent from "@material-ui/core/StepContent";
 import * as strings from "./strings";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 function Copyright() {
   return (
@@ -30,11 +34,17 @@ function Copyright() {
 }
 
 const useStyles = makeStyles((theme) => ({
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
+  },
   paper: {
     marginTop: theme.spacing(5),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    marginRight: theme.spacing(30),
+    marginLeft: theme.spacing(30),
   },
   avatar: {
     margin: theme.spacing(1),
@@ -187,7 +197,7 @@ export default function SignUp() {
     }
 
     // the password is valid, so reset error state
-    setPasswordError({
+    setReenterPasswordError({
       ...passwordError,
       error: false,
       message: "",
@@ -401,7 +411,7 @@ export default function SignUp() {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="s">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -411,6 +421,13 @@ export default function SignUp() {
           Sign up
         </Typography>
         <div className={classes.root}>
+          <Grid container justify="flex-end">
+            <Grid item>
+              <Link href="/" variant="body2">
+                Already have an account? Sign In
+              </Link>
+            </Grid>
+          </Grid>
           <Stepper activeStep={activeStep} orientation="vertical">
             <Step>
               <StepLabel error={personalDetailsError && true}>
@@ -527,6 +544,32 @@ export default function SignUp() {
                 Strava details
               </StepLabel>
               <StepContent>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="strava-help"
+                  >
+                    <Typography className={classes.heading}>
+                      What are these values and how do I get them?
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="caption">
+                      We need the following values to allow us to connect to
+                      your Strava and get all the necessary data about your
+                      runs. You can get them by following this{" "}
+                      <Link
+                        href="https://www.youtube.com/watch?v=sgscChKfGyg"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        tutorial
+                      </Link>
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+                <br></br>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -594,6 +637,18 @@ export default function SignUp() {
             <Step>
               <StepLabel>Summary</StepLabel>
               <StepContent>
+                <Typography variant="caption">
+                  Name: {firstName} {lastName}
+                  <br></br>
+                  Email: {email}
+                  <br></br>
+                  Client ID: {clientId}
+                  <br></br>
+                  Client Secret: {clientSecret}
+                  <br></br>
+                  Refresh Token: {refreshToken}
+                </Typography>
+
                 <Grid container justify="flex-end">
                   <Button
                     disabled={activeStep === 0}
@@ -608,23 +663,15 @@ export default function SignUp() {
                     onClick={handleCreateAccount}
                     className={classes.button}
                   >
-                    Create
+                    Create Account
                   </Button>
                 </Grid>
               </StepContent>
             </Step>
+            <Box mt={5}>
+              <Copyright />
+            </Box>
           </Stepper>
-
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link href="/" variant="body2">
-                Already have an account? Sign In
-              </Link>
-            </Grid>
-          </Grid>
-          <Box mt={5}>
-            <Copyright />
-          </Box>
         </div>
       </div>
     </Container>
