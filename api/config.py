@@ -8,3 +8,7 @@ def register_env_variables():
     STRAVA_CLIENT_SECRET = config('STRAVA_CLIENT_SECRET')
     STRAVA_REFRESH_TOKEN = config('STRAVA_REFRESH_TOKEN')
     STRAVA_ACCESS_TOKEN = config('STRAVA_ACCESS_TOKEN')
+
+    # Register email variables
+    TALARIA_EMAIL = config('TALARIA_EMAIL')
+    TALARIA_PASSWORD = config('TALARIA_PASSWORD')

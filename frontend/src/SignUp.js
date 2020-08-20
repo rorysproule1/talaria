@@ -451,6 +451,7 @@ export default function SignUp() {
                       helperText={
                         firstNameError.error && firstNameError.message
                       }
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -466,6 +467,7 @@ export default function SignUp() {
                       value={lastName}
                       error={lastNameError.error && true}
                       helperText={lastNameError.error && lastNameError.message}
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -481,6 +483,7 @@ export default function SignUp() {
                       value={email}
                       error={emailError.error && true}
                       helperText={emailError.error && emailError.message}
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -497,6 +500,7 @@ export default function SignUp() {
                       onChange={onChangePassword}
                       error={passwordError.error && true}
                       helperText={passwordError.error && passwordError.message}
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -516,6 +520,7 @@ export default function SignUp() {
                         reenterPasswordError.error &&
                         reenterPasswordError.message
                       }
+                      size="small"
                     />
                   </Grid>
                 </Grid>
