@@ -529,6 +529,7 @@ export default function SignUp() {
                     disabled
                     onClick={handleBack}
                     className={classes.button}
+                    size="small"
                   >
                     Back
                   </Button>
@@ -537,6 +538,7 @@ export default function SignUp() {
                     color="primary"
                     onClick={handlePersonalNext}
                     className={classes.button}
+                    size="small"
                   >
                     Next
                   </Button>
@@ -588,6 +590,7 @@ export default function SignUp() {
                       error={clientIdError.error && true}
                       helperText={clientIdError.error && clientIdError.message}
                       value={clientId}
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -604,6 +607,7 @@ export default function SignUp() {
                         clientSecretError.error && clientSecretError.message
                       }
                       value={clientSecret}
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -620,11 +624,12 @@ export default function SignUp() {
                         refreshTokenError.error && refreshTokenError.message
                       }
                       value={refreshToken}
+                      size="small"
                     />
                   </Grid>
                 </Grid>
                 <Grid container justify="flex-end">
-                  <Button onClick={handleBack} className={classes.button}>
+                  <Button onClick={handleBack} className={classes.button} size="small">
                     Back
                   </Button>
                   <Button
@@ -632,6 +637,7 @@ export default function SignUp() {
                     color="primary"
                     onClick={handleStravaNext}
                     className={classes.button}
+                    size="small"
                   >
                     Next
                   </Button>
@@ -656,9 +662,9 @@ export default function SignUp() {
 
                 <Grid container justify="flex-end">
                   <Button
-                    disabled={activeStep === 0}
                     onClick={handleBack}
                     className={classes.button}
+                    size="small"
                   >
                     Back
                   </Button>
@@ -667,6 +673,7 @@ export default function SignUp() {
                     color="primary"
                     onClick={handleCreateAccount}
                     className={classes.button}
+                    size="small"
                   >
                     Create Account
                   </Button>

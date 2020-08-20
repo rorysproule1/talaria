@@ -17,6 +17,7 @@ import { Redirect } from "react-router-dom";
 import * as strings from "./strings";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -162,12 +163,12 @@ export default function SignInSide() {
     setPassword(e.target.value);
   }
 
-  function onPasswordVisibleEnter() {
-    setPasswordVisible(true);
-  }
-
-  function onPasswordVisibleLeave() {
-    setPasswordVisible(false);
+  function onPasswordClick() {
+    if (passwordVisible) {
+      setPasswordVisible(false);
+    } else {
+      setPasswordVisible(true);
+    }
   }
 
   return (
@@ -215,11 +216,17 @@ export default function SignInSide() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment>
-                    <VisibilityIcon
-                      color="disabled"
-                      onMouseEnter={onPasswordVisibleEnter}
-                      onMouseLeave={onPasswordVisibleLeave}
-                    />
+                    {passwordVisible ?
+                      <VisibilityIcon
+                        color="disabled"
+                        onClick={onPasswordClick}
+                      />
+                      :
+                      <VisibilityOffIcon
+                        color="disabled"
+                        onClick={onPasswordClick}
+                      />
+                    }
                   </InputAdornment>
                 ),
               }}
