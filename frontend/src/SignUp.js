@@ -20,6 +20,11 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import axios from "axios";
+import MuiAlert from "@material-ui/lab/Alert";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function Copyright() {
   return (
@@ -71,6 +76,7 @@ export default function SignUp() {
   const classes = useStyles();
 
   const [activeStep, setActiveStep] = useState(0);
+  const [accountCreated, setAccountCreated] = useState(false);
 
   const [personalDetailsError, setPersonalDetailsError] = useState(false);
   const [firstName, setFirstName] = useState(null);
@@ -407,24 +413,23 @@ export default function SignUp() {
 
   function handleCreateAccount() {
     if (!personalDetailsError && !stravaDetailsError) {
-      axios.get(`/email`, {
-        params: {
-          email: email,
-          name: firstName
-        }
-      })
-      .then((response) => {
-        console.log(response)
-
-      })
-      .catch((error) => {
-        console.log('Error while sending email')
-        console.log(error)
-      })
+      // axios
+      //   .get(`/email`, {
+      //     params: {
+      //       email: email,
+      //       name: firstName,
+      //     },
+      //   })
+      //   .then((response) => {
+      //     console.log(response);
+      //   })
+      //   .catch((error) => {
+      //     console.log("Error while sending email");
+      //     console.log(error);
+      //   });
+      setAccountCreated(true);
     }
   }
-    
-  
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -563,6 +568,7 @@ export default function SignUp() {
                     Next
                   </Button>
                 </Grid>
+                <br></br>
               </StepContent>
             </Step>
 
@@ -649,7 +655,11 @@ export default function SignUp() {
                   </Grid>
                 </Grid>
                 <Grid container justify="flex-end">
-                  <Button onClick={handleBack} className={classes.button} size="small">
+                  <Button
+                    onClick={handleBack}
+                    className={classes.button}
+                    size="small"
+                  >
                     Back
                   </Button>
                   <Button
@@ -664,7 +674,6 @@ export default function SignUp() {
                 </Grid>
               </StepContent>
             </Step>
-
             <Step>
               <StepLabel>Summary</StepLabel>
               <StepContent>
@@ -698,6 +707,17 @@ export default function SignUp() {
                     Create Account
                   </Button>
                 </Grid>
+                <br></br>
+                {accountCreated && (
+                  <Alert severity="success">
+                    Your account was created successfully!{" "}
+                    <Link
+                      href="/"
+                    >
+                      Click here to sign in
+                    </Link>
+                  </Alert>
+                )}
               </StepContent>
             </Step>
             <Box mt={5}>
