@@ -122,7 +122,7 @@ export default function SignUp() {
 
   function validateEmail() {
     // ensure an email is entered
-    if (email === null || email == "") {
+    if (email === null || email === "") {
       setEmailError({
         ...emailError,
         error: true,
@@ -153,7 +153,7 @@ export default function SignUp() {
 
   function validatePassword() {
     // ensure a password is entered
-    if (password === null || password == "") {
+    if (password === null || password === "") {
       setPasswordError({
         ...passwordError,
         error: true,
@@ -163,7 +163,7 @@ export default function SignUp() {
     }
 
     // ensure a valid password is entered (7-15 characters with 1 number and 1 special character)
-    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
+    const passwordRegex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
     if (!password.match(passwordRegex)) {
       setPasswordError({
         ...passwordError,
@@ -184,7 +184,7 @@ export default function SignUp() {
 
   function validateReenterPassword() {
     // ensure a second password is entered
-    if (reenterPassword === null || reenterPassword == "") {
+    if (reenterPassword === null || reenterPassword === "") {
       setReenterPasswordError({
         ...reenterPasswordError,
         error: true,
@@ -194,7 +194,7 @@ export default function SignUp() {
     }
 
     // ensure a both entered passwords match
-    if (password != reenterPassword) {
+    if (password !== reenterPassword) {
       setReenterPasswordError({
         ...reenterPassword,
         error: true,
@@ -214,7 +214,7 @@ export default function SignUp() {
 
   function validateFirstName() {
     // ensure a first name is entered
-    if (firstName === null || firstName == "") {
+    if (firstName === null || firstName === "") {
       setFirstNameError({
         ...firstNameError,
         error: true,
@@ -245,7 +245,7 @@ export default function SignUp() {
 
   function validateLastName() {
     // ensure a last name is entered
-    if (lastName === null || lastName == "") {
+    if (lastName === null || lastName === "") {
       setLastNameError({
         ...lastNameError,
         error: true,
@@ -276,7 +276,7 @@ export default function SignUp() {
 
   function validateClientId() {
     // ensure a client id is entered
-    if (clientId === null || clientId == "") {
+    if (clientId === null || clientId === "") {
       setClientIdError({
         ...clientIdError,
         error: true,
@@ -307,7 +307,7 @@ export default function SignUp() {
 
   function validateClientSecret() {
     // ensure a client secret is entered
-    if (clientSecret === null || clientSecret == "") {
+    if (clientSecret === null || clientSecret === "") {
       setClientSecretError({
         ...clientSecretError,
         error: true,
@@ -327,7 +327,7 @@ export default function SignUp() {
 
   function validateRefreshToken() {
     // ensure a refresh token is entered
-    if (refreshToken === null || refreshToken == "") {
+    if (refreshToken === null || refreshToken === "") {
       setRefreshTokenError({
         ...refreshTokenError,
         error: true,
@@ -711,11 +711,7 @@ export default function SignUp() {
                 {accountCreated && (
                   <Alert severity="success">
                     Your account was created successfully!{" "}
-                    <Link
-                      href="/"
-                    >
-                      Click here to sign in
-                    </Link>
+                    <Link href="/">Click here to sign in</Link>
                   </Alert>
                 )}
               </StepContent>

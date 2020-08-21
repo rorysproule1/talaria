@@ -84,7 +84,7 @@ export default function SignInSide() {
 
   function validateEmail() {
     // ensure an email is entered
-    if (email === null || email == "") {
+    if (email === null || email === "") {
       setEmailError({
         ...emailError,
         error: true,
@@ -115,7 +115,7 @@ export default function SignInSide() {
 
   function validatePassword() {
     // ensure a password is entered
-    if (password === null || password == "") {
+    if (password === null || password === "") {
       setPasswordError({
         ...passwordError,
         error: true,
@@ -125,7 +125,7 @@ export default function SignInSide() {
     }
 
     // ensure a valid password is entered (7-15 characters with 1 number and 1 special character)
-    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
+    const passwordRegex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
     if (!password.match(passwordRegex)) {
       setPasswordError({
         ...passwordError,
@@ -216,17 +216,17 @@ export default function SignInSide() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment>
-                    {passwordVisible ?
+                    {passwordVisible ? (
                       <VisibilityIcon
                         color="disabled"
                         onClick={onPasswordClick}
                       />
-                      :
+                    ) : (
                       <VisibilityOffIcon
                         color="disabled"
                         onClick={onPasswordClick}
                       />
-                    }
+                    )}
                   </InputAdornment>
                 ),
               }}
@@ -267,7 +267,7 @@ export default function SignInSide() {
         </div>
       </Grid>
 
-      {credentialsError == false && (
+      {credentialsError === false && (
         <Redirect
           to={{
             pathname: "/dashboard",

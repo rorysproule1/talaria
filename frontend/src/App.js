@@ -3,7 +3,7 @@ import "./App.css";
 import axios from "axios";
 import SignInSide from "./SignIn";
 import Dashboard from "./Dashboard";
-import { BrowserRouter as Switch, Route, Redirect } from "react-router-dom";
+import { BrowserRouter as Switch, Route } from "react-router-dom";
 import SignUp from "./SignUp";
 
 function App() {
