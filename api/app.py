@@ -38,7 +38,8 @@ def index():
 
 @app.route('/test')
 def test():
-    return config('TALARIA_EMAIL')
+    email = request.args.get('email', 'not found')
+    return email
 
 @app.route('/time')
 def get_current_time():
@@ -51,7 +52,10 @@ def send_email():
 
     sender_email = str(config('TALARIA_EMAIL'))
     password = str(config('TALARIA_PASSWORD'))
-    receiver_email = "rory.sproule@outlook.com"
+    receiver_email = request.args.get('email')
+    name = request.args.get('name')
+
+    print(name)
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Account created successfully!"
@@ -67,14 +71,19 @@ def send_email():
     html = """\
     <html>
     <body>
-        <p>Hi,<br>
-        How are you?<br>
-        <a href="http://www.realpython.com">Real Python</a> 
-        has many great tutorials.
+        <p>Hi there {name}<br><br>
+        Thank you for signing up to Talaria!<br><br>
+        We hope we can help you smash whatever goals you are aspiring for.<br>
+        So ... what are we waiting for?
+        <a href="http://localhost:3000">Let's get started!</a> 
         </p>
+
+        <p>
+        Sincerely, the Talaria team.
+        </p
     </body>
     </html>
-    """
+    """.format(name=name)
 
     # Turn these into plain/html MIMEText objects
     part1 = MIMEText(text, "plain")
@@ -87,8 +96,11 @@ def send_email():
 
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        print(f"Logging into notifications email account ...")
         server.login(sender_email, password)
+        print(f"Sending email to {receiver_email} ...")
         server.sendmail(sender_email, receiver_email, message.as_string())
+        print(f"Sent email to {receiver_email} ...")
 
     return Response(status=200)
     

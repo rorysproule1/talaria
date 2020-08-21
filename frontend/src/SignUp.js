@@ -19,6 +19,7 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import axios from "axios";
 
 function Copyright() {
   return (
@@ -404,7 +405,26 @@ export default function SignUp() {
     }
   }
 
-  function handleCreateAccount() {}
+  function handleCreateAccount() {
+    if (!personalDetailsError && !stravaDetailsError) {
+      axios.get(`/email`, {
+        params: {
+          email: email,
+          name: firstName
+        }
+      })
+      .then((response) => {
+        console.log(response)
+
+      })
+      .catch((error) => {
+        console.log('Error while sending email')
+        console.log(error)
+      })
+    }
+  }
+    
+  
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);

@@ -11,15 +11,15 @@ function App() {
   const [allActivities, setAllActivities] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`/activities`, {})
-      .then((response) => {
-        console.log(response.data["activities"]);
-        setAllActivities(response.data["activities"]);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    // axios
+    //   .get(`/activities`, {})
+    //   .then((response) => {
+    //     console.log(response.data["activities"]);
+    //     setAllActivities(response.data["activities"]);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
 
     // axios.post(`/users`, data, {})
     //   .then((response) => {
