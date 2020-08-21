@@ -64,10 +64,11 @@ def send_email():
 
     # Create the plain-text and HTML version of your message
     text = """\
-    Hi,
-    How are you?
-    Real Python has many great tutorials:
-    www.realpython.com"""
+    Hi there!
+    Thank you for signing up to Talaria!
+    We hope we can help you smash whatever goals you are aspiring for.
+    So ... what are we waiting for?
+    Let's get started - http://localhost:3000"""
     html = """\
     <html>
     <body>
@@ -77,7 +78,6 @@ def send_email():
         So ... what are we waiting for?
         <a href="http://localhost:3000">Let's get started!</a> 
         </p>
-
         <p>
         Sincerely, the Talaria team.
         </p
