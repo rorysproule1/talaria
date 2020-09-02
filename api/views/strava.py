@@ -21,7 +21,7 @@ def get_activities():
     print('\nRequesting athlete activities ...\n')
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
 
-    return {"activities": response.json()}
+    return {"activities": response.json()[0]}
 
 @strava.route('/authorize')
 def get_access_token():
@@ -59,3 +59,36 @@ def check_for_new_access_token():
         return get_access_token()["access_token"]
     else: 
         return config('STRAVA_ACCESS_TOKEN')
+
+@strava.route('/averages')
+def get_averages():
+    
+    access_token = check_for_new_access_token()
+    
+    header = {'Authorization': f"Bearer {access_token}"}
+    params = {'per_page': 100, 'page': 1}
+ 
+    # get all athlete activities from strava api
+    print('\nRequesting athlete activities ...\n')
+    response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
+
+    average_distance = 0
+    total_runs = 0
+    average_moving_time = 0
+    
+    for activity in response.json():
+        if activity["type"] == "Run":
+            average_distance = average_distance + activity["distance"]
+            average_moving_time = average_moving_time + activity["moving_time"]
+            total_runs += 1
+
+    total_distance = average_distance
+    average_distance = average_distance / total_runs
+    average_moving_time = average_moving_time / total_runs
+
+    return {
+        "average_moving_time": average_moving_time / 60,
+        "average_distance": average_distance, 
+        "total_runs": total_runs,
+        "total_distance": total_distance
+        }

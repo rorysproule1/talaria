@@ -55,8 +55,6 @@ def send_email():
     receiver_email = request.args.get('email')
     name = request.args.get('name')
 
-    print(name)
-
     message = MIMEMultipart("alternative")
     message["Subject"] = "Account created successfully!"
     message["From"] = sender_email
