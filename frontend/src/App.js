@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import SignInSide from "./SignIn";
-import Dashboard from "./Dashboard";
+import SignInSide from "./SignIn/SignIn";
+import Dashboard from "./Dashboard/Dashboard";
 import { BrowserRouter as Switch, Route } from "react-router-dom";
-import SignUp from "./SignUp";
+import SignUp from "./SignUp/SignUp";
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -42,9 +42,9 @@ function App() {
     <main>
       {/* Full list of URLs used in the app */}
       <Switch>
-        <Route exact path="/" component={SignInSide} />
+        <Route exact path="/" component={Dashboard} />
         <Route exact path="/sign-up" component={SignUp} />
-        <Route exact path="/dashboard" component={Dashboard} />
+        <Route exact path="/sign-in" component={SignInSide} />
       </Switch>
     </main>
   );

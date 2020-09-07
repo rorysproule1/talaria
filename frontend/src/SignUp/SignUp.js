@@ -14,7 +14,7 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import StepContent from "@material-ui/core/StepContent";
-import * as strings from "./strings";
+import * as strings from "../strings";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -711,7 +711,7 @@ export default function SignUp() {
                 {accountCreated && (
                   <Alert severity="success">
                     Your account was created successfully!{" "}
-                    <Link href="/">Click here to sign in</Link>
+                    <Link href="/sign-in">Click here to sign in</Link>
                   </Alert>
                 )}
               </StepContent>
