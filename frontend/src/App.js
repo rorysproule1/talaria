@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
 import axios from "axios";
 import SignInSide from "./SignIn/SignIn";
 import Dashboard from "./Dashboard/Dashboard";
