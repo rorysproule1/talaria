@@ -18,6 +18,7 @@ import * as strings from "../strings";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import axios from "axios";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -82,6 +83,8 @@ export default function SignInSide() {
   const [credentialsError, setCredentialsError] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+  const [authUrl, setAuthUrl] = useState(null);
+
   function validateEmail() {
     // ensure an email is entered
     if (email === null || email === "") {
@@ -145,14 +148,25 @@ export default function SignInSide() {
   }
 
   function onClickHandler(e) {
-    var validPassword = validatePassword();
-    var validEmail = validateEmail();
+    // var validPassword = validatePassword();
+    // var validEmail = validateEmail();
 
-    if (validEmail && validPassword) {
-      setCredentialsError(false);
-    } else {
-      setCredentialsError(true);
-    }
+    // if (validEmail && validPassword) {
+    //   setCredentialsError(false);
+    // } else {
+    //   setCredentialsError(true);
+    // }
+
+    setAuthUrl('https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000&response_type=code&scope=activity:read_all')
+    // axios
+    //   .get(auth, {})
+    //   .then((response) => {
+    //     console.log(response.config["url"]);
+    //     setAuthUrl(response.config["url"])
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   }
 
   function emailOnChangeHandler(e) {
@@ -270,9 +284,13 @@ export default function SignInSide() {
       {credentialsError === false && (
         <Redirect
           to={{
-            pathname: "/",
+            pathname: 'https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000&response_type=code&scope=activity:read_all',
           }}
         />
+      )}
+
+      {authUrl && (
+        window.location = authUrl
       )}
     </Grid>
   );

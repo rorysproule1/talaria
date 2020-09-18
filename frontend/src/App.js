@@ -9,7 +9,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [allActivities, setAllActivities] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => {  
     // axios
     //   .get(`/activities`, {})
     //   .then((response) => {
