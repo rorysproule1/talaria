@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -13,21 +13,23 @@ import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Box from "@material-ui/core/Box";
 import AssignmentIcon from "@material-ui/icons/Assignment";
-import TimelineIcon from '@material-ui/icons/Timeline';
-import CreateIcon from '@material-ui/icons/Create';
+import TimelineIcon from "@material-ui/icons/Timeline";
+import CreateIcon from "@material-ui/icons/Create";
+import powered_by_strava from "./powered_by_strava.png";
+import strava_connect from "./btn_strava_connect.png";
+import talaria_logo from "./logo-talaria.png";
+import talaria_logo_circle from "./logo-talaria-circle.png";
 
 function Copyright() {
   return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Talaria
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
+    <p align="center">
+      <img
+        src={powered_by_strava}
+        style={({ height: "96px" }, { width: "144px" })}
+        class="center"
+      />
+    </p>
   );
 }
 
@@ -38,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
       listStyle: "none",
     },
+  },
+  logo: {
+    width: "36px",
+    marginRight: "10px",
   },
   appBar: {
     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -94,7 +100,7 @@ const tiers = [
       "Using your Strava run data,",
       "we keep track of which runs you",
       "are doing and how you are",
-      "finding them",
+      "finding them.",
     ],
   },
   {
@@ -107,38 +113,19 @@ const tiers = [
     ],
   },
 ];
-const footers = [
-  {
-    title: "Company",
-    description: ["Team", "History", "Contact us", "Locations"],
-  },
-  {
-    title: "Features",
-    description: [
-      "Cool stuff",
-      "Random feature",
-      "Team feature",
-      "Developer stuff",
-      "Another one",
-    ],
-  },
-  {
-    title: "Resources",
-    description: [
-      "Resource",
-      "Resource name",
-      "Another resource",
-      "Final resource",
-    ],
-  },
-  {
-    title: "Legal",
-    description: ["Privacy policy", "Terms of use"],
-  },
-];
 
 export default function Login() {
   const classes = useStyles();
+  const authUrl =
+    "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
+  const [connectToStrava, setConnectToStrava] = useState(false);
+
+  function onClickHandler(e) {
+    setConnectToStrava(true);
+
+    // redirect to Strava oAuth
+    window.location.href = authUrl;
+  }
 
   return (
     <React.Fragment>
@@ -150,22 +137,25 @@ export default function Login() {
         className={classes.appBar}
       >
         <Toolbar className={classes.toolbar}>
+          <img
+            src={talaria_logo_circle}
+            className={classes.logo}
+          />
           <Typography
             variant="h6"
             color="inherit"
             noWrap
             className={classes.toolbarTitle}
           >
-            Talaria - Running Training Planner
+            <b>Talaria - Running Training Planner</b>
           </Typography>
-          <Button
-            href="#"
-            color="primary"
-            variant="outlined"
-            className={classes.link}
-          >
-            Login
-          </Button>
+          <input
+            type="image"
+            id="strava-connect"
+            style={({ height: "96px" }, { width: "144px" })}
+            src={strava_connect}
+            onClick={onClickHandler}
+          />
         </Toolbar>
       </AppBar>
       {/* Hero unit */}
@@ -213,13 +203,13 @@ export default function Login() {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     {tier.title === "Plan" && (
-                      <CreateIcon fontSize="large" color="secondary"/>
+                      <CreateIcon fontSize="large" color="secondary" />
                     )}
                     {tier.title === "Track" && (
-                      <AssignmentIcon fontSize="large" color="secondary"/>
+                      <AssignmentIcon fontSize="large" color="secondary" />
                     )}
                     {tier.title === "Analyse" && (
-                      <TimelineIcon fontSize="large" color="secondary"/>
+                      <TimelineIcon fontSize="large" color="secondary" />
                     )}
                   </div>
                   <ul>
@@ -235,15 +225,6 @@ export default function Login() {
                     ))}
                   </ul>
                 </CardContent>
-                <CardActions>
-                  <Button
-                    fullWidth
-                    variant={tier.buttonVariant}
-                    color="primary"
-                  >
-                    {tier.buttonText}
-                  </Button>
-                </CardActions>
               </Card>
             </Grid>
           ))}
@@ -251,27 +232,7 @@ export default function Login() {
       </Container>
       {/* Footer */}
       <Container maxWidth="md" component="footer" className={classes.footer}>
-        <Grid container spacing={4} justify="space-evenly">
-          {footers.map((footer) => (
-            <Grid item xs={6} sm={3} key={footer.title}>
-              <Typography variant="h6" color="textPrimary" gutterBottom>
-                {footer.title}
-              </Typography>
-              <ul>
-                {footer.description.map((item) => (
-                  <li key={item}>
-                    <Link href="#" variant="subtitle1" color="textSecondary">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </Grid>
-          ))}
-        </Grid>
-        <Box mt={5}>
-          <Copyright />
-        </Box>
+        <Copyright />
       </Container>
       {/* End footer */}
     </React.Fragment>
