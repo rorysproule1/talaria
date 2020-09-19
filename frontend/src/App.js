@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SignInSide from "./SignIn/SignIn";
 import Dashboard from "./Dashboard/Dashboard";
+import LogIn from "./LogIn/LogIn";
 import { BrowserRouter as Switch, Route } from "react-router-dom";
 import SignUp from "./SignUp/SignUp";
 
@@ -42,6 +43,7 @@ function App() {
       {/* Full list of URLs used in the app */}
       <Switch>
         <Route exact path="/" component={Dashboard} />
+        <Route exact path="/login" component={LogIn} />
         <Route exact path="/sign-up" component={SignUp} />
         <Route exact path="/sign-in" component={SignInSide} />
       </Switch>
