@@ -91,6 +91,7 @@ const tiers = [
       "for anything from your first 5km",
       "to striving for a sub 3 hour ",
       "marathon!",
+      "_____",
     ],
   },
   {
@@ -100,6 +101,7 @@ const tiers = [
       "we keep track of which runs you",
       "are doing and how you are",
       "finding them.",
+      "_____",
     ],
   },
   {
@@ -109,6 +111,7 @@ const tiers = [
       "We continually analyse your",
       "runs and adapt the plan if",
       "necessary.",
+      "_____",
     ],
   },
 ];
@@ -119,45 +122,61 @@ export default function Login() {
     "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
   const [connectToStrava, setConnectToStrava] = useState(false);
 
-  useEffect(() => {  
+  useEffect(() => {
     var url_string = window.location.href;
     var url = new URL(url_string);
     var code = url.searchParams.get("code");
     var scope = url.searchParams.get("scope");
 
     if (code && scope.includes("activity:read_all")) {
-      const token_url = "https://www.strava.com/oauth/token"
+      const token_url = "https://www.strava.com/oauth/token";
       const post_data = {
         client_id: 52053,
         client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
         code: code,
         grant_type: "authorization_code",
-      }
+      };
 
-      axios.post(token_url, post_data, {})
-      .then((response) => {
-        console.log(response.data)
-        var access_token = response.data["access_token"]
-        var refresh_token = response.data["refresh_token"]
-        var currentDate = new Date()
-        currentDate.setSeconds(currentDate.getSeconds() + response.data["expires_in"])
-        var expires_at = currentDate
+      axios
+        .post(token_url, post_data, {})
+        .then((response) => {
+          // to prevent excessive polling of the strava api, we store the time and date that the access token
+          // expires at and check it before using the api
+          var currentDate = new Date();
+          currentDate.setSeconds(
+            currentDate.getSeconds() + response.data["expires_in"]
+          );
+          var expires_at = currentDate;
 
-        var athlete_id = response.data["athlete"]["id"]
-        var first_name = response.data["athlete"]["firstname"]
-        var last_name = response.data["athlete"]["lastname"]
-        var sex = response.data["athlete"]["sex"]
+          var response_data = {
+            access_token: response.data["access_token"],
+            refresh_token: response.data["refresh_token"],
+            expires_at: expires_at,
+            athlete_id: response.data["athlete"]["id"],
+            first_name: response.data["athlete"]["firstname"],
+            last_name: response.data["athlete"]["lastname"],
+            sex: response.data["athlete"]["sex"],
+          }
 
-        console.log(access_token + "\n" + refresh_token + "\n" + expires_at)
-        console.log(athlete_id + "\n" + first_name + "\n" + last_name)
-      })
-      .catch((error) => {
-        console.error('Error while posting for token')
-        console.log(error)
-      })
+          console.log(response_data);
+
+          // we then need to post this data to our api and store it
+          axios
+            .post(token_url, post_data, {})
+            .then((response) => {
+              console.log(response.data);
+            })
+            .catch((error) => {
+              console.error("Error while posting for tokens");
+              console.log(error);
+            });
+
+        })
+        .catch((error) => {
+          console.error("Error while posting for authorization code");
+          console.log(error);
+        });
     }
-    
-
   }, []); // empty list to ensure code is only executed on initial loading of the page
 
   function onClickHandler(e) {
@@ -177,10 +196,7 @@ export default function Login() {
         className={classes.appBar}
       >
         <Toolbar className={classes.toolbar}>
-          <img
-            src={talaria_logo_circle}
-            className={classes.logo}
-          />
+          <img src={talaria_logo_circle} className={classes.logo} />
           <Typography
             variant="h6"
             color="inherit"
