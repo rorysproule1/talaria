@@ -14,29 +14,17 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import StepContent from "@material-ui/core/StepContent";
-import * as strings from "../strings";
+import * as strings from "../assets/strings/strings";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import axios from "axios";
 import MuiAlert from "@material-ui/lab/Alert";
+import Copyright from "../assets/js/Copyright";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Talaria
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
 }
 
 const useStyles = makeStyles((theme) => ({

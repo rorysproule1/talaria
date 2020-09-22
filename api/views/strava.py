@@ -9,6 +9,23 @@ from flask import Blueprint, Flask, request
 
 strava = Blueprint("strava", __name__)
 
+@strava.route("/athlete-credentials", methods=['POST'])
+def store_athlete_credentials():
+    post_data = request.get_json()
+
+    athlete_id = post_data["athlete_id"]
+
+    # "access_token": response.data["access_token"],
+    # "refresh_token": response.data["refresh_token"],
+    # expires_at: expires_at,
+    # athlete_id: response.data["athlete"]["id"],
+    # first_name: response.data["athlete"]["firstname"],
+    # last_name: response.data["athlete"]["lastname"],
+    # sex: response.data["athlete"]["sex"],
+
+    return {
+        "data": athlete_id,
+    }
 
 @strava.route("/activities")
 def get_activities():
@@ -22,7 +39,7 @@ def get_activities():
     print("\nRequesting athlete activities ...\n")
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
 
-    return {"activities": response.json()[0]}
+    return {"activities": response.json()}
 
 
 @strava.route("/authorize")

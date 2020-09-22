@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppBar from "@material-ui/core/AppBar";
-import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -10,78 +8,15 @@ import Grid from "@material-ui/core/Grid";
 import StarIcon from "@material-ui/icons/StarBorder";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import CreateIcon from "@material-ui/icons/Create";
-import powered_by_strava from "../assets/images/powered_by_strava.png";
 import strava_connect from "../assets/images/btn_strava_connect.png";
 import talaria_logo_circle from "../assets/images/logo-talaria-circle.png";
 import axios from "axios";
-
-function Copyright() {
-  return (
-    <p align="center">
-      <img
-        src={powered_by_strava}
-        style={({ height: "96px" }, { width: "144px" })}
-        class="center"
-      />
-    </p>
-  );
-}
-
-const useStyles = makeStyles((theme) => ({
-  "@global": {
-    ul: {
-      margin: 0,
-      padding: 0,
-      listStyle: "none",
-    },
-  },
-  logo: {
-    width: "36px",
-    marginRight: "10px",
-  },
-  appBar: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
-  },
-  toolbar: {
-    flexWrap: "wrap",
-  },
-  toolbarTitle: {
-    flexGrow: 1,
-  },
-  link: {
-    margin: theme.spacing(1, 1.5),
-  },
-  heroContent: {
-    padding: theme.spacing(8, 0, 6),
-  },
-  cardHeader: {
-    backgroundColor:
-      theme.palette.type === "light"
-        ? theme.palette.grey[200]
-        : theme.palette.grey[700],
-  },
-  cardPricing: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "baseline",
-    marginBottom: theme.spacing(2),
-  },
-  footer: {
-    borderTop: `1px solid ${theme.palette.divider}`,
-    marginTop: theme.spacing(8),
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-    [theme.breakpoints.up("sm")]: {
-      paddingTop: theme.spacing(6),
-      paddingBottom: theme.spacing(6),
-    },
-  },
-}));
+import Copyright from "../assets/js/Copyright";
+import useStyles from "./CSS/LogInCSS"
 
 const tiers = [
   {
@@ -120,7 +55,6 @@ export default function Login() {
   const classes = useStyles();
   const authUrl =
     "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
-  const [connectToStrava, setConnectToStrava] = useState(false);
 
   useEffect(() => {
     var url_string = window.location.href;
@@ -156,21 +90,20 @@ export default function Login() {
             first_name: response.data["athlete"]["firstname"],
             last_name: response.data["athlete"]["lastname"],
             sex: response.data["athlete"]["sex"],
-          }
+          };
 
           console.log(response_data);
 
           // we then need to post this data to our api and store it
           axios
-            .post(token_url, post_data, {})
+            .post("/athlete-credentials", response_data, {})
             .then((response) => {
               console.log(response.data);
             })
             .catch((error) => {
-              console.error("Error while posting for tokens");
+              console.error("Error while posting tokens");
               console.log(error);
             });
-
         })
         .catch((error) => {
           console.error("Error while posting for authorization code");
@@ -180,7 +113,7 @@ export default function Login() {
   }, []); // empty list to ensure code is only executed on initial loading of the page
 
   function onClickHandler(e) {
-    setConnectToStrava(true);
+
 
     // redirect to Strava oAuth
     window.location.href = authUrl;
