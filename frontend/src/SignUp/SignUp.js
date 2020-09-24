@@ -444,7 +444,7 @@ export default function SignUp() {
           <Stepper activeStep={activeStep} orientation="vertical">
             <Step>
               <StepLabel error={personalDetailsError && true}>
-                Personal details
+                Distance
               </StepLabel>
               <StepContent>
                 <Grid container spacing={2}>
@@ -562,7 +562,7 @@ export default function SignUp() {
 
             <Step>
               <StepLabel error={stravaDetailsError && true}>
-                Strava details
+                Goal Type
               </StepLabel>
               <StepContent>
                 <Accordion>
@@ -663,7 +663,7 @@ export default function SignUp() {
               </StepContent>
             </Step>
             <Step>
-              <StepLabel>Summary</StepLabel>
+              <StepLabel>Runs Per Week</StepLabel>
               <StepContent>
                 <Typography variant="caption">
                   Name: {firstName} {lastName}
@@ -695,14 +695,12 @@ export default function SignUp() {
                     Create Account
                   </Button>
                 </Grid>
-                <br></br>
-                {accountCreated && (
-                  <Alert severity="success">
-                    Your account was created successfully!{" "}
-                    <Link href="/sign-in">Click here to sign in</Link>
-                  </Alert>
-                )}
               </StepContent>
+            </Step>
+            <Step>
+              <StepLabel error={stravaDetailsError && true}>
+                Goal Date
+              </StepLabel>
             </Step>
             <Box mt={5}>
               <Copyright />

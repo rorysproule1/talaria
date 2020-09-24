@@ -10,8 +10,8 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-import AddressForm from './AddressForm';
-import PaymentForm from './PaymentForm';
+import DistanceForm from './DistanceForm';
+import PlanTypeForm from './PlanTypeForm';
 import Review from './Review.js';
 import Copyright from "../assets/js/Copyright";
 
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   stepper: {
-    padding: theme.spacing(3, 0, 5),
+    padding: theme.spacing(3, 0, 2),
   },
   buttons: {
     display: 'flex',
@@ -52,22 +52,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const steps = ['Shipping address', 'Payment details', 'Review your order', "hi", "hi"];
+const steps = ['Distance', 'Plan Type', 'Runs p/w', "End Date", "Misc", "Summary"];
 
 function getStepContent(step) {
   switch (step) {
     case 0:
-      return <AddressForm />;
+      return <DistanceForm />;
     case 1:
-      return <PaymentForm />;
+      return <PlanTypeForm />;
     case 2:
+      return <Review />;
+    case 3:
+      return <Review />;
+    case 4:
+      return <Review />;
+    case 5:
+        return <Review />;
+    case 6:
       return <Review />;
     default:
       throw new Error('Unknown step');
   }
 }
 
-export default function Checkout() {
+export default function CreatePlan() {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
 
@@ -92,15 +100,16 @@ export default function Checkout() {
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
-            Create Running Plan
+            Create Training Plan
           </Typography>
-          <Stepper activeStep={activeStep} className={classes.stepper} orientation="vertical">
+          <Stepper activeStep={activeStep} className={classes.stepper} >
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
+          <hr></hr>
           <React.Fragment>
             {activeStep === steps.length ? (
               <React.Fragment>
