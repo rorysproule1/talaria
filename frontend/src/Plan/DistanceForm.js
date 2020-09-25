@@ -26,7 +26,7 @@ const cards = [
   {
     title: "Half Marathon",
     photo: "https://source.unsplash.com/random?half-marathon",
-    description: "Endurance running at it's best, brilliant goal to aim for whether it's just finishing or aiming for a fast time."
+    description: "Endurance running at it's best, brilliant goal to aim for whether it's just finishing or aiming for an impressive time."
   },
   {
     title: "Marathon",
@@ -37,7 +37,7 @@ const cards = [
 
 const useStyles = makeStyles((theme) => ({
   cardGrid: {
-    paddingTop: theme.spacing(2),
+    paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(2),
   },
   card: {
@@ -57,9 +57,9 @@ export default function DistanceForm() {
   const classes = useStyles();
   return (
     <React.Fragment>
-      <Typography variant="h6" gutterBottom>
+      {/* <Typography variant="h6" gutterBottom>
         Please select a distance for your plan:
-      </Typography>
+      </Typography> */}
 
       <Grid container spacing={3}>
       <Container className={classes.cardGrid} maxWidth="md">

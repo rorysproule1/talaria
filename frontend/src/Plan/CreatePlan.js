@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-      width: 600,
+      width: 800,
       marginLeft: 'auto',
       marginRight: 'auto',
     },
@@ -109,7 +109,6 @@ export default function CreatePlan() {
               </Step>
             ))}
           </Stepper>
-          <hr></hr>
           <React.Fragment>
             {activeStep === steps.length ? (
               <React.Fragment>
@@ -130,14 +129,15 @@ export default function CreatePlan() {
                       Back
                     </Button>
                   )}
-                  <Button
+                  {activeStep !== 0 && <Button
                     variant="contained"
                     color="primary"
                     onClick={handleNext}
                     className={classes.button}
                   >
                     {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
-                  </Button>
+                  </Button>}
+                  
                 </div>
               </React.Fragment>
             )}
