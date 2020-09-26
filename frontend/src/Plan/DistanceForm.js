@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
@@ -11,6 +11,7 @@ import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
+import axios from "axios";
 
 const cards = [
   {
@@ -53,18 +54,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function DistanceForm() {
+export default function DistanceForm({access_token}) {
   const classes = useStyles();
+
+  const [accessToken, setAccessToken] = useState(access_token);
+
+  useEffect(() => {  
+    console.log(access_token)
+    axios
+      .get(`/strava-insights`, { params: { access_token: accessToken } })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []); // empty list to ensure code is only executed on initial loading of the page
+
   return (
     <React.Fragment>
+
       {/* <Typography variant="h6" gutterBottom>
         Please select a distance for your plan:
       </Typography> */}
 
       <Grid container spacing={3}>
       <Container className={classes.cardGrid} maxWidth="md">
-        {/* End hero unit */}
-        <Grid container spacing={4} auto>
+        <Grid container spacing={4}>
           {cards.map((card) => (
             <Grid item key={card} xs={16} sm={8} md={6}>
               <Card className={classes.card}>

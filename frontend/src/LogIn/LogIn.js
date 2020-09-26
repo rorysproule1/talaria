@@ -17,6 +17,8 @@ import talaria_logo_circle from "../assets/images/logo-talaria-circle.png";
 import axios from "axios";
 import Copyright from "../assets/js/Copyright";
 import useStyles from "./CSS/LogInCSS"
+import { Redirect } from "react-router-dom";
+import Link from "@material-ui/core/Link";
 
 const tiers = [
   {
@@ -56,6 +58,11 @@ export default function Login() {
   const authUrl =
     "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
 
+  const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
+
+  const [accessToken, setAccessToken] = useState();
+
+
   useEffect(() => {
     var url_string = window.location.href;
     var url = new URL(url_string);
@@ -91,8 +98,10 @@ export default function Login() {
             last_name: response.data["athlete"]["lastname"],
             sex: response.data["athlete"]["sex"],
           };
-
           console.log(response_data);
+
+          setAccessToken(response_data["access_token"])
+          setCredentialsAuthorized(true)
 
           // we then need to post this data to our api and store it
           axios
@@ -121,6 +130,14 @@ export default function Login() {
 
   return (
     <React.Fragment>
+      {credentialsAuthorized && (
+        <Redirect
+          to={{
+            pathname: '/create-plan',
+            state: { accessToken: accessToken }
+          }}
+        />
+      )}
       <CssBaseline />
       <AppBar
         position="static"

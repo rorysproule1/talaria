@@ -1,32 +1,32 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Paper from '@material-ui/core/Paper';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
-import Typography from '@material-ui/core/Typography';
-import DistanceForm from './DistanceForm';
-import PlanTypeForm from './PlanTypeForm';
-import Review from './Review.js';
+import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Paper from "@material-ui/core/Paper";
+import Stepper from "@material-ui/core/Stepper";
+import Step from "@material-ui/core/Step";
+import StepLabel from "@material-ui/core/StepLabel";
+import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
+import Typography from "@material-ui/core/Typography";
+import DistanceForm from "./DistanceForm";
+import PlanTypeForm from "./PlanTypeForm";
+import Review from "./Review.js";
 import Copyright from "../assets/js/Copyright";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    position: 'relative',
+    position: "relative",
   },
   layout: {
-    width: 'auto',
+    width: "auto",
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
       width: 800,
-      marginLeft: 'auto',
-      marginRight: 'auto',
+      marginLeft: "auto",
+      marginRight: "auto",
     },
   },
   paper: {
@@ -43,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3, 0, 2),
   },
   buttons: {
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
   },
   button: {
     marginTop: theme.spacing(3),
@@ -52,32 +52,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const steps = ['Distance', 'Plan Type', 'Runs p/w', "End Date", "Misc", "Summary"];
+const steps = [
+  "Distance",
+  "Plan Type",
+  "Runs p/w",
+  "End Date",
+  "Misc",
+  "Summary",
+];
 
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <DistanceForm />;
-    case 1:
-      return <PlanTypeForm />;
-    case 2:
-      return <Review />;
-    case 3:
-      return <Review />;
-    case 4:
-      return <Review />;
-    case 5:
-        return <Review />;
-    case 6:
-      return <Review />;
-    default:
-      throw new Error('Unknown step');
-  }
-}
-
-export default function CreatePlan() {
+export default function CreatePlan(props) {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [accessToken, setAccessToken] = useState(props.location.state.accessToken);
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -86,6 +74,27 @@ export default function CreatePlan() {
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return <DistanceForm access_token={accessToken} />;
+      case 1:
+        return <PlanTypeForm />;
+      case 2:
+        return <Review />;
+      case 3:
+        return <Review />;
+      case 4:
+        return <Review />;
+      case 5:
+        return <Review />;
+      case 6:
+        return <Review />;
+      default:
+        throw new Error("Unknown step");
+    }
+  }
 
   return (
     <React.Fragment>
@@ -102,7 +111,7 @@ export default function CreatePlan() {
           <Typography component="h1" variant="h4" align="center">
             Create Training Plan
           </Typography>
-          <Stepper activeStep={activeStep} className={classes.stepper} >
+          <Stepper activeStep={activeStep} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -116,8 +125,9 @@ export default function CreatePlan() {
                   Thank you for your order.
                 </Typography>
                 <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order confirmation, and will
-                  send you an update when your order has shipped.
+                  Your order number is #2001539. We have emailed your order
+                  confirmation, and will send you an update when your order has
+                  shipped.
                 </Typography>
               </React.Fragment>
             ) : (
@@ -129,15 +139,16 @@ export default function CreatePlan() {
                       Back
                     </Button>
                   )}
-                  {activeStep !== 0 && <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
-                  </Button>}
-                  
+                  {activeStep !== 0 && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleNext}
+                      className={classes.button}
+                    >
+                      {activeStep === steps.length - 1 ? "Place order" : "Next"}
+                    </Button>
+                  )}
                 </div>
               </React.Fragment>
             )}
