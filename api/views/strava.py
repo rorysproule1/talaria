@@ -34,8 +34,10 @@ def post_athlete_credentials():
 @strava.route("/strava-insights", methods=["GET"])
 def get_strava_insights():
 
-    # This endpoint is used to gather insights into an athlete's history on Strava
-    # to provide suggestions to the athlete when they are creating a new training plan
+    """
+    This endpoint is used to gather insights into an athlete's history on Strava
+    to provide suggestions to the athlete when they are creating a new training plan
+    """
 
     access_token = request.args.get("access_token")
     header = {"Authorization": f"Bearer {access_token}"}
@@ -44,6 +46,7 @@ def get_strava_insights():
     # get all athlete activities from strava api
     print("\nRequesting athlete activities ...\n")
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
+    print("\nReceived athlete activities!\n")
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
         False,
@@ -51,7 +54,15 @@ def get_strava_insights():
         False,
         False,
     )
-    fastest_5km, fastest_10km, fastest_half_marathon, fastest_marathon, total_runs = (
+    (
+        fastest_5km,
+        fastest_10km,
+        fastest_half_marathon,
+        fastest_marathon,
+        total_runs,
+        total_distance,
+    ) = (
+        0,
         0,
         0,
         0,
@@ -61,10 +72,11 @@ def get_strava_insights():
     additional_activities = set()
     timestamp = get_epoch_timestamp()
 
-
     for activity in response.json():
         if activity["type"] == "Run":
-            total_runs+=1
+            total_runs += 1
+            total_distance = total_distance + activity["distance"]
+            first_run_date = activity["start_date"]
             if 5000 <= activity["distance"] <= 5500:
                 completed_5km = True
                 if activity["elapsed_time"] < fastest_5km or fastest_5km == 0:
@@ -91,7 +103,7 @@ def get_strava_insights():
         else:
             additional_activities.add(activity["type"])
 
-
+    weeks = get_total_weeks(first_run_date)
 
     return {
         "completed_5km": completed_5km,
@@ -103,6 +115,8 @@ def get_strava_insights():
         "fastest_half_marathon": str(time.timedelta(seconds=fastest_half_marathon)),
         "fastest_marathon": str(time.timedelta(seconds=fastest_marathon)),
         "additional_activities": list(additional_activities),
+        "runs_per_week": round(total_runs / weeks),
+        "distance_per_week": round(total_distance / weeks) / 1000,
     }
 
 
@@ -114,6 +128,18 @@ def get_epoch_timestamp():
         dt = dt.replace(year=dt.year - 1, day=dt.day - 1)
 
     return dt.timestamp()
+
+
+def get_total_weeks(starting_date):
+
+    # Convert date string of the altheltes first recorded run to compatable datetime
+    start_date = datetime.fromisoformat(starting_date.replace("Z", "+00:00"))
+    start_date = start_date.replace(tzinfo=None)
+
+    current_date = datetime.now()
+    total_weeks = (current_date - start_date).days / 7
+
+    return total_weeks
 
 
 @strava.route("/activities")
