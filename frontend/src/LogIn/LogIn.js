@@ -12,7 +12,7 @@ import Container from "@material-ui/core/Container";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import CreateIcon from "@material-ui/icons/Create";
-import strava_connect from "../assets/images/btn_strava_connect.png";
+import strava_connect from "../assets/images/btn-strava-connect.png";
 import talaria_logo_circle from "../assets/images/logo-talaria-circle.png";
 import axios from "axios";
 import Copyright from "../assets/js/Copyright";

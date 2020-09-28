@@ -64,8 +64,10 @@ const steps = [
 export default function CreatePlan(props) {
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(0);
-  const [accessToken, setAccessToken] = useState(props.location.state.accessToken);
+  const [activeStep, setActiveStep] = useState(1);
+  const [accessToken, setAccessToken] = useState(
+    props.location.state.accessToken
+  );
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -102,7 +104,7 @@ export default function CreatePlan(props) {
       <AppBar position="absolute" color="default" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" color="inherit" noWrap>
-            Company name
+            Talaria
           </Typography>
         </Toolbar>
       </AppBar>
@@ -139,7 +141,7 @@ export default function CreatePlan(props) {
                       Back
                     </Button>
                   )}
-                  {activeStep !== 0 && (
+                  {activeStep !== steps.length - 1 && (
                     <Button
                       variant="contained"
                       color="primary"
