@@ -9,7 +9,6 @@ import Container from "@material-ui/core/Container";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import CreateIcon from "@material-ui/icons/Create";
-import Copyright from "../assets/js/Copyright";
 import useStyles from "./CSS/LogInCSS";
 import Header from "../assets/js/Header";
 import Footer from "../assets/js/Footer";

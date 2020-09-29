@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Container from "@material-ui/core/Container";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
 import DatePicker from "react-date-picker";
 import Alert from "@material-ui/lab/Alert";
 
@@ -28,9 +17,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function GoalTypeForm({ access_token }) {
+export default function FinishDateForm() {
   const classes = useStyles();
-  
+
   const [endDate, setEndDate] = useState();
   const [planDuration, setPlanDuration] = useState();
 
@@ -82,11 +71,11 @@ export default function GoalTypeForm({ access_token }) {
     <React.Fragment>
       <Alert severity="warning" className={classes.title}>
         {" "}
-        IMPORTANT: If you aren't creating this training plan with a race or
+        IMPORTANT: If you aren't creating this training plan with a race date or
         event date in mind, please click 'Next' and allow us to generate a plan
-        of an appropriate length of time for your current running level. This
-        will give you the best chance to achieve your goal without burning out
-        or stopping due to injury. Trust us!
+        with an appropriate finish date for your running level. This will give
+        you the best chance to achieve your goal without burning out or stopping
+        due to injury. Trust us!
       </Alert>
 
       <Grid item xs={16} sm={8} md={6}>

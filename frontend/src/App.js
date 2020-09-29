@@ -11,7 +11,7 @@ function App() {
   // const [currentTime, setCurrentTime] = useState(0);
   // const [allActivities, setAllActivities] = useState([]);
 
-  useEffect(() => {  
+  useEffect(() => {
     // axios
     //   .get(`/activities`, {})
     //   .then((response) => {
@@ -21,17 +21,14 @@ function App() {
     //   .catch((error) => {
     //     console.log(error);
     //   });
-
     // axios.post(`/users`, data, {})
     //   .then((response) => {
     //     console.log(response)
-
     //   })
     //   .catch((error) => {
     //     console.log('Error while posting user')
     //     console.log(error)
     //   })
-
     // fetch("/time")
     //   .then((res) => res.json())
     //   .then((data) => {

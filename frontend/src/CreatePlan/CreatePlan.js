@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import DistanceForm from "./DistanceForm";
 import GoalTypeForm from "./GoalTypeForm";
 import FinishDateForm from "./FinishDateForm";
+import RunsPerWeekForm from "./RunsPerWeekForm";
 import Review from "./Review.js";
 import Header from "../assets/js/Header";
 import Footer from "../assets/js/Footer";
@@ -68,7 +69,7 @@ const steps = [
 export default function CreatePlan(props) {
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(3);
   const [accessToken, setAccessToken] = useState(
     props.location.state.accessToken
   );
@@ -90,7 +91,7 @@ export default function CreatePlan(props) {
       case 2:
         return <FinishDateForm />;
       case 3:
-        return <Review />;
+        return <RunsPerWeekForm />;
       case 4:
         return <Review />;
       case 5:
