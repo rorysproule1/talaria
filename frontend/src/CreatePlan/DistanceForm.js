@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
-import DatePicker from "react-date-picker";
-import fiveKilometre from "../assets/images/five-kilometre.jpg";
-import tenKilometre from "../assets/images/ten-kilometre.jpg";
-import halfMarathon from "../assets/images/half-marathon.jpg";
-import marathon from "../assets/images/marathon.jpg";
+import fiveKilometre from "../assets/images/CreatePlan/five-kilometre.jpg";
+import tenKilometre from "../assets/images/CreatePlan/ten-kilometre.jpg";
+import halfMarathon from "../assets/images/CreatePlan/half-marathon.jpg";
+import marathon from "../assets/images/CreatePlan/marathon.jpg";
 
 const cards = [
   {
@@ -45,10 +40,6 @@ const cards = [
 ];
 
 const useStyles = makeStyles((theme) => ({
-  cardGrid: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(2),
-  },
   card: {
     height: "100%",
     display: "flex",
@@ -91,6 +82,7 @@ export default function DistanceForm({ access_token }) {
   function onChangeHandler(e) {
     // setEndDate(e);
     console.log(e);
+    console.log(Date(e))
   }
 
   return (
@@ -101,44 +93,38 @@ export default function DistanceForm({ access_token }) {
 
       {/* <DatePicker onChange={onChangeHandler} value={endDate} minDate={new Date()} isOpen={isOpen}/> */}
 
-      <Grid container spacing={3}>
-        <Container className={classes.cardGrid} maxWidth="md">
-          <Grid container spacing={4}>
-            {cards.map((card) => (
-              <Grid item key={card} xs={16} sm={8} md={6}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={card.photo}
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography
-                      gutterBottom
-                      variant="h6"
-                      component="h2"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      {card.title}
-                    </Typography>
-                    <Typography>{card.description}</Typography>
-                  </CardContent>
-                  <CardActions className={classes.cardActions}>
-                    <Button
-                      size="small"
-                      color="primary"
-                      className={classes.button}
-                      onClick={(e) => setDistance(card.title)}
-                    >
-                      Select
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Grid>
+      {cards.map((card) => (
+        <Grid item key={card} xs={16} sm={8} md={6}>
+          <Card className={classes.card}>
+            <CardMedia
+              className={classes.cardMedia}
+              image={card.photo}
+              title="Image title"
+            />
+            <CardContent className={classes.cardContent}>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="h2"
+                style={{ fontWeight: "bold" }}
+              >
+                {card.title}
+              </Typography>
+              <Typography>{card.description}</Typography>
+            </CardContent>
+            <CardActions className={classes.cardActions}>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => setDistance(card.title)}
+              >
+                Select
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+      ))}
     </React.Fragment>
   );
 }

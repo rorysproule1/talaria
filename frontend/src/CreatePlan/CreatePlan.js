@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Button from "@material-ui/core/Button";
-import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import DistanceForm from "./DistanceForm";
-import PlanTypeForm from "./PlanTypeForm";
+import GoalTypeForm from "./GoalTypeForm";
+import FinishDateForm from "./FinishDateForm";
 import Review from "./Review.js";
-import Copyright from "../assets/js/Copyright";
+import Header from "../assets/js/Header";
+import Footer from "../assets/js/Footer";
+import Grid from "@material-ui/core/Grid";
+import Container from "@material-ui/core/Container";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -50,21 +50,25 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1),
   },
+  cardGrid: {
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(2),
+  },
 }));
 
 const steps = [
   "Distance",
-  "Plan Type",
-  "Runs p/w",
-  "End Date",
-  "Misc",
+  "Goal Type",
+  "Finish Date",
+  "Runs Per Week",
+  "Preferences",
   "Summary",
 ];
 
 export default function CreatePlan(props) {
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [accessToken, setAccessToken] = useState(
     props.location.state.accessToken
   );
@@ -82,9 +86,9 @@ export default function CreatePlan(props) {
       case 0:
         return <DistanceForm access_token={accessToken} />;
       case 1:
-        return <PlanTypeForm />;
+        return <GoalTypeForm />;
       case 2:
-        return <Review />;
+        return <FinishDateForm />;
       case 3:
         return <Review />;
       case 4:
@@ -100,14 +104,7 @@ export default function CreatePlan(props) {
 
   return (
     <React.Fragment>
-      <CssBaseline />
-      <AppBar position="absolute" color="default" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
-            Talaria
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <Header connect_to_strava={false}/>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
@@ -121,6 +118,7 @@ export default function CreatePlan(props) {
             ))}
           </Stepper>
           <React.Fragment>
+            
             {activeStep === steps.length ? (
               <React.Fragment>
                 <Typography variant="h5" gutterBottom>
@@ -134,7 +132,13 @@ export default function CreatePlan(props) {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {getStepContent(activeStep)}
+                <Grid container spacing={3}>
+                  <Container className={classes.cardGrid} maxWidth="md">
+                      <Grid container spacing={4}>
+                        {getStepContent(activeStep)}
+                      </Grid>
+                  </Container>
+                </Grid>
                 <div className={classes.buttons}>
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} className={classes.button}>
@@ -156,8 +160,8 @@ export default function CreatePlan(props) {
             )}
           </React.Fragment>
         </Paper>
-        <Copyright />
       </main>
+      <Footer />
     </React.Fragment>
   );
 }

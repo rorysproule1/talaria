@@ -1,5 +1,5 @@
 import React from "react";
-import powered_by_strava from "../images/powered-by-strava.png";
+import powered_by_strava from "../images/Strava/powered-by-strava.png";
 
 export default function Copyright() {
   return (
