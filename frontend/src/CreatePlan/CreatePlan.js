@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
@@ -10,6 +10,7 @@ import DistanceForm from "./DistanceForm";
 import GoalTypeForm from "./GoalTypeForm";
 import FinishDateForm from "./FinishDateForm";
 import RunsPerWeekForm from "./RunsPerWeekForm";
+import PreferencesForm from "./PreferencesForm";
 import Review from "./Review.js";
 import Header from "../assets/js/Header";
 import Footer from "../assets/js/Footer";
@@ -69,7 +70,7 @@ const steps = [
 export default function CreatePlan(props) {
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(0);
   const [accessToken, setAccessToken] = useState(
     props.location.state.accessToken
   );
@@ -93,10 +94,8 @@ export default function CreatePlan(props) {
       case 3:
         return <RunsPerWeekForm />;
       case 4:
-        return <Review />;
+        return <PreferencesForm />;
       case 5:
-        return <Review />;
-      case 6:
         return <Review />;
       default:
         throw new Error("Unknown step");
@@ -105,7 +104,7 @@ export default function CreatePlan(props) {
 
   return (
     <React.Fragment>
-      <Header connect_to_strava={false}/>
+      <Header connect_to_strava={false} />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
@@ -118,48 +117,31 @@ export default function CreatePlan(props) {
               </Step>
             ))}
           </Stepper>
-          <React.Fragment>
-            
-            {activeStep === steps.length ? (
-              <React.Fragment>
-                <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
-                </Typography>
-                <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order
-                  confirmation, and will send you an update when your order has
-                  shipped.
-                </Typography>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <Grid container spacing={3}>
-                  <Container className={classes.cardGrid} maxWidth="md">
-                      <Grid container spacing={4}>
-                        {getStepContent(activeStep)}
-                      </Grid>
-                  </Container>
-                </Grid>
-                <div className={classes.buttons}>
-                  {activeStep !== 0 && (
-                    <Button onClick={handleBack} className={classes.button}>
-                      Back
-                    </Button>
-                  )}
-                  {activeStep !== steps.length - 1 && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleNext}
-                      className={classes.button}
-                    >
-                      {activeStep === steps.length - 1 ? "Place order" : "Next"}
-                    </Button>
-                  )}
-                </div>
-              </React.Fragment>
+          <Grid container spacing={3}>
+            <Container className={classes.cardGrid} maxWidth="md">
+              <Grid container spacing={4}>
+                {getStepContent(activeStep)}
+              </Grid>
+            </Container>
+          </Grid>
+          <div className={classes.buttons}>
+            {activeStep !== 0 && (
+              <Button onClick={handleBack} className={classes.button}>
+                Back
+              </Button>
             )}
-          </React.Fragment>
+            {activeStep !== steps.length - 1 && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                className={classes.button}
+              >
+                {activeStep === steps.length - 1 ? "Place order" : "Next"}
+              </Button>
+            )}
+          </div>
+          <React.Fragment></React.Fragment>
         </Paper>
       </main>
       <Footer />

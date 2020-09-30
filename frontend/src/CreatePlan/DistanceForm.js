@@ -15,25 +15,29 @@ import marathon from "../assets/images/CreatePlan/marathon.jpg";
 
 const cards = [
   {
+    id: 1,
     title: "5km Plan",
     photo: fiveKilometre,
     description:
       "A great place to start for beginners and a tried and tested distance for experienced runners to test their VO2 max.",
   },
   {
+    id: 2,
     title: "10km Plan",
     photo: tenKilometre,
     description:
       "Beginning to put your lactate threshold to the test, great place to introduce yourself to distance running.",
   },
   {
-    title: "Half Marathon",
+    id: 3,
+    title: "Half Marathon Plan",
     photo: halfMarathon,
     description:
       "Endurance running at it's best, brilliant goal to aim for whether it's just finishing or aiming for an impressive time.",
   },
   {
-    title: "Marathon",
+    id: 4,
+    title: "Marathon Plan",
     photo: marathon,
     description: "The big one, an endurance challenge you'll never forget.",
   },
@@ -63,11 +67,13 @@ const useStyles = makeStyles((theme) => ({
 export default function DistanceForm({ access_token }) {
   const classes = useStyles();
 
-  const [accessToken, setAccessToken] = useState(access_token);
+  const accessToken = access_token;
   const [distance, setDistance] = useState();
-  // const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
+    const body = document.querySelector("#root");
+    body.scrollIntoView();
+
     console.log(access_token);
     // axios
     //   .get(`/strava-insights`, { params: { access_token: accessToken } })
@@ -79,22 +85,22 @@ export default function DistanceForm({ access_token }) {
     //   });
   }, []); // empty list to ensure code is only executed on initial loading of the page
 
-  function onChangeHandler(e) {
-    // setEndDate(e);
-    console.log(e);
-    console.log(Date(e))
+  function onClickHandler(distance) {
+    if (distance == "5km Plan") {
+      setDistance("5km");
+    } else if (distance === "10km Plan") {
+      setDistance("10km");
+    } else if (distance === "Half Marathon Plan") {
+      setDistance("Half Marathon");
+    } else if (distance === "Marathon Plan") {
+      setDistance("Marathon");
+    }
   }
 
   return (
     <React.Fragment>
-      {/* <Typography variant="h6" gutterBottom>
-        Please select a distance for your plan:
-      </Typography> */}
-
-      {/* <DatePicker onChange={onChangeHandler} value={endDate} minDate={new Date()} isOpen={isOpen}/> */}
-
       {cards.map((card) => (
-        <Grid item key={card} xs={16} sm={8} md={6}>
+        <Grid item key={card.id} xs={12} sm={8} md={6}>
           <Card className={classes.card}>
             <CardMedia
               className={classes.cardMedia}
@@ -117,7 +123,7 @@ export default function DistanceForm({ access_token }) {
                 size="small"
                 color="primary"
                 className={classes.button}
-                onClick={(e) => setDistance(card.title)}
+                onClick={(e) => onClickHandler(card.title)}
               >
                 Select
               </Button>
