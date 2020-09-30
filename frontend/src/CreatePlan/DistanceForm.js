@@ -71,9 +71,6 @@ export default function DistanceForm({ access_token }) {
   const [distance, setDistance] = useState();
 
   useEffect(() => {
-    const body = document.querySelector("#root");
-    body.scrollIntoView();
-
     console.log(access_token);
     // axios
     //   .get(`/strava-insights`, { params: { access_token: accessToken } })

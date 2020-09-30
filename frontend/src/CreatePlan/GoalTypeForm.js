@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -52,12 +52,6 @@ export default function GoalTypeForm() {
   const classes = useStyles();
 
   const [goalType, setGoalType] = useState();
-
-  useEffect(() => {
-    const body = document.querySelector("#root");
-
-    body.scrollIntoView();
-  }, []); // empty list to ensure code is only executed on initial loading of the page
 
   function onClickHandler(goal) {
     if (goal === "Distance Goal") {

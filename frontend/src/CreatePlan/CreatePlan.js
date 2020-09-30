@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
@@ -70,7 +70,7 @@ const steps = [
 export default function CreatePlan(props) {
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(4);
   const [accessToken, setAccessToken] = useState(
     props.location.state.accessToken
   );
@@ -82,6 +82,11 @@ export default function CreatePlan(props) {
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
+
+  useEffect(() => {
+    const body = document.querySelector("#root");
+    body.scrollIntoView();
+  }, [activeStep]);
 
   function getStepContent(step) {
     switch (step) {
@@ -141,7 +146,6 @@ export default function CreatePlan(props) {
               </Button>
             )}
           </div>
-          <React.Fragment></React.Fragment>
         </Paper>
       </main>
       <Footer />
