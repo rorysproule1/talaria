@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Typography from "@material-ui/core/Typography";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import { makeStyles } from "@material-ui/core/styles";
 import Alert from "@material-ui/lab/Alert";
+import Switch from "@material-ui/core/Switch";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormGroup from "@material-ui/core/FormGroup";
+import { TimePicker } from 'antd';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -21,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   info: {
+    marginBottom: theme.spacing(2),
+  },
+  input: {
     marginBottom: theme.spacing(2),
   },
 }));
@@ -35,51 +39,155 @@ const days = [
   "Sunday",
 ];
 
-export default function Preferences() {
+export default function PreferencesForm() {
   const classes = useStyles();
 
   const [includeTaper, setIncludeTaper] = useState(false);
   const [includeCrossTrain, setIncludeCrossTrain] = useState(false);
   const [longRunDay, setLongRunDay] = useState();
   const [blockedDays, setBlockedDays] = useState([]);
-
-  const [age, setAge] = React.useState("");
+  const [state, setState] = useState({
+    Monday: false,
+    Tuesday: false,
+    Wednesday: false,
+    Thursday: false,
+    Friday: false,
+    Saturday: false,
+    Sunday: false,
+  });
 
   const handleChange = (event) => {
-    setLongRunDay(event.target.value);
+    setState({ ...state, [event.target.name]: event.target.checked });
   };
+
+  useEffect(() => {
+    console.log(state);
+  }, [state]); // empty list to ensure code is only executed on initial loading of the page
 
   return (
     <React.Fragment>
       <Grid item xs={12} sm={8} md={10}>
+        <TimePicker
+          // onChange={onChange}
+          // defaultOpenValue={moment("00:00:00", "HH:mm:ss")}
+        />
+        ,
         <Alert severity="info" className={classes.info}>
-          All of the following questions are optional, to help provide a more customised plan
+          All of the following questions are optional, to help provide a more
+          customised plan
         </Alert>
-        {/* <Typography>
-          How many runs would you like your plan to include per week?
-        </Typography> */}
-        {/* <RadioGroup value={runsPerWeek} onChange={(event) => setRunsPerWeek(parseInt(event.target.value))}>
-          <FormControlLabel value={2} control={<Radio />} label="2-3" />
-          <FormControlLabel value={4} control={<Radio />} label="4-6" />
-          <FormControlLabel value={6} control={<Radio />} label="6+" />
-        </RadioGroup> */}
-
+        {/* should only show this question is halfmarathon or marathon are selected */}
         <Typography>
           Is there a particular day you'd like to do your long run?
         </Typography>
         <FormControl className={classes.formControl}>
           <InputLabel>Long Run Day</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={age}
-            onChange={handleChange}
+            placeholder="None"
+            value={longRunDay}
+            onChange={(event) => setLongRunDay(event.target.value)}
+            className={classes.input}
           >
             {days.map((day) => (
-              <MenuItem value={day}>{day}</MenuItem>
+              <MenuItem key={day} value={day}>
+                {day}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
+        <Typography>
+          Would you like to include a taper towards the end of your plan?
+        </Typography>
+        <Switch
+          checked={includeCrossTrain}
+          onChange={(e) => setIncludeCrossTrain(!includeCrossTrain)}
+          name="include-taper"
+          className={classes.input}
+        />
+        <Typography>
+          Would you like to include cross training activities to your plan?
+        </Typography>
+        <Switch
+          checked={includeTaper}
+          onChange={(e) => setIncludeTaper(!includeTaper)}
+          name="include-cross-train"
+          className={classes.input}
+        />
+        <Typography>
+          Is there any particular days you'd not like to run on during the plan?
+        </Typography>
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Monday}
+                onChange={handleChange}
+                name="Monday"
+              />
+            }
+            label="Monday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Tuesday}
+                onChange={handleChange}
+                name="Tuesday"
+              />
+            }
+            label="Tuesday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Wednesday}
+                onChange={handleChange}
+                name="Wednesday"
+              />
+            }
+            label="Wednesday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Thursday}
+                onChange={handleChange}
+                name="Thursday"
+              />
+            }
+            label="Thursday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Friday}
+                onChange={handleChange}
+                name="Friday"
+              />
+            }
+            label="Friday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Saturday}
+                onChange={handleChange}
+                name="Saturday"
+              />
+            }
+            label="Saturday"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.Sunday}
+                onChange={handleChange}
+                name="Sunday"
+              />
+            }
+            label="Sunday"
+          />
+        </FormGroup>
       </Grid>
     </React.Fragment>
   );
