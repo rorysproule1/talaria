@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
@@ -16,6 +16,7 @@ import Header from "../assets/js/Header";
 import Footer from "../assets/js/Footer";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
+import { CreatePlanContext } from "./CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -67,31 +68,32 @@ const steps = [
   "Summary",
 ];
 
-export default function CreatePlan(props) {
+export default function CreatePlan() {
   const classes = useStyles();
-
-  const [activeStep, setActiveStep] = useState(4);
-  const [accessToken, setAccessToken] = useState(
-    props.location.state.accessToken
-  );
+  
+  const [state, setState] = useContext(CreatePlanContext);
 
   const handleNext = () => {
-    setActiveStep(activeStep + 1);
+    setState({ ...state, step: state.step + 1 });
   };
 
   const handleBack = () => {
-    setActiveStep(activeStep - 1);
+    setState({ ...state, step: state.step - 1 });
   };
 
   useEffect(() => {
     const body = document.querySelector("#root");
     body.scrollIntoView();
-  }, [activeStep]);
+  }, [state.step]);
+
+  useEffect(() => {
+    console.log(state);
+  }, []);
 
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <DistanceForm access_token={accessToken} />;
+        return <DistanceForm />;
       case 1:
         return <GoalTypeForm />;
       case 2:
@@ -115,7 +117,7 @@ export default function CreatePlan(props) {
           <Typography component="h1" variant="h4" align="center">
             Create Training Plan
           </Typography>
-          <Stepper activeStep={activeStep} className={classes.stepper}>
+          <Stepper activeStep={state.step} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -125,24 +127,24 @@ export default function CreatePlan(props) {
           <Grid container spacing={3}>
             <Container className={classes.cardGrid} maxWidth="md">
               <Grid container spacing={4}>
-                {getStepContent(activeStep)}
+                {getStepContent(state.step)}
               </Grid>
             </Container>
           </Grid>
           <div className={classes.buttons}>
-            {activeStep !== 0 && (
+            {state.step !== 0 && (
               <Button onClick={handleBack} className={classes.button}>
                 Back
               </Button>
             )}
-            {activeStep !== steps.length - 1 && (
+            {state.step != 0 && state.step != 1 && (
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleNext}
                 className={classes.button}
               >
-                {activeStep === steps.length - 1 ? "Place order" : "Next"}
+                {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>
             )}
           </div>

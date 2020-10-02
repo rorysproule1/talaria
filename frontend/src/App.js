@@ -6,7 +6,7 @@ import Dashboard from "./Dashboard/Dashboard";
 import LogIn from "./LogIn/LogIn";
 import { BrowserRouter as Switch, Route } from "react-router-dom";
 import SignUp from "./SignUp/SignUp";
-import CreatePlan from "./CreatePlan/CreatePlan";
+import CreatePlan from "./CreatePlan/CreatePlanWrapper";
 
 function App() {
   // const [currentTime, setCurrentTime] = useState(0);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -7,11 +7,11 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
 import fiveKilometre from "../assets/images/CreatePlan/five-kilometre.jpg";
 import tenKilometre from "../assets/images/CreatePlan/ten-kilometre.jpg";
 import halfMarathon from "../assets/images/CreatePlan/half-marathon.jpg";
 import marathon from "../assets/images/CreatePlan/marathon.jpg";
+import { CreatePlanContext } from "./CreatePlanContext";
 
 const cards = [
   {
@@ -64,33 +64,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function DistanceForm({ access_token }) {
+export default function DistanceForm() {
   const classes = useStyles();
 
-  const accessToken = access_token;
-  const [distance, setDistance] = useState();
-
-  useEffect(() => {
-    console.log(access_token);
-    // axios
-    //   .get(`/strava-insights`, { params: { access_token: accessToken } })
-    //   .then((response) => {
-    //     console.log(response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-  }, []); // empty list to ensure code is only executed on initial loading of the page
+  const [state, setState] = useContext(CreatePlanContext);
 
   function onClickHandler(distance) {
-    if (distance == "5km Plan") {
-      setDistance("5km");
+    if (distance === "5km Plan") {
+      setState({ ...state, step: state.step + 1, distance: "5KM" });
     } else if (distance === "10km Plan") {
-      setDistance("10km");
+      setState({ ...state, step: state.step + 1, distance: "10KM" });
     } else if (distance === "Half Marathon Plan") {
-      setDistance("Half Marathon");
+      setState({ ...state, step: state.step + 1, distance: "HALF-MARATHON" });
     } else if (distance === "Marathon Plan") {
-      setDistance("Marathon");
+      setState({ ...state, step: state.step + 1, distance: "MARATHON" });
     }
   }
 

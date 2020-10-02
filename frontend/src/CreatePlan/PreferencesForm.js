@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Grid from "@material-ui/core/Grid";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Typography from "@material-ui/core/Typography";
@@ -11,7 +11,7 @@ import Alert from "@material-ui/lab/Alert";
 import Switch from "@material-ui/core/Switch";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormGroup from "@material-ui/core/FormGroup";
-import { TimePicker } from 'antd';
+import { CreatePlanContext } from "./CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -42,11 +42,9 @@ const days = [
 export default function PreferencesForm() {
   const classes = useStyles();
 
-  const [includeTaper, setIncludeTaper] = useState(false);
-  const [includeCrossTrain, setIncludeCrossTrain] = useState(false);
-  const [longRunDay, setLongRunDay] = useState();
-  const [blockedDays, setBlockedDays] = useState([]);
-  const [state, setState] = useState({
+  const [state, setState] = useContext(CreatePlanContext);
+
+  const [stateDays, setStateDays] = useState({
     Monday: false,
     Tuesday: false,
     Wednesday: false,
@@ -57,50 +55,78 @@ export default function PreferencesForm() {
   });
 
   const handleChange = (event) => {
-    setState({ ...state, [event.target.name]: event.target.checked });
+    setStateDays({ ...stateDays, [event.target.name]: event.target.checked });
   };
 
   useEffect(() => {
-    console.log(state);
-  }, [state]); // empty list to ensure code is only executed on initial loading of the page
+    const blockedDays = [];
+    if (stateDays.Monday) {
+      blockedDays.push("Monday");
+    }
+    if (stateDays.Tuesday) {
+      blockedDays.push("Tuesday");
+    }
+    if (stateDays.Wednesday) {
+      blockedDays.push("Wednesday");
+    }
+    if (stateDays.Thursday) {
+      blockedDays.push("Thursday");
+    }
+    if (stateDays.Friday) {
+      blockedDays.push("Friday");
+    }
+    if (stateDays.Saturday) {
+      blockedDays.push("Saturday");
+    }
+    if (stateDays.Sunday) {
+      blockedDays.push("Sunday");
+    }
+
+    setState({ ...state, blockedDays: blockedDays });
+  }, [stateDays]);
 
   return (
     <React.Fragment>
       <Grid item xs={12} sm={8} md={10}>
-        <TimePicker
-          // onChange={onChange}
-          // defaultOpenValue={moment("00:00:00", "HH:mm:ss")}
-        />
-        ,
         <Alert severity="info" className={classes.info}>
           All of the following questions are optional, to help provide a more
           customised plan
         </Alert>
-        {/* should only show this question is halfmarathon or marathon are selected */}
-        <Typography>
-          Is there a particular day you'd like to do your long run?
-        </Typography>
-        <FormControl className={classes.formControl}>
-          <InputLabel>Long Run Day</InputLabel>
-          <Select
-            placeholder="None"
-            value={longRunDay}
-            onChange={(event) => setLongRunDay(event.target.value)}
-            className={classes.input}
-          >
-            {days.map((day) => (
-              <MenuItem key={day} value={day}>
-                {day}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+
+        {state.distance === "MARATHON" ||
+          (state.distance === "HALF-MARATHON" && (
+            <>
+              <Typography>
+                Is there a particular day you'd like to do your long run?
+              </Typography>
+              <FormControl className={classes.formControl}>
+                <InputLabel>Long Run Day</InputLabel>
+                <Select
+                  placeholder="None"
+                  value={state.longRunDay}
+                  onChange={(event) =>
+                    setState({ ...state, longRunDay: event.target.value })
+                  }
+                  className={classes.input}
+                >
+                  {days.map((day) => (
+                    <MenuItem key={day} value={day}>
+                      {day}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </>
+          ))}
+
         <Typography>
           Would you like to include a taper towards the end of your plan?
         </Typography>
         <Switch
-          checked={includeCrossTrain}
-          onChange={(e) => setIncludeCrossTrain(!includeCrossTrain)}
+          checked={state.includeTaper}
+          onChange={(event) =>
+            setState({ ...state, includeTaper: !state.includeTaper })
+          }
           name="include-taper"
           className={classes.input}
         />
@@ -108,8 +134,10 @@ export default function PreferencesForm() {
           Would you like to include cross training activities to your plan?
         </Typography>
         <Switch
-          checked={includeTaper}
-          onChange={(e) => setIncludeTaper(!includeTaper)}
+          checked={state.includeCrossTrain}
+          onChange={(event) =>
+            setState({ ...state, includeCrossTrain: !state.includeCrossTrain })
+          }
           name="include-cross-train"
           className={classes.input}
         />
@@ -120,7 +148,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Monday}
+                checked={stateDays.Monday}
                 onChange={handleChange}
                 name="Monday"
               />
@@ -130,7 +158,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Tuesday}
+                checked={stateDays.Tuesday}
                 onChange={handleChange}
                 name="Tuesday"
               />
@@ -140,7 +168,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Wednesday}
+                checked={stateDays.Wednesday}
                 onChange={handleChange}
                 name="Wednesday"
               />
@@ -150,7 +178,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Thursday}
+                checked={stateDays.Thursday}
                 onChange={handleChange}
                 name="Thursday"
               />
@@ -160,7 +188,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Friday}
+                checked={stateDays.Friday}
                 onChange={handleChange}
                 name="Friday"
               />
@@ -170,7 +198,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Saturday}
+                checked={stateDays.Saturday}
                 onChange={handleChange}
                 name="Saturday"
               />
@@ -180,7 +208,7 @@ export default function PreferencesForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.Sunday}
+                checked={stateDays.Sunday}
                 onChange={handleChange}
                 name="Sunday"
               />

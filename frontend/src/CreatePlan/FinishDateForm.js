@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import DatePicker from "react-date-picker";
 import Alert from "@material-ui/lab/Alert";
+import { CreatePlanContext } from "./CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -20,14 +21,14 @@ const useStyles = makeStyles((theme) => ({
 export default function FinishDateForm() {
   const classes = useStyles();
 
-  const [endDate, setEndDate] = useState();
+  const [state, setState] = useContext(CreatePlanContext);
   const [planDuration, setPlanDuration] = useState();
 
-  function onChangeHandler(e) {
-    setEndDate(e);
+  function onChangeHandler(date) {
+    setState({ ...state, finishDate: date });
 
-    if (e) {
-      getPlanDuration(e);
+    if (date) {
+      getPlanDuration(date);
     } else {
       setPlanDuration(null);
     }
@@ -51,7 +52,7 @@ export default function FinishDateForm() {
     } else {
       const weeks = Math.floor(diffInDays / 7);
       const days = diffInDays % 7;
-      if (days != 0) {
+      if (days !== 0) {
         planString =
           "This gives you " +
           weeks +
@@ -78,12 +79,12 @@ export default function FinishDateForm() {
         due to injury. Trust us!
       </Alert>
 
-      <Grid item xs={16} sm={8} md={6}>
+      <Grid item xs={12} sm={8} md={6}>
         Plan Completion Date:
         <DatePicker
           onChange={onChangeHandler}
           minDate={new Date()}
-          value={endDate}
+          value={state.finishDate}
           className={classes.date}
         />
         {planDuration && (
