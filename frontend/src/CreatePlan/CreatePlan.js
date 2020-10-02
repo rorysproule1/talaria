@@ -70,11 +70,16 @@ const steps = [
 
 export default function CreatePlan() {
   const classes = useStyles();
-  
+
   const [state, setState] = useContext(CreatePlanContext);
 
   const handleNext = () => {
-    setState({ ...state, step: state.step + 1 });
+    if (state.step === 3 && !state.runsPerWeek) {
+      setState({ ...state, runsPerWeekError: true});
+    } else {
+      setState({ ...state, step: state.step + 1, runsPerWeekError: false });
+    }
+    
   };
 
   const handleBack = () => {
@@ -82,13 +87,10 @@ export default function CreatePlan() {
   };
 
   useEffect(() => {
+    // scroll to top of the screen on movement to next step
     const body = document.querySelector("#root");
     body.scrollIntoView();
   }, [state.step]);
-
-  useEffect(() => {
-    console.log(state);
-  }, []);
 
   function getStepContent(step) {
     switch (step) {
