@@ -95,21 +95,19 @@ export default function GoalTypeForm() {
     const left = 50;
   
     return {
-      ZIndex: 10000,
       top: `${top}%`,
       left: `${left}%`,
       transform: `translate(-${top}%, -${left}%)`,
-      ZIndex: 10000,
     };
   }
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
-      <h2>Please enter your desired goal time in (hh:mm:ss):</h2>
+      <h2>Please enter your goal time:</h2>
       <p>
-        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+        Your goal time should be in the form HH:MM:SS
       </p>
-      <TimePicker onChange={onChange} className={classes.time} autoFocus/>
+      <TimePicker onChange={onChange} className={classes.time} showNow={false}/>
       <Modal />
     </div>
   );
