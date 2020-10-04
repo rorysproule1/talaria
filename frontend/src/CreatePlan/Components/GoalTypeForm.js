@@ -1,4 +1,4 @@
-import React, { useContext, getModalStyle, useState } from "react";
+import React, { useContext, useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -7,11 +7,14 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
-import distance_goal from "../assets/images/CreatePlan/distance-goal.jpg";
-import time_goal from "../assets/images/CreatePlan/time-goal.jpg";
+import distance_goal from "../../assets/images/CreatePlan/distance-goal.jpg";
+import time_goal from "../../assets/images/CreatePlan/time-goal.jpg";
 import { TimePicker } from "antd";
-import { CreatePlanContext } from "./CreatePlanContext";
+import { CreatePlanContext } from "../CreatePlanContext";
 import Modal from "@material-ui/core/Modal";
+import Alert from "@material-ui/lab/Alert";
+import moment from "moment";
+import * as strings from "../../assets/strings/strings";
 
 const cards = [
   {
@@ -47,7 +50,8 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginLeft: "auto",
-    paddingRight: theme.spacing(1),
+    display: "inline-block",
+    float: "right",
   },
   paper: {
     position: "absolute",
@@ -60,7 +64,11 @@ const useStyles = makeStyles((theme) => ({
   time: {
     marginLeft: "auto",
     paddingRight: theme.spacing(1),
-    position: "static"
+    position: "static",
+    display: "inline-block",
+  },
+  alert: {
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -69,31 +77,44 @@ export default function GoalTypeForm() {
   const [modalStyle] = useState(getModalStyle);
 
   const [state, setState] = useContext(CreatePlanContext);
+  const [goalTimeError, setGoalTimeError] = useState(false);
   const [open, setOpen] = useState(false);
-
- 
 
   function onClickHandler(goal) {
     if (goal === "Distance Goal") {
-      setState({ ...state, step: state.step + 1, goalType: "DISTANCE" });
+      setState({
+        ...state,
+        step: state.step + 1,
+        goalType: "DISTANCE",
+        goalTime: null,
+      });
     } else {
-      // setState({ ...state, step: state.step + 1, goalType: "TIME" });
-      setOpen(true)
+      setOpen(true);
+    }
+  }
+  function handleNext() {
+    if (state.goalTime) {
+      setState({ ...state, step: state.step + 1 });
+    } else {
+      setGoalTimeError(true);
     }
   }
 
   function onChange(time, timeString) {
     setState({ ...state, goalTime: timeString });
-  } 
-  
+    console.log("00:00:00");
+    console.log(state.goalTime);
+  }
+
   const handleClose = () => {
     setOpen(false);
+    setGoalTimeError(false);
   };
 
   function getModalStyle() {
     const top = 50;
     const left = 50;
-  
+
     return {
       top: `${top}%`,
       left: `${left}%`,
@@ -103,11 +124,37 @@ export default function GoalTypeForm() {
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
-      <h2>Please enter your goal time:</h2>
-      <p>
-        Your goal time should be in the form HH:MM:SS
-      </p>
-      <TimePicker onChange={onChange} className={classes.time} showNow={false}/>
+      <h2>
+        <b>Please enter your goal time:</b>
+      </h2>
+      <p>Your goal time should be in the form HH:MM:SS</p>
+      {goalTimeError && (
+        <Alert severity="error" className={classes.alert}>
+          {strings.GoalTimeError}
+        </Alert>
+      )}
+      <div className={classes.input}>
+        <TimePicker
+          onChange={onChange}
+          className={classes.time}
+          showNow={false}
+          value={
+            state.goalTime
+              ? moment(state.goalTime, "HH:mm:ss")
+              : moment("00:00:00", "HH:mm:ss")
+          }
+          size="large"
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNext}
+          className={classes.button}
+        >
+          OK
+        </Button>
+      </div>
+
       <Modal />
     </div>
   );

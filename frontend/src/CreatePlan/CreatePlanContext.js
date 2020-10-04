@@ -4,7 +4,7 @@ const CreatePlanContext = React.createContext([{}, () => {}]);
 
 const CreatePlanProvider = (props) => {
   const [state, setState] = useState({
-    step: 1,
+    step: 0,
     distance: null,
     goalType: null,
     goalTime: null,
@@ -16,7 +16,6 @@ const CreatePlanProvider = (props) => {
     blockedDays: [],
     // errors
     runsPerWeekError: false,
-    goalTimeError: false,
   });
 
   useEffect(() => {

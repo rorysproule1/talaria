@@ -3,7 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import DatePicker from "react-date-picker";
 import Alert from "@material-ui/lab/Alert";
-import { CreatePlanContext } from "./CreatePlanContext";
+import { CreatePlanContext } from "../CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
   title: {

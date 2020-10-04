@@ -11,7 +11,8 @@ import Alert from "@material-ui/lab/Alert";
 import Switch from "@material-ui/core/Switch";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormGroup from "@material-ui/core/FormGroup";
-import { CreatePlanContext } from "./CreatePlanContext";
+import { CreatePlanContext } from "../CreatePlanContext";
+import * as strings from "../../assets/strings/strings";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   info: {
     marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
   },
   input: {
     marginBottom: theme.spacing(2),
@@ -30,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const days = [
+  "---",
   "Monday",
   "Tuesday",
   "Wednesday",
@@ -53,9 +56,63 @@ export default function PreferencesForm() {
     Saturday: false,
     Sunday: false,
   });
+  const [blockedError, setBlockedError] = useState({
+    error: false,
+    message: "",
+  });
+  const [longRunError, setLongRunError] = useState(false);
+  const [numDaysBlocked, setNumDaysBlocked] = useState(0);
 
-  const handleChange = (event) => {
-    setStateDays({ ...stateDays, [event.target.name]: event.target.checked });
+  const handleCheckboxChange = (event) => {
+    if (!event.target.checked) {
+      setStateDays({ ...stateDays, [event.target.name]: event.target.checked });
+      setBlockedError({ ...blockedError, error: false, message: "" });
+    } else {
+      if (state.runsPerWeek === "2-3" && numDaysBlocked === 4) {
+        setBlockedError({
+          ...blockedError,
+          error: true,
+          message: strings.BlockedDaysLimitError,
+        });
+      } else if (state.runsPerWeek === "4-5" && numDaysBlocked === 2) {
+        setBlockedError({
+          ...blockedError,
+          error: true,
+          message: strings.BlockedDaysLimitError,
+        });
+      } else if (state.runsPerWeek === "6+" && numDaysBlocked === 1) {
+        setBlockedError({
+          ...blockedError,
+          error: true,
+          message: strings.BlockedDaysLimitError,
+        });
+      } else if (state.longRunDay === event.target.name) {
+        setBlockedError({
+          ...blockedError,
+          error: true,
+          message: strings.LongRunBlockedError,
+        });
+      } else {
+        setStateDays({
+          ...stateDays,
+          [event.target.name]: event.target.checked,
+        });
+      }
+    }
+  };
+
+  const handleSelectChange = (event) => {
+    const daySelected = event.target.value;
+    if (state.blockedDays.includes(daySelected)) {
+      setLongRunError(true);
+    
+    } else if (event.target.value === "---"){
+      setState({ ...state, longRunDay: null });
+      setLongRunError(false);
+    }else {
+      setState({ ...state, longRunDay: daySelected });
+      setLongRunError(false);
+    }
   };
 
   useEffect(() => {
@@ -82,6 +139,8 @@ export default function PreferencesForm() {
       blockedDays.push("Sunday");
     }
 
+    setNumDaysBlocked(blockedDays.length);
+    setBlockedError({ ...blockedError, error: false, message: "" });
     setState({ ...state, blockedDays: blockedDays });
   }, [stateDays]);
 
@@ -92,32 +151,33 @@ export default function PreferencesForm() {
           All of the following questions are optional, to help provide a more
           customised plan
         </Alert>
-
-        {state.distance === "MARATHON" ||
-          (state.distance === "HALF-MARATHON" && (
-            <>
-              <Typography>
-                Is there a particular day you'd like to do your long run?
-              </Typography>
-              <FormControl className={classes.formControl}>
-                <InputLabel>Long Run Day</InputLabel>
-                <Select
-                  placeholder="None"
-                  value={state.longRunDay}
-                  onChange={(event) =>
-                    setState({ ...state, longRunDay: event.target.value })
-                  }
-                  className={classes.input}
-                >
-                  {days.map((day) => (
-                    <MenuItem key={day} value={day}>
-                      {day}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </>
-          ))}
+        {state.distance.includes("MARATHON") && (
+          <>
+            {longRunError && (
+              <Alert severity="error" className={classes.info}>
+                {strings.LongRunBlockedError}
+              </Alert>
+            )}
+            <Typography>
+              Is there a particular day you'd like to do your long run?
+            </Typography>
+            <FormControl className={classes.formControl}>
+              <InputLabel>Long Run Day</InputLabel>
+              <Select
+                placeholder="None"
+                value={state.longRunDay}
+                onChange={handleSelectChange}
+                className={classes.input}
+              >
+                {days.map((day) => (
+                  <MenuItem key={day} value={day}>
+                    {day}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </>
+        )}
 
         <Typography>
           Would you like to include a taper towards the end of your plan?
@@ -144,12 +204,17 @@ export default function PreferencesForm() {
         <Typography>
           Is there any particular days you'd not like to run on during the plan?
         </Typography>
+        {blockedError.error && (
+          <Alert severity="error" className={classes.info}>
+            {blockedError.message}
+          </Alert>
+        )}
         <FormGroup row>
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Monday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Monday"
               />
             }
@@ -159,7 +224,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Tuesday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Tuesday"
               />
             }
@@ -169,7 +234,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Wednesday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Wednesday"
               />
             }
@@ -179,7 +244,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Thursday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Thursday"
               />
             }
@@ -189,7 +254,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Friday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Friday"
               />
             }
@@ -199,7 +264,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Saturday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Saturday"
               />
             }
@@ -209,7 +274,7 @@ export default function PreferencesForm() {
             control={
               <Checkbox
                 checked={stateDays.Sunday}
-                onChange={handleChange}
+                onChange={handleCheckboxChange}
                 name="Sunday"
               />
             }

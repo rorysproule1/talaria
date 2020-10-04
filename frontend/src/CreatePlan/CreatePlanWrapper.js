@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { CreatePlanProvider } from "./CreatePlanContext";
-import CreatePlan from "./CreatePlan";
+import CreatePlan from "./Components/CreatePlan";
 import axios from "axios";
 
 export default function CreatePlanWrapper(props) {

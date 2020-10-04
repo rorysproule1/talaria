@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 // import axios from "axios";
 import "./App.css";
-import SignInSide from "./SignIn/SignIn";
 import Dashboard from "./Dashboard/Dashboard";
 import LogIn from "./LogIn/LogIn";
 import { BrowserRouter as Switch, Route } from "react-router-dom";
-import SignUp from "./SignUp/SignUp";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";
 
 function App() {
@@ -43,8 +41,6 @@ function App() {
       <Switch>
         <Route exact path="/" component={Dashboard} />
         <Route exact path="/login" component={LogIn} />
-        <Route exact path="/sign-up" component={SignUp} />
-        <Route exact path="/sign-in" component={SignInSide} />
         <Route exact path="/create-plan" component={CreatePlan} />
       </Switch>
     </main>

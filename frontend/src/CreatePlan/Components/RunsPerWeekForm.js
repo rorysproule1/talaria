@@ -4,9 +4,10 @@ import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Typography from "@material-ui/core/Typography";
-import { CreatePlanContext } from "./CreatePlanContext";
+import { CreatePlanContext } from "../CreatePlanContext";
 import Alert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
+import * as strings from "../../assets/strings/strings";
 
 const useStyles = makeStyles((theme) => ({
   error: {
@@ -23,7 +24,7 @@ export default function RunsPerWeekForm() {
       <Grid item xs={12} sm={8} md={10}>
         {state.runsPerWeekError && (
           <Alert severity="error" className={classes.error}>
-            Please provided an amount of runs you'd like to do per week 
+            {strings.RunsPerWeekError}
           </Alert>
         )}
         <Typography>
@@ -37,7 +38,7 @@ export default function RunsPerWeekForm() {
           }
         >
           <FormControlLabel value={"2-3"} control={<Radio />} label="2-3" />
-          <FormControlLabel value={"4-6"} control={<Radio />} label="4-6" />
+          <FormControlLabel value={"4-5"} control={<Radio />} label="4-5" />
           <FormControlLabel value={"6+"} control={<Radio />} label="6+" />
         </RadioGroup>
       </Grid>

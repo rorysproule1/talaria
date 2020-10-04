@@ -12,11 +12,11 @@ import FinishDateForm from "./FinishDateForm";
 import RunsPerWeekForm from "./RunsPerWeekForm";
 import PreferencesForm from "./PreferencesForm";
 import Review from "./Review.js";
-import Header from "../assets/js/Header";
-import Footer from "../assets/js/Footer";
+import Header from "../../assets/js/Header";
+import Footer from "../../assets/js/Footer";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
-import { CreatePlanContext } from "./CreatePlanContext";
+import { CreatePlanContext } from "../CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -75,11 +75,10 @@ export default function CreatePlan() {
 
   const handleNext = () => {
     if (state.step === 3 && !state.runsPerWeek) {
-      setState({ ...state, runsPerWeekError: true});
+      setState({ ...state, runsPerWeekError: true });
     } else {
       setState({ ...state, step: state.step + 1, runsPerWeekError: false });
     }
-    
   };
 
   const handleBack = () => {
@@ -139,7 +138,7 @@ export default function CreatePlan() {
                 Back
               </Button>
             )}
-            {state.step != 0 && state.step != 1 && (
+            {state.step !== 0 && state.step !== 1 && (
               <Button
                 variant="contained"
                 color="primary"
