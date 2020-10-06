@@ -89,7 +89,6 @@ export default function DistanceForm() {
             <CardMedia
               className={classes.cardMedia}
               image={card.photo}
-              title="Image title"
             />
             <CardContent className={classes.cardContent}>
               <Typography

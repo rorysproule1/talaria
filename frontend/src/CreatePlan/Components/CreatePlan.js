@@ -11,7 +11,7 @@ import GoalTypeForm from "./GoalTypeForm";
 import FinishDateForm from "./FinishDateForm";
 import RunsPerWeekForm from "./RunsPerWeekForm";
 import PreferencesForm from "./PreferencesForm";
-import Review from "./Review.js";
+import Summary from "./Summary.js";
 import Header from "../../assets/js/Header";
 import Footer from "../../assets/js/Footer";
 import Grid from "@material-ui/core/Grid";
@@ -73,6 +73,12 @@ export default function CreatePlan() {
 
   const [state, setState] = useContext(CreatePlanContext);
 
+  const handleSubmit = () => {
+      setState({ ...state, planSubmitted: true });
+
+      // TODO: post plan details to API
+  };
+
   const handleNext = () => {
     if (state.step === 3 && !state.runsPerWeek) {
       setState({ ...state, runsPerWeekError: true });
@@ -104,7 +110,7 @@ export default function CreatePlan() {
       case 4:
         return <PreferencesForm />;
       case 5:
-        return <Review />;
+        return <Summary />;
       default:
         throw new Error("Unknown step");
     }
@@ -142,7 +148,7 @@ export default function CreatePlan() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleNext}
+                onClick={state.step == 5 ? handleSubmit : handleNext}
                 className={classes.button}
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}

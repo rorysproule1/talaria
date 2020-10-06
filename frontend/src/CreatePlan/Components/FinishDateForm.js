@@ -80,7 +80,7 @@ export default function FinishDateForm() {
       </Alert>
 
       <Grid item xs={12} sm={8} md={6}>
-        Plan Completion Date:
+        Plan Finish Date:
         <DatePicker
           onChange={onChangeHandler}
           minDate={new Date()}

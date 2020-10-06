@@ -89,6 +89,10 @@ export default function GoalTypeForm() {
         goalTime: null,
       });
     } else {
+      setState({
+        ...state,
+        goalType: "TIME",
+      });
       setOpen(true);
     }
   }
@@ -102,8 +106,6 @@ export default function GoalTypeForm() {
 
   function onChange(time, timeString) {
     setState({ ...state, goalTime: timeString });
-    console.log("00:00:00");
-    console.log(state.goalTime);
   }
 
   const handleClose = () => {
@@ -151,7 +153,7 @@ export default function GoalTypeForm() {
           onClick={handleNext}
           className={classes.button}
         >
-          OK
+          SET
         </Button>
       </div>
 
@@ -165,8 +167,6 @@ export default function GoalTypeForm() {
         <Modal
           open={open}
           onClose={handleClose}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
         >
           {body}
         </Modal>
@@ -177,7 +177,6 @@ export default function GoalTypeForm() {
             <CardMedia
               className={classes.cardMedia}
               image={card.photo}
-              title="Image title"
             />
             <CardContent className={classes.cardContent}>
               <Typography

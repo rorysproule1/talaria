@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 
+// Using the useContext Hook, this is where we provide all of the state variables that are used by multiple components
+// in the plan creation flow
+
 const CreatePlanContext = React.createContext([{}, () => {}]);
 
 const CreatePlanProvider = (props) => {
@@ -14,8 +17,8 @@ const CreatePlanProvider = (props) => {
     includeCrossTrain: false,
     longRunDay: null,
     blockedDays: [],
-    // errors
     runsPerWeekError: false,
+    planSubmitted: false
   });
 
   useEffect(() => {

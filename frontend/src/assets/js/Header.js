@@ -26,22 +26,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Header({ connectToStrava, logOut }) {
+export default function Header({ connectToStrava }) {
   const classes = useStyles();
 
   const authUrl =
     "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
 
   const [accessToken, setAccessToken] = useState();
+  const [logOut, setLogOut] = useState(false);
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
 
   useEffect(() => {
     if (connectToStrava) {
+      // oAuth returns the one time usage code and the scope in the url
+      // so we check if these are present, if so we continue with authentication
       var url_string = window.location.href;
       var url = new URL(url_string);
+      
       var code = url.searchParams.get("code");
       var scope = url.searchParams.get("scope");
-
+      
       if (code && scope.includes("activity:read_all")) {
         const token_url = "https://www.strava.com/oauth/token";
         const post_data = {
@@ -71,8 +75,6 @@ export default function Header({ connectToStrava, logOut }) {
               last_name: response.data["athlete"]["lastname"],
               sex: response.data["athlete"]["sex"],
             };
-            console.log(response_data);
-
             setAccessToken(response_data["access_token"]);
             setCredentialsAuthorized(true);
 
@@ -100,6 +102,10 @@ export default function Header({ connectToStrava, logOut }) {
     window.location.href = authUrl;
   }
 
+  function logOutHandler() {
+    setLogOut(true)
+  }
+
   return (
     <React.Fragment>
       {credentialsAuthorized && (
@@ -107,6 +113,13 @@ export default function Header({ connectToStrava, logOut }) {
           to={{
             pathname: "/create-plan",
             state: { accessToken: accessToken },
+          }}
+        />
+      )}
+      {logOut && (
+        <Redirect
+          to={{
+            pathname: "/login",
           }}
         />
       )}
@@ -118,7 +131,7 @@ export default function Header({ connectToStrava, logOut }) {
         className={classes.appBar}
       >
         <Toolbar className={classes.toolbar}>
-          <img src={talaria_logo_circle} className={classes.logo} />
+          <img src={talaria_logo_circle} className={classes.logo} alt="logo" />
           <Typography
             variant="h6"
             color="inherit"
@@ -140,6 +153,7 @@ export default function Header({ connectToStrava, logOut }) {
               variant="outlined"
               size="small"
               color="primary"
+              onClick={() => setLogOut(true)}
             >
               Log Out
             </Button>

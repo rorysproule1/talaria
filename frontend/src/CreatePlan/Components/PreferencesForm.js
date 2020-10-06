@@ -16,11 +16,7 @@ import * as strings from "../../assets/strings/strings";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
-    margin: theme.spacing(1),
     minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
   },
   info: {
     marginBottom: theme.spacing(2),
@@ -105,11 +101,10 @@ export default function PreferencesForm() {
     const daySelected = event.target.value;
     if (state.blockedDays.includes(daySelected)) {
       setLongRunError(true);
-    
-    } else if (event.target.value === "---"){
+    } else if (event.target.value === "---") {
       setState({ ...state, longRunDay: null });
       setLongRunError(false);
-    }else {
+    } else {
       setState({ ...state, longRunDay: daySelected });
       setLongRunError(false);
     }
@@ -151,64 +146,14 @@ export default function PreferencesForm() {
           All of the following questions are optional, to help provide a more
           customised plan
         </Alert>
-        {state.distance.includes("MARATHON") && (
-          <>
-            {longRunError && (
-              <Alert severity="error" className={classes.info}>
-                {strings.LongRunBlockedError}
-              </Alert>
-            )}
-            <Typography>
-              Is there a particular day you'd like to do your long run?
-            </Typography>
-            <FormControl className={classes.formControl}>
-              <InputLabel>Long Run Day</InputLabel>
-              <Select
-                placeholder="None"
-                value={state.longRunDay}
-                onChange={handleSelectChange}
-                className={classes.input}
-              >
-                {days.map((day) => (
-                  <MenuItem key={day} value={day}>
-                    {day}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </>
-        )}
-
-        <Typography>
-          Would you like to include a taper towards the end of your plan?
-        </Typography>
-        <Switch
-          checked={state.includeTaper}
-          onChange={(event) =>
-            setState({ ...state, includeTaper: !state.includeTaper })
-          }
-          name="include-taper"
-          className={classes.input}
-        />
-        <Typography>
-          Would you like to include cross training activities to your plan?
-        </Typography>
-        <Switch
-          checked={state.includeCrossTrain}
-          onChange={(event) =>
-            setState({ ...state, includeCrossTrain: !state.includeCrossTrain })
-          }
-          name="include-cross-train"
-          className={classes.input}
-        />
-        <Typography>
-          Is there any particular days you'd not like to run on during the plan?
-        </Typography>
         {blockedError.error && (
           <Alert severity="error" className={classes.info}>
             {blockedError.message}
           </Alert>
         )}
+        <Typography className={classes.info}>
+          Is there any particular days you'd not like to run on during the plan?
+        </Typography>
         <FormGroup row>
           <FormControlLabel
             control={
@@ -281,6 +226,56 @@ export default function PreferencesForm() {
             label="Sunday"
           />
         </FormGroup>
+        {state.distance.includes("MARATHON") && (
+          <>
+            {longRunError && (
+              <Alert severity="error" className={classes.info}>
+                {strings.LongRunBlockedError}
+              </Alert>
+            )}
+            <Typography className={classes.info}>
+              Is there a particular day you'd like to do your long run?
+            </Typography>
+            <FormControl className={classes.formControl}>
+              <InputLabel>Long Run Day</InputLabel>
+              <Select
+                placeholder="None"
+                value={state.longRunDay}
+                onChange={handleSelectChange}
+                className={classes.input}
+              >
+                {days.map((day) => (
+                  <MenuItem key={day} value={day}>
+                    {day}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </>
+        )}
+
+        <Typography className={classes.info}>
+          Would you like to include a taper towards the end of your plan?
+        </Typography>
+        <Switch
+          checked={state.includeTaper}
+          onChange={(event) =>
+            setState({ ...state, includeTaper: !state.includeTaper })
+          }
+          name="include-taper"
+          className={classes.input}
+        />
+        <Typography className={classes.info}>
+          Would you like to include cross training activities to your plan?
+        </Typography>
+        <Switch
+          checked={state.includeCrossTrain}
+          onChange={() =>
+            setState({ ...state, includeCrossTrain: !state.includeCrossTrain })
+          }
+          name="include-cross-train"
+          className={classes.input}
+        />
       </Grid>
     </React.Fragment>
   );

@@ -52,7 +52,6 @@ export default function Login() {
   return (
     <React.Fragment>
       <Header connectToStrava={true} />
-      {/* Hero unit */}
       <Container maxWidth="sm" component="main" className={classes.heroContent}>
         <Typography
           component="h1"
@@ -73,25 +72,16 @@ export default function Login() {
           programs highly tailored to your personal running level.
         </Typography>
       </Container>
-      {/* End hero unit */}
-      <Container maxWidth="md" component="main">
+      <Container maxWidth="md">
         <Grid container spacing={5} alignItems="flex-end">
           {tiers.map((tier) => (
-            // Enterprise card is full width at sm breakpoint
-            <Grid
-              item
-              key={tier.title}
-              xs={12}
-              sm={tier.title === "Enterprise" ? 12 : 6}
-              md={4}
-            >
+            <Grid item key={tier.title} xs={12} sm={6} md={4}>
               <Card>
                 <CardHeader
                   title={tier.title}
                   subheader={tier.subheader}
                   titleTypographyProps={{ align: "center" }}
                   subheaderTypographyProps={{ align: "center" }}
-                  action={tier.title === "Pro" ? <StarIcon /> : null}
                   className={classes.cardHeader}
                 />
                 <CardContent>
