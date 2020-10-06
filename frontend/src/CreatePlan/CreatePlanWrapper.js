@@ -5,6 +5,11 @@ import axios from "axios";
 
 export default function CreatePlanWrapper(props) {
   useEffect(() => {
+    /*
+     On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
+     provide personalised suggestions
+    */
+
     const accessToken = props.location.state.accessToken;
     axios
       .get(`/strava-insights`, { params: { access_token: accessToken } })
@@ -14,7 +19,7 @@ export default function CreatePlanWrapper(props) {
       .catch((error) => {
         console.log(error);
       });
-  }, []); // empty list to ensure code is only executed on initial loading of the page
+  }, []);
 
   return (
     <CreatePlanProvider>

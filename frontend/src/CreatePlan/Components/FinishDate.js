@@ -35,9 +35,9 @@ export default function FinishDateForm() {
   }
 
   function getPlanDuration(date) {
+    // Calculation of the amount of days/weeks between the current date of plan creation and the desired finish date
     var diffInMs = date - new Date();
     var diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-
     var planString = "";
 
     if (diffInDays < 1) {
@@ -80,7 +80,7 @@ export default function FinishDateForm() {
       </Alert>
 
       <Grid item xs={12} sm={8} md={6}>
-        Plan Completion Date:
+        Plan Finish Date:
         <DatePicker
           onChange={onChangeHandler}
           minDate={new Date()}

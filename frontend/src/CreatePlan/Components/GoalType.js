@@ -14,7 +14,8 @@ import { CreatePlanContext } from "../CreatePlanContext";
 import Modal from "@material-ui/core/Modal";
 import Alert from "@material-ui/lab/Alert";
 import moment from "moment";
-import * as strings from "../../assets/strings/strings";
+import * as strings from "../../assets/utils/strings";
+import * as enums from "../../assets/utils/enums";
 
 const cards = [
   {
@@ -85,10 +86,14 @@ export default function GoalTypeForm() {
       setState({
         ...state,
         step: state.step + 1,
-        goalType: "DISTANCE",
+        goalType: enums.GoalType.DISTANCE,
         goalTime: null,
       });
     } else {
+      setState({
+        ...state,
+        goalType: enums.GoalType.TIME,
+      });
       setOpen(true);
     }
   }
@@ -102,8 +107,6 @@ export default function GoalTypeForm() {
 
   function onChange(time, timeString) {
     setState({ ...state, goalTime: timeString });
-    console.log("00:00:00");
-    console.log(state.goalTime);
   }
 
   const handleClose = () => {
@@ -122,7 +125,8 @@ export default function GoalTypeForm() {
     };
   }
 
-  const body = (
+  // HTML for Goal Time Modal
+  const modalBody = (
     <div style={modalStyle} className={classes.paper}>
       <h2>
         <b>Please enter your goal time:</b>
@@ -151,7 +155,7 @@ export default function GoalTypeForm() {
           onClick={handleNext}
           className={classes.button}
         >
-          OK
+          SET
         </Button>
       </div>
 
@@ -162,23 +166,14 @@ export default function GoalTypeForm() {
   return (
     <React.Fragment>
       <div>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        >
-          {body}
+        <Modal open={open} onClose={handleClose}>
+          {modalBody}
         </Modal>
       </div>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
           <Card className={classes.card}>
-            <CardMedia
-              className={classes.cardMedia}
-              image={card.photo}
-              title="Image title"
-            />
+            <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
                 gutterBottom

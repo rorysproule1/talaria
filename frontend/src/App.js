@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-// import axios from "axios";
+import React from "react";
 import "./App.css";
 import Dashboard from "./Dashboard/Dashboard";
 import LogIn from "./LogIn/LogIn";
@@ -7,33 +6,6 @@ import { BrowserRouter as Switch, Route } from "react-router-dom";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";
 
 function App() {
-  // const [currentTime, setCurrentTime] = useState(0);
-  // const [allActivities, setAllActivities] = useState([]);
-
-  useEffect(() => {
-    // axios
-    //   .get(`/activities`, {})
-    //   .then((response) => {
-    //     console.log(response.data["activities"]);
-    //     setAllActivities(response.data["activities"]);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-    // axios.post(`/users`, data, {})
-    //   .then((response) => {
-    //     console.log(response)
-    //   })
-    //   .catch((error) => {
-    //     console.log('Error while posting user')
-    //     console.log(error)
-    //   })
-    // fetch("/time")
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     setCurrentTime(data.time);
-    //   });
-  }, []); // empty list to ensure code is only executed on initial loading of the page
 
   return (
     <main>

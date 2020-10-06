@@ -12,6 +12,7 @@ import tenKilometre from "../../assets/images/CreatePlan/ten-kilometre.jpg";
 import halfMarathon from "../../assets/images/CreatePlan/half-marathon.jpg";
 import marathon from "../../assets/images/CreatePlan/marathon.jpg";
 import { CreatePlanContext } from "../CreatePlanContext";
+import * as enums from "../../assets/utils/enums";
 
 const cards = [
   {
@@ -71,13 +72,29 @@ export default function DistanceForm() {
 
   function onClickHandler(distance) {
     if (distance === "5km Plan") {
-      setState({ ...state, step: state.step + 1, distance: "5KM" });
+      setState({
+        ...state,
+        step: state.step + 1,
+        distance: enums.Distance.FIVE_KM,
+      });
     } else if (distance === "10km Plan") {
-      setState({ ...state, step: state.step + 1, distance: "10KM" });
+      setState({
+        ...state,
+        step: state.step + 1,
+        distance: enums.Distance.TEN_KM,
+      });
     } else if (distance === "Half Marathon Plan") {
-      setState({ ...state, step: state.step + 1, distance: "HALF-MARATHON" });
+      setState({
+        ...state,
+        step: state.step + 1,
+        distance: enums.Distance.HALF_MARATHON,
+      });
     } else if (distance === "Marathon Plan") {
-      setState({ ...state, step: state.step + 1, distance: "MARATHON" });
+      setState({
+        ...state,
+        step: state.step + 1,
+        distance: enums.Distance.MARATHON,
+      });
     }
   }
 
@@ -86,11 +103,7 @@ export default function DistanceForm() {
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
           <Card className={classes.card}>
-            <CardMedia
-              className={classes.cardMedia}
-              image={card.photo}
-              title="Image title"
-            />
+            <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
                 gutterBottom

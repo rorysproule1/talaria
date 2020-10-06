@@ -7,7 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import { CreatePlanContext } from "../CreatePlanContext";
 import Alert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/core/styles";
-import * as strings from "../../assets/strings/strings";
+import * as strings from "../../assets/utils/strings";
 
 const useStyles = makeStyles((theme) => ({
   error: {

@@ -6,12 +6,12 @@ import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import DistanceForm from "./DistanceForm";
-import GoalTypeForm from "./GoalTypeForm";
-import FinishDateForm from "./FinishDateForm";
-import RunsPerWeekForm from "./RunsPerWeekForm";
-import PreferencesForm from "./PreferencesForm";
-import Review from "./Review.js";
+import Distance from "./Distance";
+import GoalType from "./GoalType";
+import FinishDate from "./FinishDate";
+import RunsPerWeek from "./RunsPerWeek";
+import Preferences from "./Preferences";
+import Summary from "./Summary.js";
 import Header from "../../assets/js/Header";
 import Footer from "../../assets/js/Footer";
 import Grid from "@material-ui/core/Grid";
@@ -19,9 +19,6 @@ import Container from "@material-ui/core/Container";
 import { CreatePlanContext } from "../CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: "relative",
-  },
   layout: {
     width: "auto",
     marginLeft: theme.spacing(2),
@@ -73,8 +70,16 @@ export default function CreatePlan() {
 
   const [state, setState] = useContext(CreatePlanContext);
 
+  const handleSubmit = () => {
+      setState({ ...state, planSubmitted: true });
+
+      // TODO: post plan details to API
+  };
+
   const handleNext = () => {
+    
     if (state.step === 3 && !state.runsPerWeek) {
+      // Check if a value for RunsPerWeek has been provided on this form, if not an error is presented
       setState({ ...state, runsPerWeekError: true });
     } else {
       setState({ ...state, step: state.step + 1, runsPerWeekError: false });
@@ -94,17 +99,17 @@ export default function CreatePlan() {
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <DistanceForm />;
+        return <Distance />;
       case 1:
-        return <GoalTypeForm />;
+        return <GoalType />;
       case 2:
-        return <FinishDateForm />;
+        return <FinishDate />;
       case 3:
-        return <RunsPerWeekForm />;
+        return <RunsPerWeek />;
       case 4:
-        return <PreferencesForm />;
+        return <Preferences />;
       case 5:
-        return <Review />;
+        return <Summary />;
       default:
         throw new Error("Unknown step");
     }
@@ -142,7 +147,7 @@ export default function CreatePlan() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleNext}
+                onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
