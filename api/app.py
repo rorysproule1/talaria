@@ -14,12 +14,13 @@ import os
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from database.db import initialize_db
+from database.models import Movie
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://postgres:password@localhost:5432/postgres"
-# db = SQLAlchemy(app)
-# migrate = Migrate(app, db)
+app.config["MONGODB_SETTINGS"] = {"host": "mongodb://localhost/movie-bag"}
+initialize_db(app)
 
 # Now we register any extensions we use into the app
 # register_extensions(app)
@@ -32,28 +33,63 @@ app.register_blueprint(strava)
 register_env_variables()
 
 
-@app.route('/')
+@app.route('/movies')
+def get_movies():
+    movies = Movie.objects().to_json()
+    return Response(movies, mimetype="application/json", status=200)
+
+@app.route('/movies', methods=['POST'])
+def post_movie():
+    body = request.get_json()
+    print("------------------------------------------------------------")
+    print(body)
+    movie = Movie(**body).save()
+    id = movie.id
+    return {'id': str(id)}, 200
+
+@app.route('/movies/<id>', methods=['PUT'])
+def update_movie(id):
+    body = request.get_json()
+    Movie.objects.get(id=id).update(**body)
+    return '', 200
+
+@app.route('/movies/<id>', methods=['DELETE'])
+def delete_movie(id):
+    Movie.objects.get(id=id).delete()
+    return '', 200
+
+@app.route('/movies/<id>')
+def get_movie(id):
+    movies = Movie.objects.get(id=id).to_json()
+    return Response(movies, mimetype="application/json", status=200)
+
+# -------------------------------------------------------------------------------------------------------------------------------------
+
+@app.route("/")
 def index():
     return "This is an example app"
 
-@app.route('/test')
+
+@app.route("/test")
 def test():
-    email = request.args.get('email', 'not found')
+    email = request.args.get("email", "not found")
     return email
 
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
 
-@app.route('/email')
+@app.route("/time")
+def get_current_time():
+    return {"time": time.time()}
+
+
+@app.route("/email")
 def send_email():
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
 
-    sender_email = str(config('TALARIA_EMAIL'))
-    password = str(config('TALARIA_PASSWORD'))
-    receiver_email = request.args.get('email')
-    name = request.args.get('name')
+    sender_email = str(config("TALARIA_EMAIL"))
+    password = str(config("TALARIA_PASSWORD"))
+    receiver_email = request.args.get("email")
+    name = request.args.get("name")
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Account created successfully!"
@@ -81,7 +117,9 @@ def send_email():
         </p
     </body>
     </html>
-    """.format(name=name)
+    """.format(
+        name=name
+    )
 
     # Turn these into plain/html MIMEText objects
     part1 = MIMEText(text, "plain")
@@ -101,4 +139,3 @@ def send_email():
         print(f"Sent email to {receiver_email} ...")
 
     return Response(status=200)
-    
