@@ -6,11 +6,11 @@ import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import DistanceForm from "./DistanceForm";
-import GoalTypeForm from "./GoalTypeForm";
-import FinishDateForm from "./FinishDateForm";
-import RunsPerWeekForm from "./RunsPerWeekForm";
-import PreferencesForm from "./PreferencesForm";
+import Distance from "./Distance";
+import GoalType from "./GoalType";
+import FinishDate from "./FinishDate";
+import RunsPerWeek from "./RunsPerWeek";
+import Preferences from "./Preferences";
 import Summary from "./Summary.js";
 import Header from "../../assets/js/Header";
 import Footer from "../../assets/js/Footer";
@@ -99,15 +99,15 @@ export default function CreatePlan() {
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <DistanceForm />;
+        return <Distance />;
       case 1:
-        return <GoalTypeForm />;
+        return <GoalType />;
       case 2:
-        return <FinishDateForm />;
+        return <FinishDate />;
       case 3:
-        return <RunsPerWeekForm />;
+        return <RunsPerWeek />;
       case 4:
-        return <PreferencesForm />;
+        return <Preferences />;
       case 5:
         return <Summary />;
       default:
