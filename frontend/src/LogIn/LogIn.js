@@ -3,7 +3,6 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import Grid from "@material-ui/core/Grid";
-import StarIcon from "@material-ui/icons/StarBorder";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import AssignmentIcon from "@material-ui/icons/Assignment";

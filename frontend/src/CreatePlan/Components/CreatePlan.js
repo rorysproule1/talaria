@@ -147,7 +147,7 @@ export default function CreatePlan() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={state.step == 5 ? handleSubmit : handleNext}
+                onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}

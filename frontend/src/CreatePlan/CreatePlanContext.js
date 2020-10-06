@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 /* 
   Using the useContext Hook, this is where we provide all of the state variables that are used by multiple components
@@ -22,10 +22,6 @@ const CreatePlanProvider = (props) => {
     runsPerWeekError: false,
     planSubmitted: false,
   });
-
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
 
   return (
     <CreatePlanContext.Provider value={[state, setState]}>

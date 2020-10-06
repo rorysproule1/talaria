@@ -14,7 +14,8 @@ import { CreatePlanContext } from "../CreatePlanContext";
 import Modal from "@material-ui/core/Modal";
 import Alert from "@material-ui/lab/Alert";
 import moment from "moment";
-import * as strings from "../../assets/strings/strings";
+import * as strings from "../../assets/utils/strings";
+import * as enums from "../../assets/utils/enums";
 
 const cards = [
   {
@@ -85,13 +86,13 @@ export default function GoalTypeForm() {
       setState({
         ...state,
         step: state.step + 1,
-        goalType: "DISTANCE",
+        goalType: enums.GoalType.DISTANCE,
         goalTime: null,
       });
     } else {
       setState({
         ...state,
-        goalType: "TIME",
+        goalType: enums.GoalType.TIME,
       });
       setOpen(true);
     }

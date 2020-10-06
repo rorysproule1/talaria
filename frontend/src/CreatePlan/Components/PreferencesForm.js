@@ -12,7 +12,8 @@ import Switch from "@material-ui/core/Switch";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormGroup from "@material-ui/core/FormGroup";
 import { CreatePlanContext } from "../CreatePlanContext";
-import * as strings from "../../assets/strings/strings";
+import * as strings from "../../assets/utils/strings";
+import * as enums from "../../assets/utils/enums";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -43,13 +44,13 @@ export default function PreferencesForm() {
 
   const [state, setState] = useContext(CreatePlanContext);
   const [stateDays, setStateDays] = useState({
-    Monday: state.blockedDays.includes("Monday") ? true : false,
-    Tuesday: state.blockedDays.includes("Tuesday") ? true : false,
-    Wednesday: state.blockedDays.includes("Wednesday") ? true : false,
-    Thursday: state.blockedDays.includes("Thursday") ? true : false,
-    Friday: state.blockedDays.includes("Friday") ? true : false,
-    Saturday: state.blockedDays.includes("Saturday") ? true : false,
-    Sunday: state.blockedDays.includes("Sunday") ? true : false,
+    Monday: state.blockedDays.includes(enums.Day.MONDAY) ? true : false,
+    Tuesday: state.blockedDays.includes(enums.Day.TUESDAY) ? true : false,
+    Wednesday: state.blockedDays.includes(enums.Day.WEDNESDAY) ? true : false,
+    Thursday: state.blockedDays.includes(enums.Day.THURSDAY) ? true : false,
+    Friday: state.blockedDays.includes(enums.Day.FRIDAY) ? true : false,
+    Saturday: state.blockedDays.includes(enums.Day.SATURDAY) ? true : false,
+    Sunday: state.blockedDays.includes(enums.Day.SUNDAY) ? true : false,
   });
   const [blockedError, setBlockedError] = useState({
     error: false,
@@ -118,25 +119,25 @@ export default function PreferencesForm() {
     // everytime the stateDays is changed, we recalculate the days that are currently being blocked based off the intermediate stateDays
     const blockedDays = [];
     if (stateDays.Monday) {
-      blockedDays.push("Monday");
+      blockedDays.push(enums.Day.MONDAY);
     }
     if (stateDays.Tuesday) {
-      blockedDays.push("Tuesday");
+      blockedDays.push(enums.Day.TUESDAY);
     }
     if (stateDays.Wednesday) {
-      blockedDays.push("Wednesday");
+      blockedDays.push(enums.Day.WEDNESDAY);
     }
     if (stateDays.Thursday) {
-      blockedDays.push("Thursday");
+      blockedDays.push(enums.Day.THURSDAY);
     }
     if (stateDays.Friday) {
-      blockedDays.push("Friday");
+      blockedDays.push(enums.Day.FRIDAY);
     }
     if (stateDays.Saturday) {
-      blockedDays.push("Saturday");
+      blockedDays.push(enums.Day.SATURDAY);
     }
     if (stateDays.Sunday) {
-      blockedDays.push("Sunday");
+      blockedDays.push(enums.Day.SUNDAY);
     }
 
     setNumDaysBlocked(blockedDays.length);
@@ -165,74 +166,74 @@ export default function PreferencesForm() {
               <Checkbox
                 checked={stateDays.Monday}
                 onChange={handleCheckboxChange}
-                name="Monday"
+                name={enums.Day.MONDAY}
               />
             }
-            label="Monday"
+            label={enums.Day.MONDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Tuesday}
                 onChange={handleCheckboxChange}
-                name="Tuesday"
+                name={enums.Day.TUESDAY}
               />
             }
-            label="Tuesday"
+            label={enums.Day.TUESDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Wednesday}
                 onChange={handleCheckboxChange}
-                name="Wednesday"
+                name={enums.Day.WEDNESDAY}
               />
             }
-            label="Wednesday"
+            label={enums.Day.WEDNESDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
-                checked={stateDays.Thursday}
+                checked={stateDays.THURSDAY}
                 onChange={handleCheckboxChange}
-                name="Thursday"
+                name={enums.Day.THURSDAY}
               />
             }
-            label="Thursday"
+            label={enums.Day.THURSDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Friday}
                 onChange={handleCheckboxChange}
-                name="Friday"
+                name={enums.Day.FRIDAY}
               />
             }
-            label="Friday"
+            label={enums.Day.FRIDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Saturday}
                 onChange={handleCheckboxChange}
-                name="Saturday"
+                name={enums.Day.SATURDAY}
               />
             }
-            label="Saturday"
+            label={enums.Day.SATURDAY}
           />
           <FormControlLabel
             control={
               <Checkbox
                 checked={stateDays.Sunday}
                 onChange={handleCheckboxChange}
-                name="Sunday"
+                name={enums.Day.SUNDAY}
               />
             }
-            label="Sunday"
+            label={enums.Day.SUNDAY}
           />
         </FormGroup>
         {/* The long run question is only asked if a distance of Half-Marathon or Marathon were previously selected */}
-        {state.distance.includes("MARATHON") && (
+        {state.distance.includes(enums.Distance.MARATHON) && (
           <>
             {longRunError && (
               <Alert severity="error" className={classes.info}>

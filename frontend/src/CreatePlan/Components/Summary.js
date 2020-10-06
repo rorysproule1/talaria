@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -7,6 +7,7 @@ import TableRow from "@material-ui/core/TableRow";
 import { CreatePlanContext } from "../CreatePlanContext";
 import Alert from "@material-ui/lab/Alert";
 import { Typography } from "@material-ui/core";
+import * as enums from "../../assets/utils/enums";
 
 const useStyles = makeStyles((theme) => ({
   capitalize: {
@@ -47,7 +48,7 @@ export default function Summary() {
               {state.goalType.toLowerCase()}
             </TableCell>
           </TableRow>
-          {state.goalType === "TIME" && (
+          {state.goalType === enums.GoalType.TIME && (
             <TableRow>
               <TableCell>Goal Time:</TableCell>
               <TableCell>{state.goalTime}</TableCell>
@@ -70,7 +71,7 @@ export default function Summary() {
             <TableCell>Runs Per Week:</TableCell>
             <TableCell>{state.runsPerWeek}</TableCell>
           </TableRow>
-          {state.distance.includes("MARATHON") && (
+          {state.distance.includes(enums.Distance.MARATHON) && (
             <TableRow>
               <TableCell>Long Run Day:</TableCell>
               <TableCell>
@@ -91,7 +92,7 @@ export default function Summary() {
             <TableCell>
               {state.blockedDays.length > 1
                 ? state.blockedDays.join(", ")
-                : state.blockedDays.length == 1
+                : state.blockedDays.length === 1
                 ? state.blockedDays
                 : "N/A"}
             </TableCell>
