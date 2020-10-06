@@ -44,13 +44,13 @@ export default function PreferencesForm() {
   const [state, setState] = useContext(CreatePlanContext);
 
   const [stateDays, setStateDays] = useState({
-    Monday: false,
-    Tuesday: false,
-    Wednesday: false,
-    Thursday: false,
-    Friday: false,
-    Saturday: false,
-    Sunday: false,
+    Monday: state.blockedDays.includes("Monday") ? true : false,
+    Tuesday: state.blockedDays.includes("Tuesday") ? true : false,
+    Wednesday: state.blockedDays.includes("Wednesday") ? true : false,
+    Thursday: state.blockedDays.includes("Thursday") ? true : false,
+    Friday: state.blockedDays.includes("Friday") ? true : false,
+    Saturday: state.blockedDays.includes("Saturday") ? true : false,
+    Sunday: state.blockedDays.includes("Sunday") ? true : false,
   });
   const [blockedError, setBlockedError] = useState({
     error: false,
@@ -111,6 +111,7 @@ export default function PreferencesForm() {
   };
 
   useEffect(() => {
+    console.log("EXECUTED ON LOAD UP")
     const blockedDays = [];
     if (stateDays.Monday) {
       blockedDays.push("Monday");
@@ -138,6 +139,12 @@ export default function PreferencesForm() {
     setBlockedError({ ...blockedError, error: false, message: "" });
     setState({ ...state, blockedDays: blockedDays });
   }, [stateDays]);
+
+  useEffect(() => {
+    state.blockedDays.forEach(element => {
+      console.log(element)
+    });
+  }, []);
 
   return (
     <React.Fragment>
@@ -266,7 +273,7 @@ export default function PreferencesForm() {
           className={classes.input}
         />
         <Typography className={classes.info}>
-          Would you like to include cross training activities to your plan?
+          Would you like to include cross training activities in your plan?
         </Typography>
         <Switch
           checked={state.includeCrossTrain}

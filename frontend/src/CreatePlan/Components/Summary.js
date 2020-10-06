@@ -91,6 +91,8 @@ export default function Summary() {
             <TableCell>
               {state.blockedDays.length > 1
                 ? state.blockedDays.join(", ")
+                : state.blockedDays.length == 1
+                ? state.blockedDays
                 : "N/A"}
             </TableCell>
           </TableRow>
