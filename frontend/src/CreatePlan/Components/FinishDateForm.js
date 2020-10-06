@@ -35,9 +35,9 @@ export default function FinishDateForm() {
   }
 
   function getPlanDuration(date) {
+    // Calculation of the amount of days/weeks between the current date of plan creation and the desired finish date
     var diffInMs = date - new Date();
     var diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-
     var planString = "";
 
     if (diffInDays < 1) {

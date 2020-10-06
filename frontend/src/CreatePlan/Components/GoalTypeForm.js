@@ -124,7 +124,8 @@ export default function GoalTypeForm() {
     };
   }
 
-  const body = (
+  // HTML for Goal Time Modal
+  const modalBody = (
     <div style={modalStyle} className={classes.paper}>
       <h2>
         <b>Please enter your goal time:</b>
@@ -164,20 +165,14 @@ export default function GoalTypeForm() {
   return (
     <React.Fragment>
       <div>
-        <Modal
-          open={open}
-          onClose={handleClose}
-        >
-          {body}
+        <Modal open={open} onClose={handleClose}>
+          {modalBody}
         </Modal>
       </div>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
           <Card className={classes.card}>
-            <CardMedia
-              className={classes.cardMedia}
-              image={card.photo}
-            />
+            <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
                 gutterBottom

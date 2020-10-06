@@ -42,7 +42,6 @@ export default function PreferencesForm() {
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);
-
   const [stateDays, setStateDays] = useState({
     Monday: state.blockedDays.includes("Monday") ? true : false,
     Tuesday: state.blockedDays.includes("Tuesday") ? true : false,
@@ -61,9 +60,11 @@ export default function PreferencesForm() {
 
   const handleCheckboxChange = (event) => {
     if (!event.target.checked) {
+      // if the event is unticking a checkbox, we set this day to false and clear errors
       setStateDays({ ...stateDays, [event.target.name]: event.target.checked });
       setBlockedError({ ...blockedError, error: false, message: "" });
     } else {
+      // dependant on the runs per week provided previously, only a certain number of days are blockable
       if (state.runsPerWeek === "2-3" && numDaysBlocked === 4) {
         setBlockedError({
           ...blockedError,
@@ -83,12 +84,14 @@ export default function PreferencesForm() {
           message: strings.BlockedDaysLimitError,
         });
       } else if (state.longRunDay === event.target.name) {
+        // we can't set a day as blocked but also select it as the long run day
         setBlockedError({
           ...blockedError,
           error: true,
           message: strings.LongRunBlockedError,
         });
       } else {
+        // else it's a valid selection of a day, so set it as checked
         setStateDays({
           ...stateDays,
           [event.target.name]: event.target.checked,
@@ -100,6 +103,7 @@ export default function PreferencesForm() {
   const handleSelectChange = (event) => {
     const daySelected = event.target.value;
     if (state.blockedDays.includes(daySelected)) {
+      // we can't set a day as our long run if it's currently being blocked
       setLongRunError(true);
     } else if (event.target.value === "---") {
       setState({ ...state, longRunDay: null });
@@ -111,7 +115,7 @@ export default function PreferencesForm() {
   };
 
   useEffect(() => {
-    console.log("EXECUTED ON LOAD UP")
+    // everytime the stateDays is changed, we recalculate the days that are currently being blocked based off the intermediate stateDays
     const blockedDays = [];
     if (stateDays.Monday) {
       blockedDays.push("Monday");
@@ -139,12 +143,6 @@ export default function PreferencesForm() {
     setBlockedError({ ...blockedError, error: false, message: "" });
     setState({ ...state, blockedDays: blockedDays });
   }, [stateDays]);
-
-  useEffect(() => {
-    state.blockedDays.forEach(element => {
-      console.log(element)
-    });
-  }, []);
 
   return (
     <React.Fragment>
@@ -233,6 +231,7 @@ export default function PreferencesForm() {
             label="Sunday"
           />
         </FormGroup>
+        {/* The long run question is only asked if a distance of Half-Marathon or Marathon were previously selected */}
         {state.distance.includes("MARATHON") && (
           <>
             {longRunError && (

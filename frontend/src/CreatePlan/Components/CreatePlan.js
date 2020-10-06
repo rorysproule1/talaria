@@ -19,9 +19,6 @@ import Container from "@material-ui/core/Container";
 import { CreatePlanContext } from "../CreatePlanContext";
 
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: "relative",
-  },
   layout: {
     width: "auto",
     marginLeft: theme.spacing(2),
@@ -80,7 +77,9 @@ export default function CreatePlan() {
   };
 
   const handleNext = () => {
+    
     if (state.step === 3 && !state.runsPerWeek) {
+      // Check if a value for RunsPerWeek has been provided on this form, if not an error is presented
       setState({ ...state, runsPerWeekError: true });
     } else {
       setState({ ...state, step: state.step + 1, runsPerWeekError: false });
