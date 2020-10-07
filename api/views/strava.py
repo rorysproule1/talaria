@@ -11,26 +11,6 @@ import datetime as time
 
 strava = Blueprint("strava", __name__)
 
-
-@strava.route("/athlete-credentials", methods=["POST"])
-def post_athlete_credentials():
-    post_data = request.get_json()
-
-    athlete_id = post_data["athlete_id"]
-
-    # "access_token": response.data["access_token"],
-    # "refresh_token": response.data["refresh_token"],
-    # expires_at: expires_at,
-    # athlete_id: response.data["athlete"]["id"],
-    # first_name: response.data["athlete"]["firstname"],
-    # last_name: response.data["athlete"]["lastname"],
-    # sex: response.data["athlete"]["sex"],
-
-    return {
-        "data": athlete_id,
-    }
-
-
 @strava.route("/strava-insights", methods=["GET"])
 def get_strava_insights():
 

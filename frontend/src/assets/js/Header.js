@@ -37,100 +37,66 @@ export default function Header({ connectToStrava }) {
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
 
   useEffect(() => {
-    const post_data = {
-      name: "Maze Runner 2",
-      casts: ["Percy Jackson looking lad"],
-      genres: ["Action"],
-    };
+    if (connectToStrava) {
+      // oAuth returns the one time usage code and the scope in the url
+      // so we check if these are present, if so we continue with authentication
+      var url_string = window.location.href;
+      var url = new URL(url_string);
 
-    // axios
-    //   .post(`/movies`, post_data, {})
-    //   .then((response) => {
-    //     console.log(response)
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error while posting movie");
-    //     console.log(error);
-    //   });
+      var code = url.searchParams.get("code");
+      var scope = url.searchParams.get("scope");
 
-      axios
-      .get(`/movies`,  {})
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error("Error while getting movies");
-        console.log(error);
-      });
+      // on entry to the page, if we have been redirected with a code and correct scope in the URL, we can request an access token
+      if (code && scope.includes("activity:read_all")) {
+        const token_url = "https://www.strava.com/oauth/token";
+        const oauth_data = {
+          client_id: 52053,
+          client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
+          code: code,
+          grant_type: "authorization_code",
+        };
 
-      axios
-      .get(`/movies/5f7cf3d513d7b4f2b533436a`,  {})
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error("Error while getting movies");
-        console.log(error);
-      });
+        axios
+          .post(token_url, oauth_data, {})
+          .then((response) => {
+            // to prevent excessive polling of the strava api, we store the time and date that the access token
+            // expires at and check it before using the api
+            var currentDate = new Date();
+            currentDate.setSeconds(
+              currentDate.getSeconds() + response.data["expires_in"]
+            );
+            var expires_at = currentDate;
 
-    // if (connectToStrava) {
-    //   // oAuth returns the one time usage code and the scope in the url
-    //   // so we check if these are present, if so we continue with authentication
-    //   var url_string = window.location.href;
-    //   var url = new URL(url_string);
+            var athlete_data = {
+              access_token: response.data["access_token"],
+              refresh_token: response.data["refresh_token"],
+              expires_at: expires_at,
+              athlete_id: response.data["athlete"]["id"],
+              first_name: response.data["athlete"]["firstname"],
+              last_name: response.data["athlete"]["lastname"],
+              sex: response.data["athlete"]["sex"],
+            };
+            
+            // we then post these details to our API to be stored about the athlete
+            axios
+              .post(`/athlete`, athlete_data, {})
+              .then((response) => {
+                console.log(response.data.id);
+              })
+              .catch((error) => {
+                console.error("Error while posting athlete");
+                console.log(error);
+              });
 
-    //   var code = url.searchParams.get("code");
-    //   var scope = url.searchParams.get("scope");
-
-    //   if (code && scope.includes("activity:read_all")) {
-    //     const token_url = "https://www.strava.com/oauth/token";
-    //     const post_data = {
-    //       client_id: 52053,
-    //       client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
-    //       code: code,
-    //       grant_type: "authorization_code",
-    //     };
-
-    //     axios
-    //       .post(token_url, post_data, {})
-    //       .then((response) => {
-    //         // to prevent excessive polling of the strava api, we store the time and date that the access token
-    //         // expires at and check it before using the api
-    //         var currentDate = new Date();
-    //         currentDate.setSeconds(
-    //           currentDate.getSeconds() + response.data["expires_in"]
-    //         );
-    //         var expires_at = currentDate;
-
-    //         var response_data = {
-    //           access_token: response.data["access_token"],
-    //           refresh_token: response.data["refresh_token"],
-    //           expires_at: expires_at,
-    //           athlete_id: response.data["athlete"]["id"],
-    //           first_name: response.data["athlete"]["firstname"],
-    //           last_name: response.data["athlete"]["lastname"],
-    //           sex: response.data["athlete"]["sex"],
-    //         };
-    //         setAccessToken(response_data["access_token"]);
-    //         setCredentialsAuthorized(true);
-
-    //         // we then need to post this data to our api and store it
-    //         axios
-    //           .post("/athlete-credentials", response_data, {})
-    //           .then((response) => {
-    //             console.log(response.data);
-    //           })
-    //           .catch((error) => {
-    //             console.error("Error while posting tokens");
-    //             console.log(error);
-    //           });
-    //       })
-    //       .catch((error) => {
-    //         console.error("Error while posting for authorization code");
-    //         console.log(error);
-    //       });
-    //   }
-    // }
+            setAccessToken(athlete_data["access_token"]);
+            setCredentialsAuthorized(true);
+          })
+          .catch((error) => {
+            console.error("Error while posting for authorization code");
+            console.log(error);
+          });
+      }
+    }
   }, []); // empty list to ensure code is only executed on initial loading of the page
 
   function onClickHandler(e) {

@@ -1,6 +1,12 @@
 from .db import db
 
-class Movie(db.Document):
-    name = db.StringField(required=True, unique=True)
-    casts = db.ListField(db.StringField(), required=True)
-    genres = db.ListField(db.StringField(), required=True)
+SEX = ('M', 'F')
+class Athlete(db.Document):
+    athlete_id =db.IntField(required=True, unique=True)
+    access_token = db.StringField(required=True)
+    refresh_token = db.StringField(required=True)
+    expires_at =db.DateTimeField(required=True)
+    first_name = db.StringField(required=True)
+    last_name = db.StringField(required=True)
+    sex = db.StringField(required=True, choices=SEX)
+    
