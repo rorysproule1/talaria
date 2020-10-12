@@ -6,6 +6,11 @@ import Header from "./Header";
 import Footer from "./Footer";
 
 export default class ErrorBoundary extends React.Component {
+    
+  // The Error Boundary outputs as a fallback UI when a component fatally crashes.
+  // It also logs the error. If the app is in development mode then the error still shows, however
+  // once in production, the fatal error is hidden and only the fallback UI is presented to the user.
+
   state = { hasError: false };
 
   static getDerivedStateFromError(error) {
@@ -20,16 +25,16 @@ export default class ErrorBoundary extends React.Component {
     return this.state.hasError ? (
       <React.Fragment>
         <Header connectToStrava={true} />
-        <main style={{height: "300px"}}>
+        <main style={{ height: "300px" }}>
           <Typography
             component="h1"
             variant="h4"
             align="center"
-            style={{padding: "64px"}}
+            style={{ padding: "64px" }}
           >
             Oh no! Something's gone wrong.
           </Typography>
-          <div style={{textAlign: "center"}}>
+          <div style={{ textAlign: "center" }}>
             <Link href="/login">Click here to return to the Home Menu</Link>
           </div>
         </main>

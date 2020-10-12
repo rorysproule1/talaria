@@ -9,6 +9,13 @@ import talaria_logo_circle from "../images/Logo/talaria-circle.png";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import Button from "@material-ui/core/Button";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+import * as strings from "../utils/strings";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -24,6 +31,12 @@ const useStyles = makeStyles((theme) => ({
     width: "36px",
     marginRight: "10px",
   },
+  root: {
+    width: "100%",
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
+  },
 }));
 
 export default function Header({ connectToStrava }) {
@@ -35,6 +48,10 @@ export default function Header({ connectToStrava }) {
   const [athleteID, setAthleteID] = useState();
   const [logOut, setLogOut] = useState(false);
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
+  const [credentialsError, setCredentialsError] = useState({
+    isError: false,
+    message: "",
+  });
 
   useEffect(() => {
     if (connectToStrava) {
@@ -92,7 +109,19 @@ export default function Header({ connectToStrava }) {
           .catch((error) => {
             console.error("Error while posting for authorization code");
             console.log(error);
+            setCredentialsError({
+              ...credentialsError,
+              isError: true,
+              message: strings.InvalidCodeError,
+            });
           });
+      } else if (code && !scope.includes("activity:read_all")) {
+        // a read_all scope has not been provided, so output an error
+        setCredentialsError({
+          ...credentialsError,
+          isError: true,
+          message: strings.InvalidScopeError,
+        });
       }
     }
   }, []); // empty list to ensure code is only executed on initial loading of the page
@@ -102,9 +131,17 @@ export default function Header({ connectToStrava }) {
     window.location.href = authUrl;
   }
 
-  function logOutHandler() {
-    setLogOut(true);
-  }
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setCredentialsError({
+      ...credentialsError,
+      isError: false,
+      message: "",
+    });
+  };
 
   return (
     <React.Fragment>
@@ -160,6 +197,18 @@ export default function Header({ connectToStrava }) {
           )}
         </Toolbar>
       </AppBar>
+      {/* <Button variant="outlined" onClick={handleClick}>
+        Open success snackbar
+      </Button> */}
+      <Snackbar
+        open={credentialsError.isError}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert onClose={handleClose} severity="error">
+          ERROR: {credentialsError.message}
+        </Alert>
+      </Snackbar>
     </React.Fragment>
   );
 }

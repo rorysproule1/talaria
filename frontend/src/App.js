@@ -9,19 +9,20 @@ import ErrorBoundary from "./assets/js/ErrorBoundary";
 
 function App() {
   return (
+
+    // Full list of URLs used in the app
+
     <main>
-      {/* Full list of URLs used in the app */}
       <ErrorBoundary>
         <Switch>
-        
           <Route exact path="/" component={Dashboard} />
           <Route exact path="/login" component={LogIn} />
           <Route exact path="/create-plan" component={CreatePlan} />
 
           {/* 404 page if the url doesn't match any of the URLs */}
           <Route component={NotFound} />
-        
         </Switch>
+      {/* Fallback UI if any component crashes */}
       </ErrorBoundary>
     </main>
   );
