@@ -13,6 +13,15 @@ import datetime as time
 
 strava = Blueprint("strava", __name__)
 
+def get_activities(access_token):
+    
+    header = {"Authorization": f"Bearer {access_token}"}
+    params = {"per_page": 100, "page": 1}
+
+    response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
+
+    return response.json()
+
 @strava.route("/strava-insights", methods=["GET"])
 def get_strava_insights():
 
@@ -20,14 +29,9 @@ def get_strava_insights():
     This endpoint is used to gather insights into an athlete's history on Strava
     to provide suggestions to the athlete when they are creating a new training plan
     """
-    access_token = get_access_token(int(request.args.get("athlete_id")))
-    print("--------------------------------------------------\n")
-    print(access_token + "\n")
-    header = {"Authorization": f"Bearer {access_token}"}
-    params = {"per_page": 100, "page": 1}
-
+    
     # get all athlete activities from strava api
-    response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
+    activities = get_activities(get_access_token(int(request.args.get("athlete_id"))))
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
         False,
@@ -53,11 +57,13 @@ def get_strava_insights():
     additional_activities = set()
     timestamp = get_epoch_timestamp()
 
-    for activity in response.json():
+    # analyse each activity for insights
+    for activity in activities:
         if activity["type"] == "Run":
             total_runs += 1
             total_distance = total_distance + activity["distance"]
             first_run_date = activity["start_date"]
+
             if 5000 <= activity["distance"] <= 5500:
                 completed_5km = True
                 if activity["elapsed_time"] < fastest_5km or fastest_5km == 0:
@@ -112,8 +118,7 @@ def get_epoch_timestamp():
 
 
 def get_total_weeks(starting_date):
-
-    # Convert date string of the altheltes first recorded run to compatable datetime
+    # Convert date string of the altheltes first recorded run to a compatable datetime format
     start_date = datetime.fromisoformat(starting_date.replace("Z", "+00:00"))
     start_date = start_date.replace(tzinfo=None)
 

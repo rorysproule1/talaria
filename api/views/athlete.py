@@ -25,32 +25,26 @@ def post_athlete():
     return {"athlete_id": str(athlete_id)}, 200
 
 
-# @athlete.route("/athletes/<int:athlete_id>", methods=["PUT"])
-# def update_athlete(athlete_id):
-#     body = request.get_json()
-#     Athlete.objects.get(athlete_id=athlete_id).update(**body)
-#     return "", 200
+@athlete.route("/athletes/<int:athlete_id>", methods=["PUT"])
+def update_athlete(athlete_id):
+    body = request.get_json()
+    Athlete.objects.get(athlete_id=athlete_id).update(**body)
+    return "", 200
 
 
-# @athlete.route("/athletes/<int:athlete_id>", methods=["DELETE"])
-# def delete_athlete(athlete_id):
-#     Athlete.objects.get(athlete_id=athlete_id).delete()
-#     return "", 200
+@athlete.route("/athletes/<int:athlete_id>", methods=["DELETE"])
+def delete_athlete(athlete_id):
+    Athlete.objects.get(athlete_id=athlete_id).delete()
+    return "", 200
 
 
-# @athlete.route("/athletes/<int:athlete_id>")
-# def get_athlete(athlete_id):
-#     athlete = Athlete.objects.get(athlete_id=athlete_id).to_json()
-#     return Response(athlete, mimetype="application/json", status=200)
+@athlete.route("/athletes/<int:athlete_id>")
+def get_athlete(athlete_id):
+    athlete = Athlete.objects.get(athlete_id=athlete_id).to_json()
+    return Response(athlete, mimetype="application/json", status=200)
 
 
 def get_access_token(athlete_id):
-    athlete = Athlete.objects.get(athlete_id=athlete_id)
-    return athlete["access_token"]
-
-
-@athlete.route("/test/<int:athlete_id>")
-def test(athlete_id):
 
     """
     To prevent excessive polling of the Strava API, before every request to Strava
@@ -67,21 +61,16 @@ def test(athlete_id):
         athlete["expires_at"]["$date"] / 1000
     ).strftime("%c")
 
-    print(athlete["access_token"])
-
-    if dt.now().strftime("%c") > expires_at:
+    if dt.now().strftime("%c") < expires_at:
         return athlete["access_token"]
     else:
-        new_token = get_new_access_token(athlete["refresh_token"])
+        return get_new_access_token(athlete_id, athlete["refresh_token"])
 
-    return {"old": athlete["access_token"], "new": new_token}
-
-@athlete.route("/tests")
-def get_new_access_token():
+def get_new_access_token(athlete_id, refresh_token):
     payload = {
         "client_id": config("STRAVA_CLIENT_ID"),
         "client_secret": config("STRAVA_CLIENT_SECRET"),
-        "refresh_token": "ffe49125a7e3bd65b09d126da69105da1e6a9077",
+        "refresh_token": refresh_token,
         "grant_type": "refresh_token",
         "f": "json",
     }
@@ -90,11 +79,12 @@ def get_new_access_token():
     response = requests.post(urls.STRAVA_AUTHORIZE_URL, data=payload, verify=False)
 
     if response.ok:
-        access_token = response.json()
+        access_token = response.json()["access_token"]
+        # update the athletes access token in the db
+        athlete = Athlete.objects.get(athlete_id=athlete_id).update(access_token=access_token)
     else:
         # output error message
         print("\nError when requesting Access Token ...\n")
         print(f"\n{response.raise_for_status()}\n")
-
 
     return access_token

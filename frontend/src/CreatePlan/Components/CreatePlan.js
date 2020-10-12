@@ -78,22 +78,13 @@ export default function CreatePlan({ athleteID }) {
      provide personalised suggestions
     */
 
-    // axios
-    //   .get(`/strava-insights`, { params: { athlete_id: athleteID } })
-    //   .then((response) => {
-    //     console.log(response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-
     axios
-      .get(`/test/51843824`,  {})
+      .get(`/strava-insights`, { params: { athlete_id: athleteID } })
       .then((response) => {
-        console.log(response.data)
+        // assign to context state values
+        console.log(response.data);
       })
       .catch((error) => {
-        console.error("Error while getting movies");
         console.log(error);
       });
   }, []);
@@ -144,7 +135,7 @@ export default function CreatePlan({ athleteID }) {
 
   return (
     <React.Fragment>
-      <Header connect_to_strava={false} />
+      <Header connectToStrava={false} />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
