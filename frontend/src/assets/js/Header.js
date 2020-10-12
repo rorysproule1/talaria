@@ -32,7 +32,7 @@ export default function Header({ connectToStrava }) {
   const authUrl =
     "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
 
-  const [accessToken, setAccessToken] = useState();
+  const [athleteID, setAthleteID] = useState();
   const [logOut, setLogOut] = useState(false);
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
 
@@ -76,20 +76,18 @@ export default function Header({ connectToStrava }) {
               last_name: response.data["athlete"]["lastname"],
               sex: response.data["athlete"]["sex"],
             };
-            
+
             // we then post these details to our API to be stored about the athlete
             axios
-              .post(`/athlete`, athlete_data, {})
+              .post("/athletes", athlete_data, {})
               .then((response) => {
-                console.log(response.data.id);
+                setAthleteID(athlete_data["athlete_id"]);
+                setCredentialsAuthorized(true);
               })
               .catch((error) => {
                 console.error("Error while posting athlete");
                 console.log(error);
               });
-
-            setAccessToken(athlete_data["access_token"]);
-            setCredentialsAuthorized(true);
           })
           .catch((error) => {
             console.error("Error while posting for authorization code");
@@ -114,7 +112,7 @@ export default function Header({ connectToStrava }) {
         <Redirect
           to={{
             pathname: "/create-plan",
-            state: { accessToken: accessToken },
+            state: { athleteID: athleteID },
           }}
         />
       )}
