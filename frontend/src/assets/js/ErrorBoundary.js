@@ -4,6 +4,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Header from "./Header";
 import Footer from "./Footer";
+import * as urls from "../utils/urls";
 
 export default class ErrorBoundary extends React.Component {
     
@@ -35,7 +36,7 @@ export default class ErrorBoundary extends React.Component {
             Oh no! Something's gone wrong.
           </Typography>
           <div style={{ textAlign: "center" }}>
-            <Link href="/login">Click here to return to the Home Menu</Link>
+            <Link href={urls.Login}>Click here to return to the Home Menu</Link>
           </div>
         </main>
         <Footer />

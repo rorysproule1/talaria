@@ -12,6 +12,7 @@ import Button from "@material-ui/core/Button";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import * as strings from "../utils/strings";
+import * as urls from "../utils/urls";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -42,9 +43,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Header({ connectToStrava }) {
   const classes = useStyles();
 
-  const authUrl =
-    "https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all";
-
   const [athleteID, setAthleteID] = useState();
   const [logOut, setLogOut] = useState(false);
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
@@ -65,7 +63,6 @@ export default function Header({ connectToStrava }) {
 
       // on entry to the page, if we have been redirected with a code and correct scope in the URL, we can request an access token
       if (code && scope.includes("activity:read_all")) {
-        const token_url = "https://www.strava.com/oauth/token";
         const oauth_data = {
           client_id: 52053,
           client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
@@ -74,7 +71,7 @@ export default function Header({ connectToStrava }) {
         };
 
         axios
-          .post(token_url, oauth_data, {})
+          .post(urls.StravaToken, oauth_data, {})
           .then((response) => {
             // to prevent excessive polling of the strava api, we store the time and date that the access token
             // expires at and check it before using the api
@@ -96,7 +93,7 @@ export default function Header({ connectToStrava }) {
 
             // we then post these details to our API to be stored about the athlete
             axios
-              .post("/athletes", athlete_data, {})
+              .post(urls.Athletes, athlete_data, {})
               .then((response) => {
                 setAthleteID(athlete_data["athlete_id"]);
                 setCredentialsAuthorized(true);
@@ -128,7 +125,7 @@ export default function Header({ connectToStrava }) {
 
   function onClickHandler(e) {
     // redirect to Strava oAuth
-    window.location.href = authUrl;
+    window.location.href = urls.StravaAuthorization;
   }
 
   const handleClose = (event, reason) => {
@@ -148,7 +145,7 @@ export default function Header({ connectToStrava }) {
       {credentialsAuthorized && (
         <Redirect
           to={{
-            pathname: "/create-plan",
+            pathname: urls.CreatePlan,
             state: { athleteID: athleteID },
           }}
         />
@@ -156,7 +153,7 @@ export default function Header({ connectToStrava }) {
       {logOut && (
         <Redirect
           to={{
-            pathname: "/login",
+            pathname: urls.Login,
           }}
         />
       )}
@@ -197,9 +194,6 @@ export default function Header({ connectToStrava }) {
           )}
         </Toolbar>
       </AppBar>
-      {/* <Button variant="outlined" onClick={handleClick}>
-        Open success snackbar
-      </Button> */}
       <Snackbar
         open={credentialsError.isError}
         autoHideDuration={6000}

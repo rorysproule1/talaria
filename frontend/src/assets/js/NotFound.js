@@ -4,6 +4,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Header from "./Header";
 import Footer from "./Footer";
+import * as urls from "../utils/urls";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,7 +29,7 @@ export default function NotFound() {
           Whoops, we can't seem to find what you're looking for!
         </Typography>
         <div className={classes.link}>
-          <Link href="/login">
+          <Link href={urls.Login}>
             Click here to return to the Home Menu
           </Link>
         </div>

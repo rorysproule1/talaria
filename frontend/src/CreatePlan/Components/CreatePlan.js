@@ -18,6 +18,7 @@ import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import { CreatePlanContext } from "../CreatePlanContext";
 import axios from "axios";
+import * as urls from "../../assets/utils/urls";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -79,7 +80,7 @@ export default function CreatePlan({ athleteID }) {
     */
 
     axios
-      .get(`/strava-insights`, { params: { athlete_id: athleteID } })
+      .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
         // assign to context state values
         console.log(response.data);
