@@ -73,7 +73,6 @@ export default function CreatePlan({ athleteID }) {
   const [state, setState] = useContext(CreatePlanContext);
 
   useEffect(() => {
-
     /*
      On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
      provide personalised suggestions

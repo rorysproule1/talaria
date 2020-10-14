@@ -85,7 +85,7 @@ export default function Header({ connectToStrava }) {
               access_token: response.data["access_token"],
               refresh_token: response.data["refresh_token"],
               expires_at: expires_at,
-              athlete_id: response.data["athlete"]["id"],
+              strava_id: response.data["athlete"]["id"],
               first_name: response.data["athlete"]["firstname"],
               last_name: response.data["athlete"]["lastname"],
               sex: response.data["athlete"]["sex"],
@@ -95,7 +95,7 @@ export default function Header({ connectToStrava }) {
             axios
               .post(urls.Athletes, athlete_data, {})
               .then((response) => {
-                setAthleteID(athlete_data["athlete_id"]);
+                setAthleteID(response.data["athlete_id"]);
                 setCredentialsAuthorized(true);
               })
               .catch((error) => {

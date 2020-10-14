@@ -9,18 +9,10 @@ from decouple import config
 from flask import Blueprint, Flask, request
 from datetime import datetime
 import datetime as time
-
+from .athlete import convert_iso_to_datetime
 
 strava = Blueprint("strava", __name__)
 
-def get_activities(access_token):
-    
-    header = {"Authorization": f"Bearer {access_token}"}
-    params = {"per_page": 100, "page": 1}
-
-    response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
-
-    return response.json()
 
 @strava.route("/strava-insights", methods=["GET"])
 def get_strava_insights():
@@ -29,9 +21,9 @@ def get_strava_insights():
     This endpoint is used to gather insights into an athlete's history on Strava
     to provide suggestions to the athlete when they are creating a new training plan
     """
-    
+
     # get all athlete activities from strava api
-    activities = get_activities(get_access_token(int(request.args.get("athlete_id"))))
+    activities = get_activities(get_access_token(request.args.get("athlete_id")))
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
         False,
@@ -107,6 +99,27 @@ def get_strava_insights():
     }
 
 
+def get_activities(access_token):
+
+    """
+    Function to call the Strava API and return all the activities the athlete has recorded to date
+    """
+
+    header = {"Authorization": f"Bearer {access_token}"}
+    params = {"per_page": 100, "page": 1}
+
+    print("\nRequesting the athlete's activities...\n")
+    response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
+
+    if response.ok:
+        print("\nSuccessfully requested the athlete's activities!\n")
+        return response.json()
+    else:
+        # output error message
+        print("\nAn error occurred when requesting a new Access Token!\n")
+        print(f"\n{response.raise_for_status()}\n")
+
+
 def get_epoch_timestamp():
     dt = datetime.now()
     try:
@@ -118,11 +131,7 @@ def get_epoch_timestamp():
 
 
 def get_total_weeks(starting_date):
-    # Convert date string of the altheltes first recorded run to a compatable datetime format
-    start_date = datetime.fromisoformat(starting_date.replace("Z", "+00:00"))
-    start_date = start_date.replace(tzinfo=None)
-
     current_date = datetime.now()
-    total_weeks = (current_date - start_date).days / 7
+    total_weeks = (current_date - convert_iso_to_datetime(starting_date)).days / 7
 
     return total_weeks
