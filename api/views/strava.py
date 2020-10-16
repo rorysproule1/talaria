@@ -6,10 +6,11 @@ from .athlete import get_access_token
 import requests
 import urls
 from decouple import config
-from flask import Blueprint, Flask, request
+from flask import Blueprint, Flask, request, abort
 from datetime import datetime
 import datetime as time
 from .athlete import convert_iso_to_datetime
+from werkzeug.exceptions import HTTPException, NotFound
 
 strava = Blueprint("strava", __name__)
 
@@ -96,7 +97,7 @@ def get_strava_insights():
         "additional_activities": list(additional_activities),
         "runs_per_week": round(total_runs / weeks),
         "distance_per_week": round(total_distance / weeks) / 1000,
-    }
+    }, 200
 
 
 def get_activities(access_token):
@@ -115,9 +116,9 @@ def get_activities(access_token):
         print("\nSuccessfully requested the athlete's activities!\n")
         return response.json()
     else:
-        # output error message
         print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
+        abort(500, description="An error occurred when requesting the athlete's activities")
 
 
 def get_epoch_timestamp():

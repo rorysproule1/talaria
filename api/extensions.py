@@ -6,3 +6,6 @@ def register_extensions(app):
 
     app.config["MONGO_URI"] = "mongodb://localhost:27017/talaria"
     initialize_db(app)
+
+    # All done!
+    app.logger.info("Extensions registered")

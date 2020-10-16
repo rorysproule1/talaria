@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, request, Response
+from flask import Blueprint, Flask, request, Response, abort
 from database.models import Athlete
 from decouple import config
 import json
@@ -19,7 +19,7 @@ def post_athlete():
     # If the athlete already exists, we update their details,
     # if not we create the new athlete instance
     print("\nAttempting to store the athlete's details ...\n")
-    mongo.db.athletes.update(
+    upsert = mongo.db.athletes.update(
         {"strava_id": strava_id},
         {
             "$set": {
@@ -34,13 +34,16 @@ def post_athlete():
         },
         upsert=True,
     )
+    status_code = 200 if upsert.get("updatedExisting") else 201
 
-    print("\nSucessfully stored the athlete's details!\n")
+    print(
+        "\nSuccessfully updated the existing athlete's details!\n"
+    ) if status_code == 200 else print("\nSuccessfully added the new athlete's details!\n")
 
     # We get the _id of the athlete to be used throughout the app
     athlete = mongo.db.athletes.find_one({"strava_id": strava_id}, {})
 
-    return {"athlete_id": str(athlete.get("_id"))}, 200
+    return {"athlete_id": str(athlete.get("_id"))}, status_code
 
 
 def get_access_token(athlete_id):
@@ -69,6 +72,8 @@ def get_access_token(athlete_id):
             return get_new_access_token(
                 athlete_id, result.get("refresh_token"), expires_at
             )
+    else:
+        abort(404, description="An error occurred when getting the athlete's data")
 
 
 def get_new_access_token(athlete_id, refresh_token, expires_at):
@@ -89,7 +94,7 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
         access_token = response.json()["access_token"]
         # update the athletes access_token and new expires_at in the db
         mongo.db.athletes.update(
-             {"_id": ObjectId(athlete_id)},
+            {"_id": ObjectId(athlete_id)},
             {
                 "$set": {
                     "access_token": access_token,
@@ -103,6 +108,7 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
         # output error message
         print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
+        abort(500, description="An error occurred when requesting a new access token")
 
     return access_token
 

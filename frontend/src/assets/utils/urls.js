@@ -4,7 +4,7 @@
 
 // Strava URLs
 export const StravaToken = "https://www.strava.com/oauth/token";
-export const StravaAuthorization = `https://www.strava.com/oauth/authorize?client_id=${process.env.REACT_APP_STRAVA_CLIENT_ID}&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all`;
+export const StravaAuthorization = `https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all`;
 
 // Talaria URLs
 export const CreatePlan = "/create-plan";

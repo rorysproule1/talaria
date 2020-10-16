@@ -77,7 +77,6 @@ export default function CreatePlan({ athleteID }) {
      On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
      provide personalised suggestions
     */
-
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
