@@ -1,9 +1,16 @@
 import React from "react";
 import { CreatePlanProvider } from "./CreatePlanContext";
 import CreatePlan from "./Components/CreatePlan";
+import * as urls from "../assets/utils/urls";
 
 export default function CreatePlanWrapper(props) {
-  const athleteID = props.location.state.athleteID;
+
+  var athleteID
+  if (props.location.state === undefined) {
+    window.location.href = urls.Login
+  } else{
+    athleteID = props.location.state.athleteID;
+  }
 
   return (
     <CreatePlanProvider>

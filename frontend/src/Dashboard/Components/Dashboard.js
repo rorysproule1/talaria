@@ -57,8 +57,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard(props) {
+  var athleteID
+  if (props.location.state === undefined) {
+    window.location.href = urls.Login
+  } else{
+    athleteID = props.location.state.athleteID;
+  }
+
   const classes = useStyles();
-  const athleteID = props.location.state.athleteID;
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   const [createPlan, setCreatePlan] = useState(false);
