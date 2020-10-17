@@ -1,22 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
 import { CreatePlanProvider } from "./CreatePlanContext";
 import CreatePlan from "./Components/CreatePlan";
 import * as urls from "../assets/utils/urls";
+import { AppContext } from "..//AppContext";
+import { Redirect } from "react-router-dom";
 
-export default function CreatePlanWrapper(props) {
-
-  var athleteID
-  if (props.location.state === undefined) {
-    window.location.href = urls.Login
-  } else{
-    athleteID = props.location.state.athleteID;
-  }
+export default function CreatePlanWrapper() {
+  const [user, setUser] = useContext(AppContext);
 
   return (
-    <CreatePlanProvider>
-      <React.Fragment>
-        <CreatePlan athleteID={athleteID}/>
-      </React.Fragment>
-    </CreatePlanProvider>
+    <React.Fragment>
+      {user.isLoggedIn ? (
+        <CreatePlanProvider>
+          <React.Fragment>
+            <CreatePlan athleteID={user.athleteID} />
+          </React.Fragment>
+        </CreatePlanProvider>
+      ) : (
+        <Redirect
+          to={{
+            pathname: urls.Login,
+          }}
+        />
+      )}
+    </React.Fragment>
   );
 }

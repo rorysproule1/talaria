@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AppBar from "@material-ui/core/AppBar";
@@ -13,6 +13,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import * as strings from "../utils/strings";
 import * as urls from "../utils/urls";
+import { AppContext } from "../../AppContext";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -42,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Header({ connectToStrava }) {
   const classes = useStyles();
+  const [user, setUser] = useContext(AppContext);
 
-  const [athleteID, setAthleteID] = useState();
   const [logOut, setLogOut] = useState(false);
   const [credentialsAuthorized, setCredentialsAuthorized] = useState(false);
   const [credentialsError, setCredentialsError] = useState({
@@ -95,7 +96,7 @@ export default function Header({ connectToStrava }) {
             axios
               .post(urls.Athletes, athlete_data, {})
               .then((response) => {
-                setAthleteID(response.data["athlete_id"]);
+                setUser({ ...user, athleteID: response.data["athlete_id"], isLoggedIn: true });
                 setCredentialsAuthorized(true);
               })
               .catch((error) => {
@@ -133,6 +134,11 @@ export default function Header({ connectToStrava }) {
     window.location.href = urls.StravaAuthorization;
   }
 
+  function onLogOutHandler(e) {
+    setUser({ ...user, athleteID: null, isLoggedIn: false });
+    setLogOut(true)
+  }
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -151,7 +157,6 @@ export default function Header({ connectToStrava }) {
         <Redirect
           to={{
             pathname: urls.Dashboard,
-            state: { athleteID: athleteID },
           }}
         />
       )}
@@ -192,7 +197,7 @@ export default function Header({ connectToStrava }) {
               variant="outlined"
               size="small"
               color="primary"
-              onClick={() => setLogOut(true)}
+              onClick={onLogOutHandler}
             >
               Log Out
             </Button>

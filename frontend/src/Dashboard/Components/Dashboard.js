@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -14,6 +14,7 @@ import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import * as urls from "../../assets/utils/urls";
 import { Redirect } from "react-router-dom";
+import { AppContext } from "../../AppContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,18 +57,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard(props) {
-  var athleteID
-  if (props.location.state === undefined) {
-    window.location.href = urls.Login
-  } else{
-    athleteID = props.location.state.athleteID;
-  }
-
+export default function Dashboard() {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   const [createPlan, setCreatePlan] = useState(false);
+  const [user, setUser] = useContext(AppContext);
 
   return (
     <React.Fragment>
@@ -75,47 +70,58 @@ export default function Dashboard(props) {
         <Redirect
           to={{
             pathname: urls.CreatePlan,
-            state: { athleteID: athleteID },
+            state: { athleteID: user.athleteID },
           }}
         />
       )}
-      <Header connectToStrava={false} />
-      <div className={classes.root}>
-        <CssBaseline />
-        <main className={classes.content}>
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper className={fixedHeightPaper}>
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper className={fixedHeightPaper}>
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <Orders />
-                </Paper>
-              </Grid>
-            </Grid>
-            <Fab
-              aria-label='Create'
-              className={classes.fab}
-              color='primary'
-              onClick={(e) => setCreatePlan(true)}
-            >
-              <AddIcon />
-            </Fab>
-          </Container>
-        </main>
-      </div>
-      <Footer />
+
+      {user.isLoggedIn ? (
+        <React.Fragment>
+          <Header connectToStrava={false} />
+          <div className={classes.root}>
+            <CssBaseline />
+            <main className={classes.content}>
+              <Container maxWidth="lg" className={classes.container}>
+                <Grid container spacing={3}>
+                  {/* Chart */}
+                  <Grid item xs={12} md={8} lg={9}>
+                    <Paper className={fixedHeightPaper}>
+                      <Chart />
+                    </Paper>
+                  </Grid>
+                  {/* Recent Deposits */}
+                  <Grid item xs={12} md={4} lg={3}>
+                    <Paper className={fixedHeightPaper}>
+                      <Deposits />
+                    </Paper>
+                  </Grid>
+                  {/* Recent Orders */}
+                  <Grid item xs={12}>
+                    <Paper className={classes.paper}>
+                      <Orders />
+                    </Paper>
+                  </Grid>
+                </Grid>
+                <Fab
+                  aria-label="Create"
+                  className={classes.fab}
+                  color="primary"
+                  onClick={(e) => setCreatePlan(true)}
+                >
+                  <AddIcon />
+                </Fab>
+              </Container>
+            </main>
+          </div>
+          <Footer />
+        </React.Fragment>
+      ) : (
+        <Redirect
+          to={{
+            pathname: urls.Login,
+          }}
+        />
+      )}
     </React.Fragment>
   );
 }
