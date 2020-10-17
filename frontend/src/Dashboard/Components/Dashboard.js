@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -10,10 +10,22 @@ import Deposits from "./Deposits";
 import Orders from "./Orders";
 import Header from "../../assets/js/Header";
 import Footer from "../../assets/js/Footer";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
+import * as urls from "../../assets/utils/urls";
+import { Redirect } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+  },
+  fab: {
+    position: "fixed",
+    top: "auto",
+    left: "auto",
+    bottom: theme.spacing(4),
+    right: theme.spacing(4),
+    margin: 0,
   },
   menuButton: {
     marginRight: 36,
@@ -44,13 +56,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard() {
+export default function Dashboard(props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const athleteID = props.location.state.athleteID;
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+
+  const [createPlan, setCreatePlan] = useState(false);
 
   return (
     <React.Fragment>
+      {createPlan && (
+        <Redirect
+          to={{
+            pathname: urls.CreatePlan,
+            state: { athleteID: athleteID },
+          }}
+        />
+      )}
       <Header connectToStrava={false} />
       <div className={classes.root}>
         <CssBaseline />
@@ -76,6 +98,14 @@ export default function Dashboard() {
                 </Paper>
               </Grid>
             </Grid>
+            <Fab
+              aria-label='Create'
+              className={classes.fab}
+              color='primary'
+              onClick={(e) => setCreatePlan(true)}
+            >
+              <AddIcon />
+            </Fab>
           </Container>
         </main>
       </div>

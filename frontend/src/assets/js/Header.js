@@ -150,7 +150,7 @@ export default function Header({ connectToStrava }) {
       {credentialsAuthorized && (
         <Redirect
           to={{
-            pathname: urls.CreatePlan,
+            pathname: urls.Dashboard,
             state: { athleteID: athleteID },
           }}
         />
