@@ -1,5 +1,4 @@
 from flask import Blueprint, Flask, request, Response, abort
-from database.models import Athlete
 from decouple import config
 import json
 import requests
@@ -14,7 +13,12 @@ athlete = Blueprint("athlete", __name__)
 @athlete.route("/athletes", methods=["POST"])
 def post_athlete():
     body = request.get_json()
-    strava_id = body["strava_id"]
+    strava_id = body.get("strava_id")
+
+    if strava_id:
+        validate_athlete_data(body)
+    else:
+        abort(400, description="An error occurred when getting the athlete's id")
 
     # If the athlete already exists, we update their details,
     # if not we create the new athlete instance
@@ -34,16 +38,66 @@ def post_athlete():
         },
         upsert=True,
     )
+
+    # Check if upsert updated an existing record or created a new one
     status_code = 200 if upsert.get("updatedExisting") else 201
 
     print(
         "\nSuccessfully updated the existing athlete's details!\n"
-    ) if status_code == 200 else print("\nSuccessfully added the new athlete's details!\n")
+    ) if status_code == 200 else print(
+        "\nSuccessfully added the new athlete's details!\n"
+    )
 
     # We get the _id of the athlete to be used throughout the app
     athlete = mongo.db.athletes.find_one({"strava_id": strava_id}, {})
 
     return {"athlete_id": str(athlete.get("_id"))}, status_code
+
+
+def validate_athlete_data(body):
+
+    """
+    The athlete details should already be valid as they are coming diretcly from Strava oAuth, however we do some quick
+    checks to ensure the data is complete and accurate
+    """
+
+    access_token = body.get("access_token")
+    refresh_token = body.get("refresh_token")
+    expires_at = body.get("expires_at")
+    first_name = body.get("first_name")
+    last_name = body.get("last_name")
+    sex = body.get("sex")
+
+    if (
+        access_token
+        and refresh_token
+        and expires_at
+        and first_name
+        and last_name
+        and sex
+    ):
+        if not access_token.isalnum():
+            abort(
+                400,
+                description="An error occurred as the access token provided is invalid",
+            )
+        if not refresh_token.isalnum():
+            abort(
+                400,
+                description="An error occurred as the access token provided is invalid",
+            )
+        if not sex in ["M", "F"]:
+            abort(400, description="An error occurred as the sex provided is invalid")
+        if datetime.now() > convert_iso_to_datetime(expires_at):
+            abort(
+                400,
+                description="An error occurred as the token expiry provided is invalid",
+            )
+    else:
+        abort(
+            400,
+            description="An error occurred as not all athlete details were provided",
+        )
 
 
 def get_access_token(athlete_id):
@@ -105,7 +159,6 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
             },
         )
     else:
-        # output error message
         print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
         abort(500, description="An error occurred when requesting a new access token")
@@ -120,27 +173,3 @@ def convert_iso_to_datetime(iso_date):
 
 def convert_timestamp_to_datetime(timestamp):
     return datetime.fromtimestamp(timestamp / 1000)
-
-
-# @athlete.route("/athletes")
-# def get_athletes():
-#     athletes = Athlete.objects().to_json()
-#     return Response(athlete, mimetype="application/json", status=200)
-
-# @athlete.route("/athletes/<int:athlete_id>", methods=["PUT"])
-# def update_athlete(athlete_id):
-#     body = request.get_json()
-#     Athlete.objects.get(athlete_id=athlete_id).update(**body)
-#     return "", 200
-
-
-# @athlete.route("/athletes/<int:athlete_id>", methods=["DELETE"])
-# def delete_athlete(athlete_id):
-#     Athlete.objects.get(athlete_id=athlete_id).delete()
-#     return "", 200
-
-
-# @athlete.route("/athletes/<int:athlete_id>")
-# def get_athlete(athlete_id):
-#     athlete = Athlete.objects.get(athlete_id=athlete_id).to_json()
-#     return Response(athlete, mimetype="application/json", status=200)

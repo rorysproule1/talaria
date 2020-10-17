@@ -101,6 +101,11 @@ export default function Header({ connectToStrava }) {
               .catch((error) => {
                 console.error("Error while posting athlete");
                 console.log(error);
+                setCredentialsError({
+                  ...credentialsError,
+                  isError: true,
+                  message: strings.AthleteDetailsError,
+                });
               });
           })
           .catch((error) => {

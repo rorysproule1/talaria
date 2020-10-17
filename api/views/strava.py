@@ -118,7 +118,10 @@ def get_activities(access_token):
     else:
         print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
-        abort(500, description="An error occurred when requesting the athlete's activities")
+        abort(
+            500,
+            description="An error occurred when requesting the athlete's activities",
+        )
 
 
 def get_epoch_timestamp():

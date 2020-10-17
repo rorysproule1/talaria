@@ -4,9 +4,11 @@
 
 // Login
 export const InvalidScopeError =
-  "Talaria requires access to your private activity data";
+  "Talaria requires access to your private activity data, please try again";
 export const InvalidCodeError =
   "There was a problem authenticating your account, please try again";
+  export const AthleteDetailsError =
+  "There was a problem storing your details, please try again";
 
 // Plan Creation
 export const BlockedDaysLimitError =
