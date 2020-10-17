@@ -17,6 +17,8 @@ import Footer from "../../assets/js/Footer";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import { CreatePlanContext } from "../CreatePlanContext";
+import axios from "axios";
+import * as urls from "../../assets/utils/urls";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -65,19 +67,34 @@ const steps = [
   "Summary",
 ];
 
-export default function CreatePlan() {
+export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);
 
-  const handleSubmit = () => {
-      setState({ ...state, planSubmitted: true });
+  useEffect(() => {
+    /*
+     On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
+     provide personalised suggestions
+    */
+    axios
+      .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
+      .then((response) => {
+        // assign to context state values
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
-      // TODO: post plan details to API
+  const handleSubmit = () => {
+    setState({ ...state, planSubmitted: true });
+
+    // TODO: post plan details to API
   };
 
   const handleNext = () => {
-    
     if (state.step === 3 && !state.runsPerWeek) {
       // Check if a value for RunsPerWeek has been provided on this form, if not an error is presented
       setState({ ...state, runsPerWeekError: true });
@@ -117,7 +134,7 @@ export default function CreatePlan() {
 
   return (
     <React.Fragment>
-      <Header connect_to_strava={false} />
+      <Header connectToStrava={false} />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">

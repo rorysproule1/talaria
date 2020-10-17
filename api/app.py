@@ -5,10 +5,8 @@ from decouple import config
 from flask import Flask, request, Response
 from extensions import register_extensions
 from config import register_env_variables
-from views.cars import cars
 from views.strava import strava
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from views.athlete import athlete
 import urls
 import os
 import smtplib, ssl
@@ -17,43 +15,41 @@ from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = "postgres://postgres:password@localhost:5432/postgres"
-# db = SQLAlchemy(app)
-# migrate = Migrate(app, db)
-
 # Now we register any extensions we use into the app
-# register_extensions(app)
+register_extensions(app)
 
 # Register all blueprints for the app
-app.register_blueprint(cars)
 app.register_blueprint(strava)
+app.register_blueprint(athlete)
 
 # Configure all env variables for the app
 register_env_variables()
 
-
-@app.route('/')
+@app.route("/")
 def index():
     return "This is an example app"
 
-@app.route('/test')
+
+@app.route("/test")
 def test():
-    email = request.args.get('email', 'not found')
+    email = request.args.get("email", "not found")
     return email
 
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
 
-@app.route('/email')
+@app.route("/time")
+def get_current_time():
+    return {"time": time.time()}
+
+
+@app.route("/email")
 def send_email():
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
 
-    sender_email = str(config('TALARIA_EMAIL'))
-    password = str(config('TALARIA_PASSWORD'))
-    receiver_email = request.args.get('email')
-    name = request.args.get('name')
+    sender_email = str(config("TALARIA_EMAIL"))
+    password = str(config("TALARIA_PASSWORD"))
+    receiver_email = request.args.get("email")
+    name = request.args.get("name")
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Account created successfully!"
@@ -81,7 +77,9 @@ def send_email():
         </p
     </body>
     </html>
-    """.format(name=name)
+    """.format(
+        name=name
+    )
 
     # Turn these into plain/html MIMEText objects
     part1 = MIMEText(text, "plain")
@@ -101,4 +99,3 @@ def send_email():
         print(f"Sent email to {receiver_email} ...")
 
     return Response(status=200)
-    
