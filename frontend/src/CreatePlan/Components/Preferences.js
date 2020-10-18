@@ -14,6 +14,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import { CreatePlanContext } from "../CreatePlanContext";
 import * as strings from "../../assets/utils/strings";
 import * as enums from "../../assets/utils/enums";
+import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -282,6 +283,15 @@ export default function PreferencesForm() {
           }
           name="include-cross-train"
           className={classes.input}
+        />
+        <Typography className={classes.info}>
+          Please provide a name for your new training plan
+        </Typography>
+        <TextField
+          label="Plan Name"
+          className={classes.input}
+          value={state.planName}
+          onChange={(e) => setState({ ...state, planName: e.target.value })}
         />
       </Grid>
     </React.Fragment>

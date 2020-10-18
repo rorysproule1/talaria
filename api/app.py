@@ -7,6 +7,7 @@ from extensions import register_extensions
 from config import register_env_variables
 from views.strava import strava
 from views.athlete import athlete
+from views.plan import plan
 import urls
 import os
 import smtplib, ssl
@@ -21,6 +22,7 @@ register_extensions(app)
 # Register all blueprints for the app
 app.register_blueprint(strava)
 app.register_blueprint(athlete)
+app.register_blueprint(plan)
 
 # Configure all env variables for the app
 register_env_variables()

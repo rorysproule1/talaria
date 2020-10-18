@@ -13,5 +13,7 @@ export const Dashboard = "/"
 
 // API URLS
 export const Athletes = "/athletes"
+export const Plans = "/plans"
 export const StravaInsights = "/strava-insights"
+
 

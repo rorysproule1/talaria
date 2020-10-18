@@ -19,6 +19,9 @@ import Container from "@material-ui/core/Container";
 import { CreatePlanContext } from "../CreatePlanContext";
 import axios from "axios";
 import * as urls from "../../assets/utils/urls";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import Link from "@material-ui/core/Link";
+import { Link as RouterLink } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -56,6 +59,9 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(2),
   },
+  breadcrumb: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 const steps = [
@@ -69,6 +75,7 @@ const steps = [
 
 export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
+  const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
   const [state, setState] = useContext(CreatePlanContext);
 
@@ -89,9 +96,31 @@ export default function CreatePlan({ athleteID }) {
   }, []);
 
   const handleSubmit = () => {
-    setState({ ...state, planSubmitted: true });
+    const plan_data = {
+      athlete_id: athleteID,
+      distance: state.distance,
+      goal_type: state.goalType,
+      goal_time: state.goalTime,
+      finish_date: state.finishDate,
+      runs_per_week: state.runsPerWeek,
+      include_taper: state.includeTaper,
+      include_cross_train: state.includeCrossTrain,
+      long_run_day: state.longRunDay,
+      blocked_days: state.blockedDays,
+      name: state.planName,
+    };
 
-    // TODO: post plan details to API
+    axios
+      .post(urls.Plans, plan_data, {})
+      .then((response) => {
+        console.log(response);
+        setState({ ...state, planSubmitted: true, planSubmittedError: false });
+      })
+      .catch((error) => {
+        console.error("Error while posting plan details");
+        console.log(error);
+        setState({ ...state, planSubmitted: false, planSubmittedError: true });
+      });
   };
 
   const handleNext = () => {
@@ -135,6 +164,15 @@ export default function CreatePlan({ athleteID }) {
   return (
     <React.Fragment>
       <Header connectToStrava={false} />
+      <Breadcrumbs className={classes.breadcrumb} separator="-">
+        <LinkRouter color="inherit" to={{
+            pathname: urls.Dashboard,
+            state: { athleteID: athleteID },
+          }}>
+          Home
+        </LinkRouter>
+        <Typography color="textPrimary">Create Plan</Typography>
+      </Breadcrumbs>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
@@ -166,6 +204,7 @@ export default function CreatePlan({ athleteID }) {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
+                disabled={state.planSubmitted}
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>

@@ -1,19 +1,18 @@
-import React, { useContext } from "react";
+import React from "react";
 import { CreatePlanProvider } from "./CreatePlanContext";
 import CreatePlan from "./Components/CreatePlan";
 import * as urls from "../assets/utils/urls";
-import { AppContext } from "..//AppContext";
 import { Redirect } from "react-router-dom";
 
-export default function CreatePlanWrapper() {
-  const [user, setUser] = useContext(AppContext);
+export default function CreatePlanWrapper(props) {
+  const athleteID = props.location.state.athleteID;
 
   return (
     <React.Fragment>
-      {user.isLoggedIn ? (
+      {athleteID ? (
         <CreatePlanProvider>
           <React.Fragment>
-            <CreatePlan athleteID={user.athleteID} />
+            <CreatePlan athleteID={athleteID} />
           </React.Fragment>
         </CreatePlanProvider>
       ) : (
