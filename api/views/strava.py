@@ -23,7 +23,7 @@ def get_strava_insights():
     to provide suggestions to the athlete when they are creating a new training plan
     """
 
-    # get all athlete activities from strava api
+    # Get all athlete activities from strava api
     activities = get_activities(get_access_token(request.args.get("athlete_id")))
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
@@ -50,7 +50,7 @@ def get_strava_insights():
     additional_activities = set()
     timestamp = get_epoch_timestamp()
 
-    # analyse each activity for insights
+    # Analyse each activity for insights
     for activity in activities:
         if activity["type"] == "Run":
             total_runs += 1
@@ -98,6 +98,26 @@ def get_strava_insights():
         "runs_per_week": round(total_runs / weeks),
         "distance_per_week": round(total_distance / weeks) / 1000,
     }, 200
+
+@strava.route("/dashboard-activities", methods=["GET"])
+def get_recent_run():
+
+    """
+    This endpoint is used to get all the athlete's strava data that is used on the Dashboard
+    It contains data such as their most recent run,
+    """
+
+    # Get all athlete activities from strava api
+    activities = get_activities(get_access_token(request.args.get("athlete_id")))
+
+    # Get the athlete's most recent run
+    recent_run = {}
+    for activity in activities:
+       if activity["type"] == "Run":
+           recent_run = activity
+           break
+
+    return {"recent_run": recent_run}, 200
 
 
 def get_activities(access_token):

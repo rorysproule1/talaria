@@ -36,7 +36,7 @@ def get_all_plans(athlete_id):
         result.append(doc)
 
 
-    return {"results": result}, 200
+    return {"plans": result}, 200
 
 
 def validate_plan_data(body):

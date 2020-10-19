@@ -69,7 +69,16 @@ export default function Dashboard(props) {
     axios
       .get(`${urls.Plans}/${athleteID}`, {})
       .then((response) => {
-        // assign to context state values
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    
+      axios
+      .get(urls.DashboardActivities, { params: { athlete_id: athleteID } })
+      .then((response) => {
         console.log(response.data);
       })
       .catch((error) => {

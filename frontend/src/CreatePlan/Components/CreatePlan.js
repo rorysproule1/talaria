@@ -60,7 +60,8 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
   },
   breadcrumb: {
-    marginLeft: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingTop: theme.spacing(1),
   },
 }));
 
@@ -164,14 +165,14 @@ export default function CreatePlan({ athleteID }) {
   return (
     <React.Fragment>
       <Header connectToStrava={false} />
-      <Breadcrumbs className={classes.breadcrumb} separator="-">
+      <Breadcrumbs className={classes.breadcrumb} style={{fontSize: 14}} separator="-">
         <LinkRouter color="inherit" to={{
             pathname: urls.Dashboard,
             state: { athleteID: athleteID },
           }}>
           Home
         </LinkRouter>
-        <Typography color="textPrimary">Create Plan</Typography>
+        <Typography color="textPrimary" style={{fontSize: 14}}>Create Plan</Typography>
       </Breadcrumbs>
       <main className={classes.layout}>
         <Paper className={classes.paper}>

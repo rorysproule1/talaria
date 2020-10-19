@@ -159,6 +159,15 @@ export default function PreferencesForm() {
           </Alert>
         )}
         <Typography className={classes.info}>
+          Please provide a name for your new training plan:
+        </Typography>
+        <TextField
+          label="Plan Name"
+          className={classes.input}
+          value={state.planName}
+          onChange={(e) => setState({ ...state, planName: e.target.value })}
+        />
+        <Typography className={classes.info}>
           Is there any particular days you'd not like to run on during the plan?
         </Typography>
         <FormGroup row>
@@ -283,15 +292,6 @@ export default function PreferencesForm() {
           }
           name="include-cross-train"
           className={classes.input}
-        />
-        <Typography className={classes.info}>
-          Please provide a name for your new training plan
-        </Typography>
-        <TextField
-          label="Plan Name"
-          className={classes.input}
-          value={state.planName}
-          onChange={(e) => setState({ ...state, planName: e.target.value })}
         />
       </Grid>
     </React.Fragment>
