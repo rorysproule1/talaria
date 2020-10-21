@@ -23,12 +23,12 @@ def get_strava_insights():
     This endpoint is used to gather data points on an athlete's history on Strava
     to provide insightful suggestions to the athlete when they are creating a new training plan
     """
-    access_token = get_access_token(request.args.get("athlete_id"))
-    if not access_token:
-        return "An error occurred when requesting a new access token", 500
+    athlete_id = request.args.get("athlete_id")
+    if not athlete_id:
+        return "An error occurred when getting the athlete's id", 400
 
     # Get all athlete activities from strava api
-    activities = get_activities(access_token)
+    activities = get_activities(athlete_id)
     if not activities:
         return "An error occurred when requesting the athlete's activities", 500
 
@@ -107,53 +107,102 @@ def get_strava_insights():
 
 
 @strava.route("/dashboard", methods=["GET"])
-def get_recent_run():
+def get_dashboard_data():
 
     """
     This endpoint is used to get all of the athlete's strava data that is displayed on the Dashboard
-    It contains data such as their most recent run data
+    It contains data such as their latest run data
     """
 
-    access_token = get_access_token(request.args.get("athlete_id"))
-    if not access_token:
-        return "An error occurred when requesting a new access token", 500
+    athlete_id = request.args.get("athlete_id")
+    if not athlete_id:
+        return "An error occurred when getting the athlete's id", 400
 
-    # Get all athlete activities from strava api
-    activities = get_activities(access_token)
+    activities = get_activities(athlete_id)
     if not activities:
         return "An error occurred when requesting the athlete's activities", 500
 
-    recent_run = {}
+    latest_run = {}
+    today = time.date.today()
+    last_week = [
+        {
+            "day": str(today - time.timedelta(days=6)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=5)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=4)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=3)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=2)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=1)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today),
+            "distance": 0,
+            "time": 0,
+        },
+    ]
     for activity in activities:
         if activity["type"] == "Run":
-            elapsed_time = str(time.timedelta(seconds=activity["elapsed_time"]))
-            if elapsed_time.startswith("0:"):
-                elapsed_time = elapsed_time[2:]
 
-            distance = round(activity["distance"] / 1000, 2)
+            # If this run was in the last week, add it's data to the last week [{}]
+            for day in last_week:
+                if activity["start_date"].startswith(day["day"]):
+                    day["distance"] = round(activity["distance"] / 1000, 2)
+                    day["time"] = math.floor(activity["elapsed_time"] / 60)
 
-            speed = str(
-                time.timedelta(seconds=math.floor(activity["moving_time"] / distance))
-            )
-            if speed.startswith("0:"):
-                speed = speed[2:]
+            # If this is the first run found, add it's data as the latest run
+            if not latest_run:
+                elapsed_time = str(time.timedelta(seconds=activity["elapsed_time"]))
+                if elapsed_time.startswith("0:"):
+                    elapsed_time = elapsed_time[2:]
 
-            return {
-                "title": activity["name"],
-                "date": convert_iso_to_datetime(activity["start_date"]),
-                "time": elapsed_time,
-                "distance": distance,
-                "speed": speed,
-            }, 200
+                distance = round(activity["distance"] / 1000, 2)
+
+                speed = str(
+                    time.timedelta(
+                        seconds=math.floor(activity["moving_time"] / distance)
+                    )
+                )
+                if speed.startswith("0:"):
+                    speed = speed[2:]
+
+                latest_run = {
+                    "title": activity["name"],
+                    "date": convert_iso_to_datetime(activity["start_date"]),
+                    "time": elapsed_time,
+                    "distance": distance,
+                    "speed": speed,
+                }
+    return {"latest_run": latest_run, "last_week": last_week}, 200
 
 
-def get_activities(access_token):
+def get_activities(athlete_id):
 
     """
     Function to call the Strava API and return all the activities the athlete has recorded to date
     """
 
-    header = {"Authorization": f"Bearer {access_token}"}
+    header = {"Authorization": f"Bearer {get_access_token(athlete_id)}"}
     params = {"per_page": 100, "page": 1}
 
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)

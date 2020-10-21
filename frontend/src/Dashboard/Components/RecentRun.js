@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   loading: {
     margin: "0 auto",
     marginTop: theme.spacing(5),
-  }
+  },
 }));
 
 export default function RecentRun() {
@@ -23,7 +23,11 @@ export default function RecentRun() {
   return (
     <React.Fragment>
       <Title>Latest Run</Title>
-      {state.recentRun ? (
+      {state.dashboardError ? (
+        <Typography color="textSecondary">
+          There was an error getting your latest run from Strava
+        </Typography>
+      ) : state.recentRun ? (
         <>
           <Typography component="p" variant="h4">
             {state.recentRun["title"]}
@@ -51,7 +55,7 @@ export default function RecentRun() {
           </List>
         </>
       ) : (
-        <CircularProgress color="secondary" className={classes.loading}/>
+        <CircularProgress color="secondary" className={classes.loading} />
       )}
     </React.Fragment>
   );

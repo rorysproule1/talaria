@@ -27,6 +27,13 @@ const useStyles = makeStyles((theme) => ({
     margin: "0 auto",
     marginTop: theme.spacing(5),
   },
+  error: {
+    whiteSpace: "initial",
+  },
+  divider: {
+    marginLeft: "auto",
+    marginRight: "auto",
+  }
 }));
 
 export default function Plans() {
@@ -35,8 +42,15 @@ export default function Plans() {
 
   return (
     <React.Fragment>
-      {state.plans ? (
+      {state.dashboardError ? (
+        <Typography component="p" color="textSecondary">
+          There was an error getting your training plans
+        </Typography>
+      ) : state.plans ? (
         <>
+          <Typography component="p" variant="h5" className={classes.divider}>
+            Training Plans
+          </Typography>
           {state.plans.map((plan) => (
             <Grid key={plan._id} item xs={12}>
               <Paper className={classes.paper}>
@@ -44,19 +58,13 @@ export default function Plans() {
                 <Typography component="p" variant="h4">
                   {plan.distance}
                 </Typography>
-                <Typography
-                  color="textSecondary"
-                  className={classes.depositContext}
-                >
+                <Typography color="textSecondary">
                   Goal:{" "}
                   {plan.goal_type === enums.GoalType.DISTANCE
                     ? "Run the distance"
                     : `Run the distance in sub ${plan.goal_time}`}
                 </Typography>
-                <Typography
-                  color="textSecondary"
-                  className={classes.depositContext}
-                >
+                <Typography color="textSecondary">
                   {plan.runs_per_week} runs per week
                 </Typography>
 
