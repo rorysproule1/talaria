@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import Dashboard from "./Dashboard/Components/Dashboard";
+import Dashboard from "./Dashboard/DashboardWrapper";
 import LogIn from "./LogIn/LogIn";
 import { Switch, Route } from "react-router-dom";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";

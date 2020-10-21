@@ -165,14 +165,23 @@ export default function CreatePlan({ athleteID }) {
   return (
     <React.Fragment>
       <Header connectToStrava={false} />
-      <Breadcrumbs className={classes.breadcrumb} style={{fontSize: 14}} separator="-">
-        <LinkRouter color="inherit" to={{
+      <Breadcrumbs
+        className={classes.breadcrumb}
+        style={{ fontSize: 14 }}
+        separator="-"
+      >
+        <LinkRouter
+          color="inherit"
+          to={{
             pathname: urls.Dashboard,
             state: { athleteID: athleteID },
-          }}>
+          }}
+        >
           Home
         </LinkRouter>
-        <Typography color="textPrimary" style={{fontSize: 14}}>Create Plan</Typography>
+        <Typography color="textPrimary" style={{ fontSize: 14 }}>
+          Create Plan
+        </Typography>
       </Breadcrumbs>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
@@ -195,7 +204,15 @@ export default function CreatePlan({ athleteID }) {
           </Grid>
           <div className={classes.buttons}>
             {state.step !== 0 && (
-              <Button onClick={handleBack} className={classes.button}>
+              <Button
+                onClick={handleBack}
+                className={classes.button}
+                disabled={
+                  state.planSubmitted &&
+                  !state.planSubmittedError &&
+                  state.step === steps.length - 1
+                }
+              >
                 Back
               </Button>
             )}
@@ -205,7 +222,11 @@ export default function CreatePlan({ athleteID }) {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
-                disabled={state.planSubmitted}
+                disabled={
+                  state.planSubmitted &&
+                  !state.planSubmittedError &&
+                  state.step === steps.length - 1
+                }
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>

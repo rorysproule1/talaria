@@ -1,19 +1,19 @@
 import React from "react";
-import { CreatePlanProvider } from "./CreatePlanContext";
-import CreatePlan from "./Components/CreatePlan";
+import { DashboardProvider } from "./DashboardContext";
+import Dashboard from "./Components/Dashboard";
 import * as urls from "../assets/utils/urls";
 import { Redirect } from "react-router-dom";
 
-export default function CreatePlanWrapper(props) {
+export default function DashboardWrapper(props) {
 
   return (
     <React.Fragment>
       {props.location.state ? (
-        <CreatePlanProvider>
+        <DashboardProvider>
           <React.Fragment>
-            <CreatePlan athleteID={props.location.state.athleteID} />
+            <Dashboard athleteID={props.location.state.athleteID} />
           </React.Fragment>
-        </CreatePlanProvider>
+        </DashboardProvider>
       ) : (
         <Redirect
           to={{

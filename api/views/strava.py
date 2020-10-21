@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import math
 
 from .athlete import get_access_token
 import requests
@@ -19,12 +20,17 @@ strava = Blueprint("strava", __name__)
 def get_strava_insights():
 
     """
-    This endpoint is used to gather insights into an athlete's history on Strava
-    to provide suggestions to the athlete when they are creating a new training plan
+    This endpoint is used to gather data points on an athlete's history on Strava
+    to provide insightful suggestions to the athlete when they are creating a new training plan
     """
+    access_token = get_access_token(request.args.get("athlete_id"))
+    if not access_token:
+        return "An error occurred when requesting a new access token", 500
 
     # Get all athlete activities from strava api
-    activities = get_activities(get_access_token(request.args.get("athlete_id")))
+    activities = get_activities(access_token)
+    if not activities:
+        return "An error occurred when requesting the athlete's activities", 500
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
         False,
@@ -99,25 +105,46 @@ def get_strava_insights():
         "distance_per_week": round(total_distance / weeks) / 1000,
     }, 200
 
-@strava.route("/dashboard-activities", methods=["GET"])
+
+@strava.route("/dashboard", methods=["GET"])
 def get_recent_run():
 
     """
-    This endpoint is used to get all the athlete's strava data that is used on the Dashboard
-    It contains data such as their most recent run,
+    This endpoint is used to get all of the athlete's strava data that is displayed on the Dashboard
+    It contains data such as their most recent run data
     """
 
-    # Get all athlete activities from strava api
-    activities = get_activities(get_access_token(request.args.get("athlete_id")))
+    access_token = get_access_token(request.args.get("athlete_id"))
+    if not access_token:
+        return "An error occurred when requesting a new access token", 500
 
-    # Get the athlete's most recent run
+    # Get all athlete activities from strava api
+    activities = get_activities(access_token)
+    if not activities:
+        return "An error occurred when requesting the athlete's activities", 500
+
     recent_run = {}
     for activity in activities:
-       if activity["type"] == "Run":
-           recent_run = activity
-           break
+        if activity["type"] == "Run":
+            elapsed_time = str(time.timedelta(seconds=activity["elapsed_time"]))
+            if elapsed_time.startswith("0:"):
+                elapsed_time = elapsed_time[2:]
 
-    return {"recent_run": recent_run}, 200
+            distance = round(activity["distance"] / 1000, 2)
+
+            speed = str(
+                time.timedelta(seconds=math.floor(activity["moving_time"] / distance))
+            )
+            if speed.startswith("0:"):
+                speed = speed[2:]
+
+            return {
+                "title": activity["name"],
+                "date": convert_iso_to_datetime(activity["start_date"]),
+                "time": elapsed_time,
+                "distance": distance,
+                "speed": speed,
+            }, 200
 
 
 def get_activities(access_token):
@@ -129,19 +156,13 @@ def get_activities(access_token):
     header = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": 100, "page": 1}
 
-    print("\nRequesting the athlete's activities...\n")
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
 
     if response.ok:
-        print("\nSuccessfully requested the athlete's activities!\n")
         return response.json()
     else:
-        print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
-        abort(
-            500,
-            description="An error occurred when requesting the athlete's activities",
-        )
+        return False
 
 
 def get_epoch_timestamp():

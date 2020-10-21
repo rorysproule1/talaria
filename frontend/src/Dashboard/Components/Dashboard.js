@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -6,8 +6,8 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Chart from "./Chart";
-import Deposits from "./Deposits";
-import Orders from "./Orders";
+import RecentRun from "./RecentRun";
+import Plans from "./Plans";
 import Header from "../../assets/js/Header";
 import Footer from "../../assets/js/Footer";
 import Fab from "@material-ui/core/Fab";
@@ -15,6 +15,7 @@ import AddIcon from "@material-ui/icons/Add";
 import * as urls from "../../assets/utils/urls";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
+import { DashboardContext } from "../DashboardContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,34 +58,42 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard(props) {
+export default function Dashboard({ athleteID }) {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
-  const athleteID = props.location.state.athleteID;
+  const [state, setState] = useContext(DashboardContext);
+  const [plans, setPlans] = useState(null);
+  const [recentRun, setRecentRun] = useState(null);
   const [createPlan, setCreatePlan] = useState(false);
 
   useEffect(() => {
-
     axios
       .get(`${urls.Plans}/${athleteID}`, {})
       .then((response) => {
-        console.log(response.data);
+        setPlans(response.data["plans"]);
       })
       .catch((error) => {
         console.log(error);
       });
 
-    
-      axios
+    axios
       .get(urls.DashboardActivities, { params: { athlete_id: athleteID } })
       .then((response) => {
-        console.log(response.data);
+        setRecentRun(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
   }, []);
+
+  useEffect(() => {
+    setState({ ...state, recentRun: recentRun });
+  }, [recentRun]);
+
+  useEffect(() => {
+    setState({ ...state, plans: plans });
+  }, [plans]);
 
   return (
     <React.Fragment>
@@ -103,23 +112,19 @@ export default function Dashboard(props) {
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
               {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={12} md={8} lg={7}>
                 <Paper className={fixedHeightPaper}>
                   <Chart />
                 </Paper>
               </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
+              {/* Recent Run */}
+              <Grid item xs={12} md={8} lg={5}>
                 <Paper className={fixedHeightPaper}>
-                  <Deposits />
+                  <RecentRun />
                 </Paper>
               </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <Orders />
-                </Paper>
-              </Grid>
+              {/* Athlete's Plans */}
+              <Plans />
             </Grid>
             <Fab
               aria-label="Create"
