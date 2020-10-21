@@ -133,6 +133,10 @@ export default function Header({ connectToStrava }) {
     window.location.href = urls.StravaAuthorization;
   }
 
+  function onLogOutHandler(e) {
+    setLogOut(true)
+  }
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -150,7 +154,7 @@ export default function Header({ connectToStrava }) {
       {credentialsAuthorized && (
         <Redirect
           to={{
-            pathname: urls.CreatePlan,
+            pathname: urls.Dashboard,
             state: { athleteID: athleteID },
           }}
         />
@@ -192,7 +196,7 @@ export default function Header({ connectToStrava }) {
               variant="outlined"
               size="small"
               color="primary"
-              onClick={() => setLogOut(true)}
+              onClick={onLogOutHandler}
             >
               Log Out
             </Button>

@@ -16,13 +16,13 @@ def post_athlete():
     strava_id = body.get("strava_id")
 
     if strava_id:
-        validate_athlete_data(body)
+        if not validate_athlete_data(body):
+            return "Error validating athlete's data", 400
     else:
-        abort(400, description="An error occurred when getting the athlete's id")
+        return "Error obtaining the athlete's id", 400
 
     # If the athlete already exists, we update their details,
     # if not we create the new athlete instance
-    print("\nAttempting to store the athlete's details ...\n")
     upsert = mongo.db.athletes.update(
         {"strava_id": strava_id},
         {
@@ -42,12 +42,6 @@ def post_athlete():
     # Check if upsert updated an existing record or created a new one
     status_code = 200 if upsert.get("updatedExisting") else 201
 
-    print(
-        "\nSuccessfully updated the existing athlete's details!\n"
-    ) if status_code == 200 else print(
-        "\nSuccessfully added the new athlete's details!\n"
-    )
-
     # We get the _id of the athlete to be used throughout the app
     athlete = mongo.db.athletes.find_one({"strava_id": strava_id}, {})
 
@@ -57,7 +51,7 @@ def post_athlete():
 def validate_athlete_data(body):
 
     """
-    The athlete details should already be valid as they are coming diretcly from Strava oAuth, however we do some quick
+    The athlete's details should already be valid as they are coming directly from Strava oAuth, however we do some quick
     checks to ensure the data is complete and accurate
     """
 
@@ -77,27 +71,17 @@ def validate_athlete_data(body):
         and sex
     ):
         if not access_token.isalnum():
-            abort(
-                400,
-                description="An error occurred as the access token provided is invalid",
-            )
+            return False
         if not refresh_token.isalnum():
-            abort(
-                400,
-                description="An error occurred as the access token provided is invalid",
-            )
+            return False
         if not sex in ["M", "F"]:
-            abort(400, description="An error occurred as the sex provided is invalid")
+            return False
         if datetime.now() > convert_iso_to_datetime(expires_at):
-            abort(
-                400,
-                description="An error occurred as the token expiry provided is invalid",
-            )
+            return False
     else:
-        abort(
-            400,
-            description="An error occurred as not all athlete details were provided",
-        )
+        return False
+
+    return True
 
 
 def get_access_token(athlete_id):
@@ -119,15 +103,18 @@ def get_access_token(athlete_id):
         expires_at = result.get("expires_at")
         # If the token hasn't expired, return the current token
         if datetime.now() < expires_at:
-            print("\nThe current Access Token is still valid!\n")
             return access_token
         else:
             # If it's expired, request a new one and return it
-            return get_new_access_token(
+            new_access_token = get_new_access_token(
                 athlete_id, result.get("refresh_token"), expires_at
             )
+            if not new_access_token:
+                return False
+            else:
+                return new_access_token
     else:
-        abort(404, description="An error occurred when getting the athlete's data")
+        return False
 
 
 def get_new_access_token(athlete_id, refresh_token, expires_at):
@@ -140,11 +127,9 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
     }
 
     # post to strava api requesting a new access token (these expire every 6 hours)
-    print("\nRequesting a new Access Token ...\n")
     response = requests.post(urls.STRAVA_AUTHORIZE_URL, data=payload, verify=False)
 
     if response.ok:
-        print("\nReceived a new Access Token!\n")
         access_token = response.json()["access_token"]
         # update the athletes access_token and new expires_at in the db
         mongo.db.athletes.update(
@@ -159,9 +144,8 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
             },
         )
     else:
-        print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
-        abort(500, description="An error occurred when requesting a new access token")
+        return False
 
     return access_token
 

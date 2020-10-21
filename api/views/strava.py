@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import math
 
 from .athlete import get_access_token
 import requests
@@ -19,12 +20,17 @@ strava = Blueprint("strava", __name__)
 def get_strava_insights():
 
     """
-    This endpoint is used to gather insights into an athlete's history on Strava
-    to provide suggestions to the athlete when they are creating a new training plan
+    This endpoint is used to gather data points on an athlete's history on Strava
+    to provide insightful suggestions to the athlete when they are creating a new training plan
     """
+    athlete_id = request.args.get("athlete_id")
+    if not athlete_id:
+        return "An error occurred when getting the athlete's id", 400
 
-    # get all athlete activities from strava api
-    activities = get_activities(get_access_token(request.args.get("athlete_id")))
+    # Get all athlete activities from strava api
+    activities = get_activities(athlete_id)
+    if not activities:
+        return "An error occurred when requesting the athlete's activities", 500
 
     completed_5km, completed_10km, completed_half_marathon, completed_marathon = (
         False,
@@ -50,7 +56,7 @@ def get_strava_insights():
     additional_activities = set()
     timestamp = get_epoch_timestamp()
 
-    # analyse each activity for insights
+    # Analyse each activity for insights
     for activity in activities:
         if activity["type"] == "Run":
             total_runs += 1
@@ -100,28 +106,112 @@ def get_strava_insights():
     }, 200
 
 
-def get_activities(access_token):
+@strava.route("/dashboard", methods=["GET"])
+def get_dashboard_data():
+
+    """
+    This endpoint is used to get all of the athlete's strava data that is displayed on the Dashboard
+    It contains data such as their latest run data
+    """
+
+    athlete_id = request.args.get("athlete_id")
+    if not athlete_id:
+        return "An error occurred when getting the athlete's id", 400
+
+    activities = get_activities(athlete_id)
+    if not activities:
+        return "An error occurred when requesting the athlete's activities", 500
+
+    latest_run = {}
+    today = time.date.today()
+    last_week = [
+        {
+            "day": str(today - time.timedelta(days=6)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=5)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=4)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=3)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=2)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today - time.timedelta(days=1)),
+            "distance": 0,
+            "time": 0,
+        },
+        {
+            "day": str(today),
+            "distance": 0,
+            "time": 0,
+        },
+    ]
+    for activity in activities:
+        if activity["type"] == "Run":
+
+            # If this run was in the last week, add it's data to the last week [{}]
+            for day in last_week:
+                if activity["start_date"].startswith(day["day"]):
+                    day["distance"] = round(activity["distance"] / 1000, 2)
+                    day["time"] = math.floor(activity["elapsed_time"] / 60)
+
+            # If this is the first run found, add it's data as the latest run
+            if not latest_run:
+                elapsed_time = str(time.timedelta(seconds=activity["elapsed_time"]))
+                if elapsed_time.startswith("0:"):
+                    elapsed_time = elapsed_time[2:]
+
+                distance = round(activity["distance"] / 1000, 2)
+
+                speed = str(
+                    time.timedelta(
+                        seconds=math.floor(activity["moving_time"] / distance)
+                    )
+                )
+                if speed.startswith("0:"):
+                    speed = speed[2:]
+
+                latest_run = {
+                    "title": activity["name"],
+                    "date": convert_iso_to_datetime(activity["start_date"]),
+                    "time": elapsed_time,
+                    "distance": distance,
+                    "speed": speed,
+                }
+    return {"latest_run": latest_run, "last_week": last_week}, 200
+
+
+def get_activities(athlete_id):
 
     """
     Function to call the Strava API and return all the activities the athlete has recorded to date
     """
 
-    header = {"Authorization": f"Bearer {access_token}"}
+    header = {"Authorization": f"Bearer {get_access_token(athlete_id)}"}
     params = {"per_page": 100, "page": 1}
 
-    print("\nRequesting the athlete's activities...\n")
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
 
     if response.ok:
-        print("\nSuccessfully requested the athlete's activities!\n")
         return response.json()
     else:
-        print("\nAn error occurred when requesting a new Access Token!\n")
         print(f"\n{response.raise_for_status()}\n")
-        abort(
-            500,
-            description="An error occurred when requesting the athlete's activities",
-        )
+        return False
 
 
 def get_epoch_timestamp():

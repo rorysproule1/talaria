@@ -20,7 +20,9 @@ const CreatePlanProvider = (props) => {
     longRunDay: null,
     blockedDays: [],
     runsPerWeekError: false,
+    planName: null,
     planSubmitted: false,
+    planSubmittedError: false,
   });
 
   return (

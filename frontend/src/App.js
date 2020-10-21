@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import Dashboard from "./Dashboard/Components/Dashboard";
+import Dashboard from "./Dashboard/DashboardWrapper";
 import LogIn from "./LogIn/LogIn";
 import { Switch, Route } from "react-router-dom";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";
@@ -10,7 +10,6 @@ import * as urls from "./assets/utils/urls";
 
 function App() {
   return (
-
     // Full list of URLs used in the app
 
     <main>
@@ -23,7 +22,7 @@ function App() {
           {/* 404 page if the url doesn't match any of the URLs */}
           <Route component={NotFound} />
         </Switch>
-      {/* Fallback UI if any component crashes */}
+        {/* Fallback UI if any component crashes */}
       </ErrorBoundary>
     </main>
   );

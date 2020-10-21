@@ -14,6 +14,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import { CreatePlanContext } from "../CreatePlanContext";
 import * as strings from "../../assets/utils/strings";
 import * as enums from "../../assets/utils/enums";
+import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -157,6 +158,15 @@ export default function PreferencesForm() {
             {blockedError.message}
           </Alert>
         )}
+        <Typography className={classes.info}>
+          Please provide a name for your new training plan:
+        </Typography>
+        <TextField
+          label="Plan Name"
+          className={classes.input}
+          value={state.planName}
+          onChange={(e) => setState({ ...state, planName: e.target.value })}
+        />
         <Typography className={classes.info}>
           Is there any particular days you'd not like to run on during the plan?
         </Typography>

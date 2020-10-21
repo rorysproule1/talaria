@@ -28,7 +28,12 @@ export default function Summary() {
     <React.Fragment>
       {state.planSubmitted && (
         <Alert severity="success" className={classes.info}>
-          Your plan was created successfully!
+          SUCCESS: Your plan was created successfully!
+        </Alert>
+      )}
+      {state.planSubmittedError && (
+        <Alert severity="error" className={classes.info}>
+          ERROR: There was a problem creating your plan
         </Alert>
       )}
       <Table size="small">
@@ -71,6 +76,16 @@ export default function Summary() {
             <TableCell>Runs Per Week:</TableCell>
             <TableCell>{state.runsPerWeek}</TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell>Blocked Days:</TableCell>
+            <TableCell>
+              {state.blockedDays.length > 1
+                ? state.blockedDays.join(", ")
+                : state.blockedDays.length === 1
+                ? state.blockedDays
+                : "N/A"}
+            </TableCell>
+          </TableRow>
           {state.distance.includes(enums.Distance.MARATHON) && (
             <TableRow>
               <TableCell>Long Run Day:</TableCell>
@@ -88,14 +103,8 @@ export default function Summary() {
             <TableCell>{state.includeCrossTrain ? "Yes" : "No"}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Blocked Days:</TableCell>
-            <TableCell>
-              {state.blockedDays.length > 1
-                ? state.blockedDays.join(", ")
-                : state.blockedDays.length === 1
-                ? state.blockedDays
-                : "N/A"}
-            </TableCell>
+            <TableCell>Plan Name</TableCell>
+            <TableCell>{state.planName ? state.planName : "N/A"}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
