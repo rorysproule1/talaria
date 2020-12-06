@@ -64,37 +64,48 @@ export default function Dashboard({ athleteID }) {
 
   const [state, setState] = useContext(DashboardContext);
   const [plans, setPlans] = useState(null);
-  const [dashboardStrava, setDashboardStrava] = useState({latestRun: null, lastWeek: null});
+  const [dashboardStrava, setDashboardStrava] = useState({
+    latestRun: null,
+    lastWeek: null,
+  });
   const [createPlan, setCreatePlan] = useState(false);
   const [dashboardStravaError, setDashboardStravaError] = useState(false);
   const [dashboardPlansError, setDashboardPlansError] = useState(false);
 
-
   useEffect(() => {
+    // On initial loading of the Dashboard, we request the user's plans and an insight into their recent Strava activity
     axios
       .get(`${urls.Plans}/${athleteID}`, {})
       .then((response) => {
         setPlans(response.data["plans"]);
       })
       .catch((error) => {
-        setDashboardPlansError(true)
+        setDashboardPlansError(true);
         console.log(error);
       });
 
     axios
       .get(urls.DashboardActivities, { params: { athlete_id: athleteID } })
       .then((response) => {
-        setDashboardStrava({ ...dashboardStrava, latestRun: response.data["latest_run"], lastWeek: response.data["last_week"]});
-        console.log(response.data)
+        setDashboardStrava({
+          ...dashboardStrava,
+          latestRun: response.data["latest_run"],
+          lastWeek: response.data["last_week"],
+        });
+        console.log(response.data);
       })
       .catch((error) => {
-        setDashboardStravaError(true)
+        setDashboardStravaError(true);
         console.log(error);
       });
   }, []);
 
   useEffect(() => {
-    setState({ ...state, recentRun: dashboardStrava.latestRun, lastWeek: dashboardStrava.lastWeek});
+    setState({
+      ...state,
+      recentRun: dashboardStrava.latestRun,
+      lastWeek: dashboardStrava.lastWeek,
+    });
   }, [dashboardStrava]);
 
   useEffect(() => {
@@ -102,11 +113,11 @@ export default function Dashboard({ athleteID }) {
   }, [plans]);
 
   useEffect(() => {
-    setState({ ...state, dashboardError: dashboardStravaError});
+    setState({ ...state, dashboardError: dashboardStravaError });
   }, [dashboardStravaError]);
 
   useEffect(() => {
-    setState({ ...state, plansError: dashboardPlansError});
+    setState({ ...state, plansError: dashboardPlansError });
   }, [dashboardPlansError]);
 
   return (
@@ -124,7 +135,7 @@ export default function Dashboard({ athleteID }) {
       <main className={classes.layout}>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
-            {/* Chart */}
+            {/* Last Week Activity */}
             <Grid item xs={12} md={8} lg={7}>
               <Paper className={fixedHeightPaper}>
                 <LastWeek />

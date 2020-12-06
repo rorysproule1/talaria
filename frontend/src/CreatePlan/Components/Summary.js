@@ -21,6 +21,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Summary() {
+  // This component is used to provide the runner with a summary of the plan they have
+  // attempted to create in the CreatePlan flow. They can review this and go back to make
+  // changes, or confirm that they want to create the plan
+
   const classes = useStyles();
   const [state, setState] = useContext(CreatePlanContext);
 

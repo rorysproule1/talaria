@@ -15,6 +15,11 @@ plan = Blueprint("plan", __name__)
 
 @plan.route("/plans", methods=["POST"])
 def post_plan():
+
+    """
+    This endpoint is used to post a proposed plan in the plan creation flow, the details of it are 
+    validated and then stored in the plan collection
+    """
     body = request.get_json()
     athlete_id = body.get("athlete_id")
 
@@ -23,6 +28,7 @@ def post_plan():
             return "Error validating athlete's data", 400
     else:
         return "Error obtaining the athlete's id", 400
+    
 
     body["plan"] = generate_training_plan(athlete_id, body)
 
@@ -36,6 +42,11 @@ def post_plan():
 
 @plan.route("/plans/<string:athlete_id>", methods=["GET"])
 def get_all_plans(athlete_id):
+
+    """
+    This endpoint is used to get all the existing training plans a runner has created to be
+    displayed on their dashboard, along with a short bit of data on each
+    """
 
     try:
         cursor = mongo.db.plans.find({"athlete_id": athlete_id})

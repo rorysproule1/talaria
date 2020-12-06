@@ -11,7 +11,13 @@ athlete = Blueprint("athlete", __name__)
 
 
 @athlete.route("/athletes", methods=["POST"])
+
 def post_athlete():
+    """
+    This endpoint is used when logging in through Strava OAuth, the athlete data received is
+    validated, stored in the db and their object id from the db is returned to be used on the 
+    fronted
+    """
     body = request.get_json()
     strava_id = body.get("strava_id")
 
@@ -22,7 +28,7 @@ def post_athlete():
         return "Error obtaining the athlete's id", 400
 
     # If the athlete already exists, we update their details,
-    # if not we create the new athlete instance
+    # if not we create the new athlete document
     upsert = mongo.db.athletes.update(
         {"strava_id": strava_id},
         {

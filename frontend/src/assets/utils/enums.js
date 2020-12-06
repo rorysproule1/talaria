@@ -3,23 +3,23 @@
  */
 
 export const Distance = {
-    FIVE_KM: '5KM',
-    TEN_KM: '10KM',
-    HALF_MARATHON: 'HALF-MARATHON',
-    MARATHON: 'MARATHON'
-}
+  FIVE_KM: "5KM",
+  TEN_KM: "10KM",
+  HALF_MARATHON: "HALF-MARATHON",
+  MARATHON: "MARATHON",
+};
 
 export const GoalType = {
-    DISTANCE: 'DISTANCE',
-    TIME: 'TIME',
-}
+  DISTANCE: "DISTANCE",
+  TIME: "TIME",
+};
 
 export const Day = {
-    MONDAY: 'Monday',
-    TUESDAY: 'Tuesday',
-    WEDNESDAY: 'Wednesday',
-    THURSDAY: 'Thursday',
-    FRIDAY: 'Friday',
-    SATURDAY: 'Saturday',
-    SUNDAY: 'Sunday',
-}
+  MONDAY: "Monday",
+  TUESDAY: "Tuesday",
+  WEDNESDAY: "Wednesday",
+  THURSDAY: "Thursday",
+  FRIDAY: "Friday",
+  SATURDAY: "Saturday",
+  SUNDAY: "Sunday",
+};

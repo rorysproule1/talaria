@@ -16,6 +16,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function RunsPerWeekForm() {
+  // This is the fourth form in the CreatePlan flow, it allows the user to select an amount of runs
+  // per week for their plan and suggests to them if they should go for distance 
+  // or time (also what time to go for)
+
   const classes = useStyles();
   const [state, setState] = useContext(CreatePlanContext);
 

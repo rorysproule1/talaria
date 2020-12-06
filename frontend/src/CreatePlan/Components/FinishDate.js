@@ -19,6 +19,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function FinishDateForm() {
+  // This is the third form in the CreatePlan flow, it allows the user to optionally select a finish date for their plan
+
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);

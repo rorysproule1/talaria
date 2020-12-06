@@ -5,6 +5,8 @@ import * as urls from "../assets/utils/urls";
 import { Redirect } from "react-router-dom";
 
 export default function CreatePlanWrapper(props) {
+  // This wrapper authenticates the user (using the user id passed) before rendering the CreatePlan form,
+  // it also provides the components within it access to the CreatePlanContext
 
   return (
     <React.Fragment>

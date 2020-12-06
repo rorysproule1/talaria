@@ -74,6 +74,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function GoalTypeForm() {
+  // This is the second form in the CreatePlan flow, it allows the user to select a goal type for their plan
+  // and suggests to them if they should go for distance or time (also what time to go for)
+
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle);
 
