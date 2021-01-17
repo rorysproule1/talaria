@@ -92,7 +92,6 @@ export default function Dashboard({ athleteID }) {
           latestRun: response.data["latest_run"],
           lastWeek: response.data["last_week"],
         });
-        console.log(response.data);
       })
       .catch((error) => {
         setDashboardStravaError(true);

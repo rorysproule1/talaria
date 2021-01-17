@@ -1,5 +1,3 @@
-import logging
-import os
 import time
 import math
 
@@ -11,7 +9,6 @@ from flask import Blueprint, Flask, request, abort, jsonify, make_response
 from datetime import datetime
 import datetime as time
 from .athlete import convert_iso_to_datetime
-from werkzeug.exceptions import HTTPException, NotFound
 from bson import ObjectId
 
 strava = Blueprint("strava", __name__)

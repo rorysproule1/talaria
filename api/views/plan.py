@@ -112,7 +112,7 @@ def generate_training_plan(athlete_id, plan):
     runs_per_week = plan.get("runs_per_week")
     goal_time = plan.get("goal_time")
     finish_date = plan.get("finish_date")
-    include_taper = plan.get(" include_taper")
+    include_taper = plan.get("include_taper")
     include_cross_train = plan.get("include_cross_train")
     long_run_day = plan.get("long_run_day")
     blocked_days = plan.get("blocked_days")
