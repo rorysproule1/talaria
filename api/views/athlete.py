@@ -155,11 +155,11 @@ def get_new_access_token(athlete_id, refresh_token, expires_at):
 
     return access_token
 
-
+# Used to convert str of date returned by Strava API to datetime.datetime
 def convert_iso_to_datetime(iso_date):
     date = datetime.fromisoformat(iso_date.replace("Z", "+00:00"))
     return date.replace(tzinfo=None)
 
-
+# Used to convert timestamp of access token expiry to datetime
 def convert_timestamp_to_datetime(timestamp):
     return datetime.fromtimestamp(timestamp / 1000)
