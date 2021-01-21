@@ -30,11 +30,15 @@ const cards = [
     title: "Time Goal",
     photo: time_goal,
     description:
-      "A plan dedicated to running the distance in a set amount of time.",
+      "A plan dedicated to running the distance in a specified amount of time.",
   },
 ];
 
 const useStyles = makeStyles((theme) => ({
+  title: {
+    padding: "16px",
+    marginTop: theme.spacing(1),
+  },
   card: {
     height: "100%",
     display: "flex",
@@ -134,7 +138,7 @@ export default function GoalTypeForm() {
       <h2>
         <b>Please enter your goal time:</b>
       </h2>
-      <p>Your goal time should be in the form HH:MM:SS</p>
+      <p>Your goal time should be in the form HH:MM:SS. </p>
       {goalTimeError && (
         <Alert severity="error" className={classes.alert}>
           {strings.GoalTimeError}
@@ -186,7 +190,38 @@ export default function GoalTypeForm() {
               >
                 {card.title}
               </Typography>
-              <Typography>{card.description}</Typography>
+              <Typography>
+                {card.description}
+                {card.id === 1 &&
+                  ((state.distance === enums.Distance.FIVE_KM &&
+                    !state.completed5km) ||
+                    (state.distance === enums.Distance.TEN_KM &&
+                      !state.completed10km) ||
+                    (state.distance === enums.Distance.HALF_MARATHON &&
+                      !state.completedHalfMarathon) ||
+                    (state.distance === enums.Distance.MARATHON &&
+                      !state.completedMarathon)) && (
+                    <Alert severity="info" className={classes.title}>
+                      Having never ran a {state.distance.toLowerCase()}, we
+                      recommend you just aim to complete it, rather than aim for
+                      a specific time.
+                    </Alert>
+                  )}
+                {card.id === 2 &&
+                  ((state.distance === enums.Distance.FIVE_KM &&
+                    state.completed5km) ||
+                    (state.distance === enums.Distance.TEN_KM &&
+                      state.completed10km) ||
+                    (state.distance === enums.Distance.HALF_MARATHON &&
+                      state.completedHalfMarathon) ||
+                    (state.distance === enums.Distance.MARATHON &&
+                      state.completedMarathon)) && (
+                    <Alert severity="info" className={classes.title}>
+                      Seeing as you've ran a {state.distance.toLowerCase()} before, we
+                      recommend you aim to run it in a specific time.
+                    </Alert>
+                  )}
+              </Typography>
             </CardContent>
             <CardActions className={classes.cardActions}>
               <Button

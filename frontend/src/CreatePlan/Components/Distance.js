@@ -13,6 +13,7 @@ import halfMarathon from "../../assets/images/CreatePlan/half-marathon.jpg";
 import marathon from "../../assets/images/CreatePlan/marathon.jpg";
 import { CreatePlanContext } from "../CreatePlanContext";
 import * as enums from "../../assets/utils/enums";
+import Alert from "@material-ui/lab/Alert";
 
 const cards = [
   {
@@ -62,6 +63,10 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginLeft: "auto",
     paddingRight: theme.spacing(2),
+  },
+  title: {
+    padding: "16px",
+    marginTop: theme.spacing(1),
   },
 }));
 
@@ -115,7 +120,42 @@ export default function DistanceForm() {
               >
                 {card.title}
               </Typography>
-              <Typography>{card.description}</Typography>
+              <Typography>
+                {card.description}
+                { state.insightsFound && (card.id === 1) && !state.completed5km && (
+                  <Alert severity="info" className={classes.title}>
+                    Looking at your Strava history,, we see you've never ran 5km. We
+                    recommend you start here.
+                  </Alert>
+                )}
+                {(card.id === 2) &&
+                  state.completed5km &&
+                  !state.completed10km && (
+                  <Alert severity="info" className={classes.title}>
+                    Looking at your Strava history,, we see you've never ran 10km.
+                    We recommend you aim for this.
+                  </Alert>
+                )}
+                {(card.id === 3) &&
+                  state.completed5km &&
+                  state.completed10km &&
+                  !state.completedHalfMarathon && (
+                  <Alert severity="info" className={classes.title}>
+                   Looking at your Strava history,, we see you've never ran a half
+                    marathon. We recommend you aim for this.
+                  </Alert>
+                )}
+                {(card.id === 4) &&
+                  state.completed5km &&
+                  state.completed10km &&
+                  state.completedHalfMarathon &&
+                  !state.completedMarathon && (
+                  <Alert severity="info" className={classes.title}>
+                    Looking at your Strava history, we see you've never ran a
+                    marathon. We recommend you aim for this.
+                  </Alert>
+                )}
+              </Typography>
             </CardContent>
             <CardActions className={classes.cardActions}>
               <Button

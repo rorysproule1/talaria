@@ -58,21 +58,24 @@ def get_strava_insights():
     # Analyse each activity for insights
     for activity in activities:
         if activity["type"] == "Run":
+            run_distance = activity["distance"]
+
             total_runs += 1
-            total_distance = total_distance + activity["distance"]
+            total_distance = total_distance + run_distance
             first_run_date = activity["start_date"]
 
-            if 5000 <= activity["distance"] <= 5500:
+            # Gather data on each milestone distance
+            if 5000 <= run_distance <= 5500:
                 completed_5km = True
                 if activity["elapsed_time"] < fastest_5km or fastest_5km == 0:
                     fastest_5km = activity["elapsed_time"]
                 continue
-            if 10000 <= activity["distance"] <= 10500:
+            if 10000 <= run_distance <= 10500:
                 completed_10km = True
                 if activity["elapsed_time"] < fastest_10km or fastest_10km == 0:
                     fastest_10km = activity["elapsed_time"]
                 continue
-            if 21097 <= activity["distance"] <= 21597:
+            if 21097 <= run_distance <= 21597:
                 completed_half_marathon = True
                 if (
                     activity["elapsed_time"] < fastest_half_marathon
@@ -80,11 +83,31 @@ def get_strava_insights():
                 ):
                     fastest_half_marathon = activity["elapsed_time"]
                 continue
-            if 42195 <= activity["distance"] <= 42695:
+            if 42195 <= run_distance <= 42695:
                 completed_marathon = True
                 if activity["elapsed_time"] < fastest_marathon or fastest_marathon == 0:
                     fastest_marathon = activity["elapsed_time"]
                 continue
+
+            # Gather data on irregular distances
+            if run_distance >= 42195:
+                (
+                    completed_5km,
+                    completed_10km,
+                    completed_half_marathon,
+                    completed_marathon,
+                ) = (True, True, True, True)
+            elif run_distance >= 21097:
+                completed_5km, completed_10km, completed_half_marathon = (
+                    True,
+                    True,
+                    True,
+                )
+            elif run_distance >= 10000:
+                completed_5km, completed_10km = True, True
+            elif run_distance >= 5000:
+                completed_5km = True
+
         else:
             additional_activities.add(activity["type"])
 

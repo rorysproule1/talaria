@@ -90,6 +90,18 @@ export default function CreatePlan({ athleteID }) {
       .then((response) => {
         // assign to context state values
         console.log(response.data);
+        setState({
+          ...state,
+          insightsFound: true,
+          completed5km: response.data["completed_5km"],
+          completed10km: response.data["completed_10km"],
+          completedHalfMarathon: response.data["completed_half_marathon"],
+          completedMarathon: response.data["completed_marathon"],
+          fastest5km: response.data["fastest_5km"],
+          fastest10km: response.data["fastest_10km"],
+          fastestHalfMarathon: response.data["fastest_half_marathon"],
+          fastestMarathon: response.data["fastest_marathon"],
+        });
       })
       .catch((error) => {
         console.log(error);
