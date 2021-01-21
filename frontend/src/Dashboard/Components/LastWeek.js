@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LastWeek() {
+  // This component provides the runner with details about their Strava activity in the list 7 days on their Dashboard, using the
+  // Strava data requested in Dashboard.js
+
   const classes = useStyles();
   const [state, setState] = useContext(DashboardContext);
 

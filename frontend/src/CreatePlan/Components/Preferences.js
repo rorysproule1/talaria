@@ -41,6 +41,9 @@ const days = [
 ];
 
 export default function PreferencesForm() {
+  // This is the last form in the CreatePlan flow, it allows the user to optionally select a range of 
+  // preferences for their plan
+
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);

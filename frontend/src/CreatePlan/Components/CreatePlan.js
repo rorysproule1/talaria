@@ -114,7 +114,6 @@ export default function CreatePlan({ athleteID }) {
     axios
       .post(urls.Plans, plan_data, {})
       .then((response) => {
-        console.log(response);
         setState({ ...state, planSubmitted: true, planSubmittedError: false });
       })
       .catch((error) => {
@@ -222,11 +221,11 @@ export default function CreatePlan({ athleteID }) {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
-                // disabled={
-                //   state.planSubmitted &&
-                //   !state.planSubmittedError &&
-                //   state.step === steps.length - 1
-                // }
+                disabled={
+                  state.planSubmitted &&
+                  !state.planSubmittedError &&
+                  state.step === steps.length - 1
+                }
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>

@@ -10,13 +10,13 @@ import * as urls from "./assets/utils/urls";
 
 function App() {
   return (
-    // Full list of URLs used in the app
-
     <main>
+      {/* ErrorBoundary provides fallback UI if any component wrapped in it crashes */}
       <ErrorBoundary>
         <Switch>
-          <Route exact path={urls.Dashboard} component={Dashboard} />
+          {/* Full list of URLs used in the app */}
           <Route exact path={urls.Login} component={LogIn} />
+          <Route exact path={urls.Dashboard} component={Dashboard} />
           <Route exact path={urls.CreatePlan} component={CreatePlan} />
 
           {/* 404 page if the url doesn't match any of the URLs */}

@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function RecentRun() {
+  // This component provides the runner with details about their last Strava activity on their Dashboard, using the
+  // Strava data requested in Dashboard.js
+
   const classes = useStyles();
   const [state, setState] = useContext(DashboardContext);
 

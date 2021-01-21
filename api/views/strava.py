@@ -1,5 +1,3 @@
-import logging
-import os
 import time
 import math
 
@@ -7,11 +5,11 @@ from .athlete import get_access_token
 import requests
 import urls
 from decouple import config
-from flask import Blueprint, Flask, request, abort
+from flask import Blueprint, Flask, request, abort, jsonify, make_response
 from datetime import datetime
 import datetime as time
 from .athlete import convert_iso_to_datetime
-from werkzeug.exceptions import HTTPException, NotFound
+from bson import ObjectId
 
 strava = Blueprint("strava", __name__)
 
@@ -23,6 +21,7 @@ def get_strava_insights():
     This endpoint is used to gather data points on an athlete's history on Strava
     to provide insightful suggestions to the athlete when they are creating a new training plan
     """
+
     athlete_id = request.args.get("athlete_id")
     if not athlete_id:
         return "An error occurred when getting the athlete's id", 400
@@ -111,7 +110,7 @@ def get_dashboard_data():
 
     """
     This endpoint is used to get all of the athlete's strava data that is displayed on the Dashboard
-    It contains data such as their latest run data
+    It contains data such as their latest run data and their last 7 days running data
     """
 
     athlete_id = request.args.get("athlete_id")
@@ -162,6 +161,12 @@ def get_dashboard_data():
         },
     ]
     for activity in activities:
+
+        # If a latest run is recorded and the activity is over a week old, end the loop
+        days_ago = datetime.now() - convert_iso_to_datetime(activity["start_date"])
+        if latest_run and days_ago.days > 7:
+            break
+
         if activity["type"] == "Run":
 
             # If this run was in the last week, add it's data to the last week [{}]

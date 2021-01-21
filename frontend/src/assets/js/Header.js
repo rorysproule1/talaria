@@ -55,8 +55,8 @@ export default function Header({ connectToStrava }) {
     if (connectToStrava) {
       // oAuth returns the one time usage code and the scope in the url
       // so we check if these are present, if so we continue with authentication
-      var url_string = window.location.href;
-      var url = new URL(url_string);
+      var urlString = window.location.href;
+      var url = new URL(urlString);
 
       var code = url.searchParams.get("code");
       var scope = url.searchParams.get("scope");
@@ -64,6 +64,7 @@ export default function Header({ connectToStrava }) {
       // on entry to the page, if we have been redirected with a code and correct scope in the URL, we can request an access token
       if (code && scope.includes("activity:read_all")) {
         const oauth_data = {
+          // TODO: Store client details securely as env variables
           client_id: 52053,
           client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
           code: code,
@@ -134,7 +135,7 @@ export default function Header({ connectToStrava }) {
   }
 
   function onLogOutHandler(e) {
-    setLogOut(true)
+    setLogOut(true);
   }
 
   const handleClose = (event, reason) => {

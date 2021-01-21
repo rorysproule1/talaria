@@ -37,9 +37,9 @@ const tiers = [
     title: "Analyse",
     description: [
       "Using a dynamic training plan,",
-      "We continually analyse your",
-      "runs and adapt the plan if",
-      "necessary.",
+      "We continually analyse your runs",
+      "and provide feedback on your",
+      "progress.",
       "_____",
     ],
   },

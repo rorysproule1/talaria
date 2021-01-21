@@ -1,13 +1,11 @@
 import React from "react";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
 import Header from "./Header";
 import Footer from "./Footer";
 import * as urls from "../utils/urls";
 
 export default class ErrorBoundary extends React.Component {
-    
   // The Error Boundary outputs as a fallback UI when a component fatally crashes.
   // It also logs the error. If the app is in development mode then the error still shows, however
   // once in production, the fatal error is hidden and only the fallback UI is presented to the user.

@@ -14,6 +14,11 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+"""
+This is the entry point to the backend of the application, it registers any extensions to the app
+such as the db, registers the views for each class of endpoint and configures the env variables
+""" 
+
 app = Flask(__name__)
 
 # Now we register any extensions we use into the app

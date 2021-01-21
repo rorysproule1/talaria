@@ -66,6 +66,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DistanceForm() {
+  // This is the first form in the CreatePlan flow, it allows the user to select a distance for their plan
+  // and suggests to them a distance based off their runs on Strava
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);

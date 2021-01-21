@@ -37,6 +37,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Plans() {
+  // This component provides the runner with their existing training plans, which are requested in Dashboard.js
+
   const classes = useStyles();
   const [state, setState] = useContext(DashboardContext);
 
