@@ -34,6 +34,7 @@ const CreatePlanProvider = (props) => {
     fastest10km: null,
     fastestHalfMarathon: null,
     fastestMarathon: null,
+    additionalActivities: [],
   });
 
   useEffect(() => {

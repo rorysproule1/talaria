@@ -101,6 +101,8 @@ export default function CreatePlan({ athleteID }) {
           fastest10km: response.data["fastest_10km"],
           fastestHalfMarathon: response.data["fastest_half_marathon"],
           fastestMarathon: response.data["fastest_marathon"],
+
+          additionalActivities: response.data["additional_activities"],
         });
       })
       .catch((error) => {
