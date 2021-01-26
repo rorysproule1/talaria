@@ -13,6 +13,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import * as strings from "../utils/strings";
 import * as urls from "../utils/urls";
+import Link from "@material-ui/core/Link";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -175,7 +176,22 @@ export default function Header({ connectToStrava }) {
         className={classes.appBar}
       >
         <Toolbar className={classes.toolbar}>
-          <img src={talaria_logo_circle} className={classes.logo} alt="logo" />
+          {connectToStrava ? (
+            <img
+              src={talaria_logo_circle}
+              className={classes.logo}
+              alt="logo"
+            />
+          ) : (
+            <Link href="/">
+              <img
+                src={talaria_logo_circle}
+                className={classes.logo}
+                alt="logo"
+              />
+            </Link>
+          )}
+
           <Typography
             variant="h6"
             color="inherit"

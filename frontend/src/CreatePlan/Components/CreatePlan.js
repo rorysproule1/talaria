@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
@@ -22,6 +22,8 @@ import * as urls from "../../assets/utils/urls";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import { Link as RouterLink } from "react-router-dom";
+import Modal from "@material-ui/core/Modal";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -63,6 +65,23 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(1),
   },
+  modal: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+  load: {
+    margin: "auto",
+    marginLeft: theme.spacing(16)
+  },
+  error: {
+    display: "flex",
+    marginLeft: "auto",
+    paddingRight: theme.spacing(2),
+  },
 }));
 
 const steps = [
@@ -76,9 +95,12 @@ const steps = [
 
 export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
+  const [modalStyle] = useState(getModalStyle);
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
   const [state, setState] = useContext(CreatePlanContext);
+  const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState(false);
 
   useEffect(() => {
     /*
@@ -88,8 +110,7 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
-        // assign to context state values
-        console.log(response.data);
+        setLoading(false)
         setState({
           ...state,
           insightsFound: true,
@@ -106,6 +127,7 @@ export default function CreatePlan({ athleteID }) {
         });
       })
       .catch((error) => {
+        setLoadingError(true);
         console.log(error);
       });
   }, []);
@@ -150,6 +172,10 @@ export default function CreatePlan({ athleteID }) {
     setState({ ...state, step: state.step - 1 });
   };
 
+  const onErrorClick = () => {
+    window.location.href = "/";
+  };
+
   useEffect(() => {
     // scroll to top of the screen on movement to next step
     const body = document.querySelector("#root");
@@ -175,8 +201,50 @@ export default function CreatePlan({ athleteID }) {
     }
   }
 
+  function getModalStyle() {
+    const top = 50;
+    const left = 50;
+
+    return {
+      top: `${top}%`,
+      left: `${left}%`,
+      transform: `translate(-${top}%, -${left}%)`,
+    };
+  }
+
+  // HTML for Insights loading
+  const modalBody = (
+    <div style={modalStyle} className={classes.modal}>
+      <h2>
+        <b>Please wait while we gather data on your Strava history . . .</b>
+      </h2>
+      <CircularProgress className={classes.load} />
+      <Modal />
+    </div>
+  );
+  const modalBodyError = (
+    <div style={modalStyle} className={classes.modal}>
+      <h2>
+        <b>There was an error getting your Strava history.</b>
+      </h2>
+      <LinkRouter
+        to={{
+          pathname: urls.Dashboard,
+          state: { athleteID: athleteID },
+        }}
+      >
+        <Button color="secondary" className={classes.error} onClick={onErrorClick}>
+          Return to Dashboard
+        </Button>
+      </LinkRouter>
+
+      <Modal />
+    </div>
+  );
+
   return (
     <React.Fragment>
+      <Modal open={loading}>{loadingError ? modalBodyError : modalBody}</Modal>
       <Header connectToStrava={false} />
       <Breadcrumbs
         className={classes.breadcrumb}
