@@ -1,14 +1,8 @@
-from flask import Blueprint, Flask, request, Response, abort
-from decouple import config
-import json
-import requests
-import urls
+from flask import Blueprint, request
 import datetime
 from database.db import mongo
-from bson import ObjectId
-from .athlete import convert_iso_to_datetime
-from enums import GoalType, Distance
 from .strava import get_activities
+from .shared import convert_iso_to_datetime
 
 plan = Blueprint("plan", __name__)
 
@@ -17,9 +11,10 @@ plan = Blueprint("plan", __name__)
 def post_plan():
 
     """
-    This endpoint is used to post a proposed plan in the plan creation flow, the details of it are 
+    This endpoint is used to post a proposed plan in the plan creation flow, the details of it are
     validated and then stored in the plan collection
     """
+
     body = request.get_json()
     athlete_id = body.get("athlete_id")
 
@@ -28,7 +23,6 @@ def post_plan():
             return "Error validating athlete's data", 400
     else:
         return "Error obtaining the athlete's id", 400
-    
 
     body["plan"] = generate_training_plan(athlete_id, body)
 
@@ -123,32 +117,30 @@ def generate_training_plan(athlete_id, plan):
     # Create insights from these activities to help in plan generation
     insights = get_insights(activities)
 
-
     plan_length = calculate_plan_length(finish_date, activities)
 
     goal_type = plan.get("goal_type")
     if goal_type == "DISTANCE":
         if distance == "5KM":
-            a=1
+            a = 1
         elif distance == "10KM":
-            a=1
+            a = 1
         elif distance == "HALF-MARATHON":
-            a=1
+            a = 1
         elif distance == "MARATHON":
-            a=1
-
+            a = 1
 
     return activities
 
 
 def get_insights(activities):
-    a=1
+    a = 1
+
 
 def calculate_plan_length(finish_date, activities):
     if finish_date:
         # calculate weeks until this date
-        a=1
+        a = 1
     else:
         # no finish date provided, so we calculate a plan length
-        a=1
-
+        a = 1

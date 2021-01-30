@@ -109,7 +109,7 @@ export default function DistanceForm() {
     <React.Fragment>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
-          <Card className={classes.card}>
+          <Card className={classes.card} variant="outlined">
             <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
@@ -122,39 +122,37 @@ export default function DistanceForm() {
               </Typography>
               <Typography>
                 {card.description}
-                { state.insightsFound && (card.id === 1) && !state.completed5km && (
+                {state.insightsFound && card.id === 1 && !state.completed5km && (
                   <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history,, we see you've never ran 5km. We
-                    recommend you start here.
+                    Looking at your Strava history,, we see you've never ran
+                    5km. We recommend you start here.
                   </Alert>
                 )}
-                {(card.id === 2) &&
-                  state.completed5km &&
-                  !state.completed10km && (
+                {card.id === 2 && state.completed5km && !state.completed10km && (
                   <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history,, we see you've never ran 10km.
-                    We recommend you aim for this.
+                    Looking at your Strava history,, we see you've never ran
+                    10km. We recommend you aim for this.
                   </Alert>
                 )}
-                {(card.id === 3) &&
+                {card.id === 3 &&
                   state.completed5km &&
                   state.completed10km &&
                   !state.completedHalfMarathon && (
-                  <Alert severity="info" className={classes.title}>
-                   Looking at your Strava history,, we see you've never ran a half
-                    marathon. We recommend you aim for this.
-                  </Alert>
-                )}
-                {(card.id === 4) &&
+                    <Alert severity="info" className={classes.title}>
+                      Looking at your Strava history,, we see you've never ran a
+                      half marathon. We recommend you aim for this.
+                    </Alert>
+                  )}
+                {card.id === 4 &&
                   state.completed5km &&
                   state.completed10km &&
                   state.completedHalfMarathon &&
                   !state.completedMarathon && (
-                  <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history, we see you've never ran a
-                    marathon. We recommend you aim for this.
-                  </Alert>
-                )}
+                    <Alert severity="info" className={classes.title}>
+                      Looking at your Strava history, we see you've never ran a
+                      marathon. We recommend you aim for this.
+                    </Alert>
+                  )}
               </Typography>
             </CardContent>
             <CardActions className={classes.cardActions}>

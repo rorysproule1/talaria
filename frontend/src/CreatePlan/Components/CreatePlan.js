@@ -110,6 +110,7 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
+        console.log(response.data)
         setLoading(false)
         setState({
           ...state,
