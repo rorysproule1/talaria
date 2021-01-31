@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
   },
   load: {
     margin: "auto",
-    marginLeft: theme.spacing(16)
+    marginLeft: theme.spacing(16),
   },
   error: {
     display: "flex",
@@ -110,8 +110,8 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
-        console.log(response.data)
-        setLoading(false)
+        setLoading(false);
+        const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
         setState({
           ...state,
           insightsFound: true,
@@ -123,7 +123,9 @@ export default function CreatePlan({ athleteID }) {
           fastest10km: response.data["fastest_10km"],
           fastestHalfMarathon: response.data["fastest_half_marathon"],
           fastestMarathon: response.data["fastest_marathon"],
-
+          // both these runsPerWeek values are assigned as one is to set the value and the other is to inform the user
+          avgRunsPerWeek: runsPerWeek,
+          runsPerWeek: runsPerWeek,
           additionalActivities: response.data["additional_activities"],
         });
       })
@@ -132,6 +134,16 @@ export default function CreatePlan({ athleteID }) {
         console.log(error);
       });
   }, []);
+
+  function getRunsPerWeek(rpw) {
+    if (rpw <= 3.5) {
+      return "2-3";
+    } else if (rpw <= 5.5) {
+      return "4-5";
+    } else {
+      return "6+";
+    }
+  }
 
   const handleSubmit = () => {
     const plan_data = {
@@ -234,7 +246,11 @@ export default function CreatePlan({ athleteID }) {
           state: { athleteID: athleteID },
         }}
       >
-        <Button color="secondary" className={classes.error} onClick={onErrorClick}>
+        <Button
+          color="secondary"
+          className={classes.error}
+          onClick={onErrorClick}
+        >
           Return to Dashboard
         </Button>
       </LinkRouter>

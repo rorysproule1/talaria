@@ -22,7 +22,6 @@ const CreatePlanProvider = (props) => {
     includeCrossTrain: false,
     longRunDay: null,
     blockedDays: [],
-    runsPerWeekError: false,
     planName: null,
     // Runner Insights
     insightsFound: false,
@@ -34,11 +33,12 @@ const CreatePlanProvider = (props) => {
     fastest10km: null,
     fastestHalfMarathon: null,
     fastestMarathon: null,
+    avgRunsPerWeek: null,
     additionalActivities: [],
   });
 
   useEffect(() => {
-    // console.log(state)
+    console.log(state)
   }, [state]);
 
   return (

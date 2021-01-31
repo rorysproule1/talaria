@@ -18,14 +18,14 @@ import Alert from "@material-ui/lab/Alert";
 const cards = [
   {
     id: 1,
-    title: "5km Plan",
+    title: "5K Plan",
     photo: fiveKilometre,
     description:
       "A great place to start for beginners and a tried and tested distance for experienced runners to test their VO2 max.",
   },
   {
     id: 2,
-    title: "10km Plan",
+    title: "10K Plan",
     photo: tenKilometre,
     description:
       "Beginning to put your lactate threshold to the test, great place to introduce yourself to distance running.",
@@ -78,13 +78,13 @@ export default function DistanceForm() {
   const [state, setState] = useContext(CreatePlanContext);
 
   function onClickHandler(distance) {
-    if (distance === "5km Plan") {
+    if (distance === "5K Plan") {
       setState({
         ...state,
         step: state.step + 1,
         distance: enums.Distance.FIVE_KM,
       });
-    } else if (distance === "10km Plan") {
+    } else if (distance === "10K Plan") {
       setState({
         ...state,
         step: state.step + 1,
@@ -124,14 +124,14 @@ export default function DistanceForm() {
                 {card.description}
                 {state.insightsFound && card.id === 1 && !state.completed5km && (
                   <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history,, we see you've never ran
-                    5km. We recommend you start here.
+                    Looking at your Strava history, we see you've never ran
+                    5K. We recommend you start here.
                   </Alert>
                 )}
                 {card.id === 2 && state.completed5km && !state.completed10km && (
                   <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history,, we see you've never ran
-                    10km. We recommend you aim for this.
+                    Looking at your Strava history, we see you've never ran
+                    10K. We recommend you aim for this.
                   </Alert>
                 )}
                 {card.id === 3 &&
@@ -139,7 +139,7 @@ export default function DistanceForm() {
                   state.completed10km &&
                   !state.completedHalfMarathon && (
                     <Alert severity="info" className={classes.title}>
-                      Looking at your Strava history,, we see you've never ran a
+                      Looking at your Strava history, we see you've never ran a
                       half marathon. We recommend you aim for this.
                     </Alert>
                   )}
