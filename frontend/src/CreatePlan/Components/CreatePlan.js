@@ -110,22 +110,20 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
+        console.log(response.data)
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
         setState({
           ...state,
           insightsFound: true,
-          completed5km: response.data["completed_5km"],
-          completed10km: response.data["completed_10km"],
-          completedHalfMarathon: response.data["completed_half_marathon"],
-          completedMarathon: response.data["completed_marathon"],
-          fastest5km: response.data["fastest_5km"],
-          fastest10km: response.data["fastest_10km"],
-          fastestHalfMarathon: response.data["fastest_half_marathon"],
-          fastestMarathon: response.data["fastest_marathon"],
+          fiveKm: response.data["five_km"],
+          tenKm: response.data["ten_km"],
+          halfMarathon: response.data["half_marathon"],
+          marathon: response.data["marathon"], 
           // both these runsPerWeek values are assigned as one is to set the value and the other is to inform the user
           avgRunsPerWeek: runsPerWeek,
           runsPerWeek: runsPerWeek,
+          modeLongRunDay: response.data["long_run_day"],
           additionalActivities: response.data["additional_activities"],
         });
       })

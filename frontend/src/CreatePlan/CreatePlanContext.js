@@ -25,15 +25,28 @@ const CreatePlanProvider = (props) => {
     planName: null,
     // Runner Insights
     insightsFound: false,
-    completed5km: null,
-    completed10km: null,
-    completedHalfMarathon: null,
-    completedMarathon: null,
-    fastest5km: null,
-    fastest10km: null,
-    fastestHalfMarathon: null,
-    fastestMarathon: null,
+    fiveKm: {
+      completed: false,
+      time: null,
+      date: null,
+    },
+    tenKm: {
+      completed: false,
+      time: null,
+      date: null,
+    },
+    halfMarathon: {
+      completed: false,
+      time: null,
+      date: null,
+    },
+    marathon: {
+      completed: false,
+      time: null,
+      date: null,
+    },
     avgRunsPerWeek: null,
+    modeLongRunDay: null,
     additionalActivities: [],
   });
 

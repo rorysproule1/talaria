@@ -22,6 +22,7 @@ const cards = [
     photo: fiveKilometre,
     description:
       "A great place to start for beginners and a tried and tested distance for experienced runners to test their VO2 max.",
+    value: enums.Distance.FIVE_KM,
   },
   {
     id: 2,
@@ -29,19 +30,22 @@ const cards = [
     photo: tenKilometre,
     description:
       "Beginning to put your lactate threshold to the test, great place to introduce yourself to distance running.",
+    value: enums.Distance.TEN_KM,
   },
   {
     id: 3,
-    title: "Half Marathon Plan",
+    title: "Half-Marathon Plan",
     photo: halfMarathon,
     description:
-      "Endurance running at it's best, brilliant goal to aim for whether it's just finishing or aiming for an impressive time.",
+      "Endurance running at it's best, brilliant goal to aim for whether it's just finishing or aiming for an impressive time. (21.1Km)",
+    value: enums.Distance.HALF_MARATHON,
   },
   {
     id: 4,
     title: "Marathon Plan",
     photo: marathon,
-    description: "The big one, an endurance challenge you'll never forget.",
+    description: "The big one, an endurance challenge you'll never forget. (42.2Km)",
+    value: enums.Distance.MARATHON,
   },
 ];
 
@@ -90,7 +94,7 @@ export default function DistanceForm() {
         step: state.step + 1,
         distance: enums.Distance.TEN_KM,
       });
-    } else if (distance === "Half Marathon Plan") {
+    } else if (distance === "Half-Marathon Plan") {
       setState({
         ...state,
         step: state.step + 1,
@@ -109,7 +113,14 @@ export default function DistanceForm() {
     <React.Fragment>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
-          <Card className={classes.card} variant="outlined">
+          <Card
+            className={classes.card}
+            variant="outlined"
+            style={{
+              borderColor: state.distance === card.value ? "limegreen" : "none",
+              borderWidth: state.distance === card.value ? 5 : "none",
+            }}
+          >
             <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
@@ -122,32 +133,58 @@ export default function DistanceForm() {
               </Typography>
               <Typography>
                 {card.description}
-                {state.insightsFound && card.id === 1 && !state.completed5km && (
-                  <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history, we see you've never ran
-                    5K. We recommend you start here.
-                  </Alert>
+
+                {card.id === 1 && state.fiveKm.completed && (
+                  <Typography variant="body2" gutterBottom>
+                    <br></br><b>You last ran a 5K on {state.fiveKm.date}</b>
+                  </Typography>
                 )}
-                {card.id === 2 && state.completed5km && !state.completed10km && (
-                  <Alert severity="info" className={classes.title}>
-                    Looking at your Strava history, we see you've never ran
-                    10K. We recommend you aim for this.
-                  </Alert>
+                {card.id === 2 && state.tenKm.completed && (
+                  <Typography variant="body2" gutterBottom>
+                    <br></br><b>You last ran a 10K on {state.tenKm.date}</b>
+                  </Typography>
                 )}
+                {card.id === 3 && state.halfMarathon.completed && (
+                  <Typography variant="body2" gutterBottom>
+                    <br></br><b>You last ran a half marathon on {state.halfMarathon.date}</b>
+                  </Typography>
+                )}
+                {card.id === 4 && state.marathon.completed && (
+                  <Typography variant="body2" gutterBottom>
+                    <br></br><b>You last ran a marathon on {state.marathon.date}</b>
+                  </Typography>
+                )}
+
+                {state.insightsFound &&
+                  card.id === 1 &&
+                  !state.fiveKm.completed && (
+                    <Alert severity="info" className={classes.title}>
+                      Looking at your Strava history, we see you've never ran
+                      5K. We recommend you start here.
+                    </Alert>
+                  )}
+                {card.id === 2 &&
+                  state.fiveKm.completed &&
+                  !state.tenKm.completed && (
+                    <Alert severity="info" className={classes.title}>
+                      Looking at your Strava history, we see you've never ran
+                      10K. We recommend you aim for this.
+                    </Alert>
+                  )}
                 {card.id === 3 &&
-                  state.completed5km &&
-                  state.completed10km &&
-                  !state.completedHalfMarathon && (
+                  state.fiveKm.completed &&
+                  state.tenKm.completed &&
+                  !state.halfMarathon.completed && (
                     <Alert severity="info" className={classes.title}>
                       Looking at your Strava history, we see you've never ran a
                       half marathon. We recommend you aim for this.
                     </Alert>
                   )}
                 {card.id === 4 &&
-                  state.completed5km &&
-                  state.completed10km &&
-                  state.completedHalfMarathon &&
-                  !state.completedMarathon && (
+                  state.fiveKm.completed &&
+                  state.tenKm.completed &&
+                  state.halfMarathon.completed &&
+                  !state.marathon.completed && (
                     <Alert severity="info" className={classes.title}>
                       Looking at your Strava history, we see you've never ran a
                       marathon. We recommend you aim for this.

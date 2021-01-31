@@ -24,6 +24,7 @@ const cards = [
     photo: distance_goal,
     description:
       "A plan dedicated to being able to complete the distance, running non-stop.",
+    value: enums.GoalType.DISTANCE,
   },
   {
     id: 2,
@@ -31,6 +32,7 @@ const cards = [
     photo: time_goal,
     description:
       "A plan dedicated to running the distance in a specified amount of time.",
+    value: enums.GoalType.TIME,
   },
 ];
 
@@ -179,7 +181,14 @@ export default function GoalTypeForm() {
       </div>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
-          <Card className={classes.card} variant="outlined">
+          <Card
+            className={classes.card}
+            variant="outlined"
+            style={{
+              borderColor: state.goalType === card.value ? "limegreen" : "none",
+              borderWidth: state.goalType === card.value ? 5 : "none",
+            }}
+          >
             <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
               <Typography
@@ -194,13 +203,13 @@ export default function GoalTypeForm() {
                 {card.description}
                 {card.id === 1 &&
                   ((state.distance === enums.Distance.FIVE_KM &&
-                    !state.completed5km) ||
+                    !state.fiveKm.completed) ||
                     (state.distance === enums.Distance.TEN_KM &&
-                      !state.completed10km) ||
+                      !state.tenKm.completed) ||
                     (state.distance === enums.Distance.HALF_MARATHON &&
-                      !state.completedHalfMarathon) ||
+                      !state.halfMarathon.completed) ||
                     (state.distance === enums.Distance.MARATHON &&
-                      !state.completedMarathon)) && (
+                      !state.marathon.completed)) && (
                     <Alert severity="info" className={classes.title}>
                       Having never ran a {state.distance.toLowerCase()}, we
                       recommend you just aim to complete it, rather than aim for
@@ -209,16 +218,16 @@ export default function GoalTypeForm() {
                   )}
                 {card.id === 2 &&
                   ((state.distance === enums.Distance.FIVE_KM &&
-                    state.completed5km) ||
+                    state.fiveKm.completed) ||
                     (state.distance === enums.Distance.TEN_KM &&
-                      state.completed10km) ||
+                      state.tenKm.completed) ||
                     (state.distance === enums.Distance.HALF_MARATHON &&
-                      state.completedHalfMarathon) ||
+                      state.halfMarathon.completed) ||
                     (state.distance === enums.Distance.MARATHON &&
-                      state.completedMarathon)) && (
+                      state.marathon.completed)) && (
                     <Alert severity="info" className={classes.title}>
-                      Seeing as you've ran a {state.distance.toLowerCase()} before, we
-                      recommend you aim to run it in a specific time.
+                      Seeing as you've ran a {state.distance.toLowerCase()}{" "}
+                      before, we recommend you aim to run it in a specific time.
                     </Alert>
                   )}
               </Typography>

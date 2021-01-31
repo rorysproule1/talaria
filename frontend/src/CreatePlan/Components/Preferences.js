@@ -72,7 +72,7 @@ export default function PreferencesForm() {
   var crossTrainingActivites = "";
   if (state.additionalActivities) {
     crossTrainingActivites =
-      " These include the activities you've already carried out on Strava: " +
+      "These include the activities you've already carried out on Strava: " +
       state.additionalActivities.join(", ")
   }
 

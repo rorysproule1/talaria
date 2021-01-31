@@ -4,6 +4,7 @@ import requests
 import urls
 from flask import Blueprint, request
 from datetime import datetime
+from datetime import date
 import datetime as time
 from .shared import convert_iso_to_date, convert_iso_to_datetime, get_access_token
 from collections import Counter
@@ -48,6 +49,7 @@ def get_strava_insights():
         0,
         0,
     )
+    date_5km, date_10km, date_half_marathon, date_marathon = None, None, None, None
     additional_activities = set()
     six_weeks_ago = time.date.today() - time.timedelta(weeks=6)
     all_run_day_list = []
@@ -77,6 +79,10 @@ def get_strava_insights():
                     completed_half_marathon,
                     completed_marathon,
                 ) = (True, True, True, True)
+                date_5km = set_date(date_5km, run_date)
+                date_10km = set_date(date_10km, run_date)
+                date_half_marathon = set_date(date_half_marathon, run_date)
+                date_half_marathon = set_date(date_marathon, run_date)
                 if run_distance <= 42695:  # Marathon
                     if (
                         activity["elapsed_time"] < fastest_marathon
@@ -89,6 +95,9 @@ def get_strava_insights():
                     True,
                     True,
                 )
+                date_5km = set_date(date_5km, run_date)
+                date_10km = set_date(date_10km, run_date)
+                date_half_marathon = set_date(date_half_marathon, run_date)
                 if run_distance <= 21597:  # Half-Marathon
                     if (
                         activity["elapsed_time"] < fastest_half_marathon
@@ -97,15 +106,17 @@ def get_strava_insights():
                         fastest_half_marathon = activity["elapsed_time"]
             elif run_distance >= 10000:
                 completed_5km, completed_10km = True, True
+                date_5km = set_date(date_5km, run_date)
+                date_10km = set_date(date_10km, run_date)
                 if run_distance <= 10500:  # 10KM
                     if activity["elapsed_time"] < fastest_10km or fastest_10km == 0:
                         fastest_10km = activity["elapsed_time"]
             elif run_distance >= 5000:
                 completed_5km = True
+                date_5km = set_date(date_5km, run_date)
                 if run_distance <= 5500:  # 5KM
                     if activity["elapsed_time"] < fastest_5km or fastest_5km == 0:
                         fastest_5km = activity["elapsed_time"]
-
             if run_distance >= 10000:
                 long_run_day_list.append(run_date.weekday())
         else:
@@ -115,21 +126,43 @@ def get_strava_insights():
     if long_run_day_list:
         long_run_day = get_long_run_day(long_run_day_list)
 
+    # Get 4 least ran on days for blockable days
     if all_run_day_list:
         blockable_days = get_blockable_days(all_run_day_list)
+
     return {
         "completed_5km": completed_5km,
         "completed_10km": completed_10km,
         "completed_half_marathon": completed_half_marathon,
         "completed_marathon": completed_marathon,
+        "five_km": {
+            "completed": completed_5km,
+            "time": str(time.timedelta(seconds=fastest_5km)),
+            "date": date_5km,
+        },
+        "ten_km": {
+            "completed": completed_10km,
+            "time": str(time.timedelta(seconds=fastest_10km)),
+            "date": date_10km,
+        },
+        "half_marathon": {
+            "completed": completed_half_marathon,
+            "time": str(time.timedelta(seconds=fastest_half_marathon)),
+            "date": date_half_marathon,
+        },
+        "marathon": {
+            "completed": completed_marathon,
+            "time": str(time.timedelta(seconds=fastest_marathon)),
+            "date": date_marathon,
+        },
         "fastest_5km": str(time.timedelta(seconds=fastest_5km)),
         "fastest_10km": str(time.timedelta(seconds=fastest_10km)),
         "fastest_half_marathon": str(time.timedelta(seconds=fastest_half_marathon)),
         "fastest_marathon": str(time.timedelta(seconds=fastest_marathon)),
         "additional_activities": list(additional_activities),
         "runs_per_week": round(runs_per_week_total / 6, 2),
-        "long_run_day": long_run_day,
-        "blockable_days": blockable_days,
+        "long_run_day": get_day_string(long_run_day),
+        "blockable_days": get_day_strings(blockable_days),
     }, 200
 
 
@@ -236,15 +269,45 @@ def get_activities(athlete_id):
     """
 
     header = {"Authorization": f"Bearer {get_access_token(athlete_id)}"}
-    params = {"per_page": 100, "page": 1}
+    params = {"per_page": 200, "page": 1}
 
     response = requests.get(urls.STRAVA_ACTIVITIES_URL, headers=header, params=params)
 
     if response.ok:
-        return response.json()
+        activity_list = response.json()
+
+        # If 200 activites are found, must loop until all activites are gathered
+        if len(activity_list) == 200:
+            page = 2
+            while True:
+                batch = requests.get(
+                    urls.STRAVA_ACTIVITIES_URL,
+                    headers=header,
+                    params={"per_page": 200, "page": page},
+                )
+                batch_list = batch.json()
+                for activity in batch_list:
+                    activity_list.append(activity)
+                if len(batch_list) != 200:
+                    break
+                else:
+                    page += 1
+
+        return activity_list
     else:
         print(f"\n{response.raise_for_status()}\n")
         return False
+
+
+def set_date(existing_date, run_date):
+    if not existing_date:
+        return date(
+            day=run_date.day,
+            month=run_date.month,
+            year=run_date.year,
+        ).strftime("%A, %d %B %Y")
+    else:
+        return existing_date
 
 
 def get_long_run_day(lst):
@@ -284,3 +347,44 @@ def get_epoch_timestamp():
         dt = dt.replace(year=dt.year - 1, day=dt.day - 1)
 
     return dt.timestamp()
+
+
+def get_day_string(day):
+    if day == 0:
+        return "Monday"
+    elif day == 1:
+        return "Tuesday"
+    elif day == 2:
+        return "Wednesday"
+    elif day == 3:
+        return "Thursday"
+    elif day == 4:
+        return "Friday"
+    elif day == 5:
+        return "Saturday"
+    elif day == 6:
+        return "Sunday"
+    else:
+        return None
+
+
+def get_day_strings(days):
+    day_list = []
+
+    for day in days:
+        if day == 0:
+            day_list.append("Monday")
+        elif day == 1:
+            day_list.append("Tuesday")
+        elif day == 2:
+            day_list.append("Wednesday")
+        elif day == 3:
+            day_list.append("Thursday")
+        elif day == 4:
+            day_list.append("Friday")
+        elif day == 5:
+            day_list.append("Saturday")
+        elif day == 6:
+            day_list.append("Sunday")
+
+    return day_list
