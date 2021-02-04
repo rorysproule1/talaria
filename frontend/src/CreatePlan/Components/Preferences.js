@@ -73,7 +73,7 @@ export default function PreferencesForm() {
   if (state.additionalActivities) {
     crossTrainingActivites =
       "These include the activities you've already carried out on Strava: " +
-      state.additionalActivities.join(", ")
+      state.additionalActivities.join(", ");
   }
 
   const handleCheckboxChange = (event) => {
@@ -268,6 +268,15 @@ export default function PreferencesForm() {
             )}
             <Typography className={classes.info}>
               Is there a particular day you'd like to do your long run?
+              {state.modeLongRunDay && (
+                <Tooltip
+                  title={`Your Strava indicates that the day you complete most of your long runs is ${state.modeLongRunDay}.`}
+                  aria-label="include-taper"
+                  className={classes.help}
+                >
+                  <HelpIcon />
+                </Tooltip>
+              )}
             </Typography>
             <FormControl className={classes.formControl}>
               <InputLabel>Long Run Day</InputLabel>

@@ -52,8 +52,6 @@ def get_strava_insights():
     date_5km, date_10km, date_half_marathon, date_marathon = None, None, None, None
     additional_activities = set()
     six_weeks_ago = time.date.today() - time.timedelta(weeks=6)
-    all_run_day_list = []
-    blockable_days = []
     long_run_day_list = []
     long_run_day = 7
 
@@ -63,9 +61,6 @@ def get_strava_insights():
 
             run_date = convert_iso_to_date(activity["start_date"])
             run_distance = activity["distance"]
-
-            # Add day of run to run day list, to calculate blockable days
-            all_run_day_list.append(run_date.weekday())
 
             # If the run is in the last 6 weeks, add it to runs per week calculation
             if run_date > six_weeks_ago:
@@ -126,15 +121,7 @@ def get_strava_insights():
     if long_run_day_list:
         long_run_day = get_long_run_day(long_run_day_list)
 
-    # Get 4 least ran on days for blockable days
-    if all_run_day_list:
-        blockable_days = get_blockable_days(all_run_day_list)
-
     return {
-        "completed_5km": completed_5km,
-        "completed_10km": completed_10km,
-        "completed_half_marathon": completed_half_marathon,
-        "completed_marathon": completed_marathon,
         "five_km": {
             "completed": completed_5km,
             "time": str(time.timedelta(seconds=fastest_5km)),
@@ -146,7 +133,8 @@ def get_strava_insights():
             "date": date_10km,
         },
         "half_marathon": {
-            "completed": completed_half_marathon,
+            # "completed": completed_half_marathon,
+            "completed": False,
             "time": str(time.timedelta(seconds=fastest_half_marathon)),
             "date": date_half_marathon,
         },
@@ -155,14 +143,9 @@ def get_strava_insights():
             "time": str(time.timedelta(seconds=fastest_marathon)),
             "date": date_marathon,
         },
-        "fastest_5km": str(time.timedelta(seconds=fastest_5km)),
-        "fastest_10km": str(time.timedelta(seconds=fastest_10km)),
-        "fastest_half_marathon": str(time.timedelta(seconds=fastest_half_marathon)),
-        "fastest_marathon": str(time.timedelta(seconds=fastest_marathon)),
         "additional_activities": list(additional_activities),
         "runs_per_week": round(runs_per_week_total / 6, 2),
         "long_run_day": get_day_string(long_run_day),
-        "blockable_days": get_day_strings(blockable_days),
     }, 200
 
 
@@ -310,11 +293,14 @@ def set_date(existing_date, run_date):
         return existing_date
 
 
-def get_long_run_day(lst):
-    data = Counter(lst)
+def get_long_run_day(day_list):
+    data = Counter(day_list)
     day_count_list = data.most_common()
-    most_common_day = day_count_list[0][0]
-    most_common_count = day_count_list[0][1]
+    if day_count_list:
+        most_common_day = day_count_list[0][0]
+        most_common_count = day_count_list[0][1]
+    else:
+        return None
 
     # If the most common day is a weekday, check if a weekend has the same number of long runs
     if most_common_day not in [5, 6]:
@@ -327,8 +313,9 @@ def get_long_run_day(lst):
     return most_common_day
 
 
-def get_blockable_days(lst):
-    data = Counter(lst)
+def get_blockable_days(day_list):
+    print("HI")
+    data = Counter(day_list)
     day_count_list = data.most_common()
     print(day_count_list)
     return [

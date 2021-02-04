@@ -11,12 +11,17 @@ const CreatePlanProvider = (props) => {
   const [state, setState] = useState({
     step: 0,
     planSubmitted: false,
+    // Plan Errors
     planSubmittedError: false,
+    runsPerWeekError: false,
+    runsPerWeekWarning: false,
+    insightsFound: false,
     // Plan Details
     distance: null,
     goalType: null,
     goalTime: null,
     finishDate: null,
+    startDate: null,
     runsPerWeek: null,
     includeTaper: false,
     includeCrossTrain: false,
@@ -24,7 +29,6 @@ const CreatePlanProvider = (props) => {
     blockedDays: [],
     planName: null,
     // Runner Insights
-    insightsFound: false,
     fiveKm: {
       completed: false,
       time: null,

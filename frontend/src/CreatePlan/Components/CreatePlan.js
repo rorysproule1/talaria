@@ -24,6 +24,13 @@ import Link from "@material-ui/core/Link";
 import { Link as RouterLink } from "react-router-dom";
 import Modal from "@material-ui/core/Modal";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Slide from "@material-ui/core/Slide";
+import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -82,16 +89,25 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "auto",
     paddingRight: theme.spacing(2),
   },
+  icon: {
+    verticalAlign: "text-bottom",
+    marginRight: theme.spacing(2),
+    color: "orange",
+  },
 }));
 
 const steps = [
   "Distance",
   "Goal Type",
-  "Finish Date",
+  "Key Dates",
   "Runs Per Week",
   "Preferences",
   "Summary",
 ];
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
@@ -102,6 +118,17 @@ export default function CreatePlan({ athleteID }) {
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
 
+  const [openRunsPerWeekWarning, setOpenRunsPerWeekWarning] = useState(false);
+
+  const handleContinue = () => {
+    setState({ ...state, step: state.step + 1, runsPerWeekError: false });
+    setOpenRunsPerWeekWarning(false);
+  };
+
+  const handleClose = () => {
+    setOpenRunsPerWeekWarning(false);
+  };
+
   useEffect(() => {
     /*
      On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
@@ -110,7 +137,7 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
-        console.log(response.data)
+        console.log(response.data);
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
         setState({
@@ -119,7 +146,7 @@ export default function CreatePlan({ athleteID }) {
           fiveKm: response.data["five_km"],
           tenKm: response.data["ten_km"],
           halfMarathon: response.data["half_marathon"],
-          marathon: response.data["marathon"], 
+          marathon: response.data["marathon"],
           // both these runsPerWeek values are assigned as one is to set the value and the other is to inform the user
           avgRunsPerWeek: runsPerWeek,
           runsPerWeek: runsPerWeek,
@@ -174,6 +201,16 @@ export default function CreatePlan({ athleteID }) {
     if (state.step === 3 && !state.runsPerWeek) {
       // Check if a value for RunsPerWeek has been provided on this form, if not an error is presented
       setState({ ...state, runsPerWeekError: true });
+    } else if (state.step === 3 && state.runsPerWeek) {
+      if (
+        (state.avgRunsPerWeek === "2-3" &&
+          ["4-5", "6+"].includes(state.runsPerWeek)) ||
+        (state.avgRunsPerWeek === "4-5" && state.runsPerWeek === "6+")
+      ) {
+        setOpenRunsPerWeekWarning(true);
+      } else {
+        setState({ ...state, step: state.step + 1, runsPerWeekError: false });
+      }
     } else {
       setState({ ...state, step: state.step + 1, runsPerWeekError: false });
     }
@@ -233,6 +270,8 @@ export default function CreatePlan({ athleteID }) {
       <Modal />
     </div>
   );
+
+  // HTML for Insights error
   const modalBodyError = (
     <div style={modalStyle} className={classes.modal}>
       <h2>
@@ -330,6 +369,52 @@ export default function CreatePlan({ athleteID }) {
           </div>
         </Paper>
       </main>
+
+      {/* Dialog box for Runs Per Week */}
+      {openRunsPerWeekWarning && (
+        <Dialog
+          open={openRunsPerWeekWarning}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle
+            id="alert-dialog-slide-title"
+            style={{ "background-color": "rgb(255, 244, 229)" }}
+          >
+            <WarningRoundedIcon className={classes.icon} />
+            {`Use ${state.runsPerWeek} runs per week?`}
+          </DialogTitle>
+          <DialogContent
+            dividers
+            style={{ backgroundColor: "rgb(255, 244, 229)" }}
+          >
+            <DialogContentText id="alert-dialog-slide-description">
+              <p>
+                Selecting a number of runs per week that is higher than your
+                current 6 week average greatly increases the chance of you
+                injuring yourself and thus failing to complete this training
+                plan.
+              </p>
+              <p>
+                We strongly advise you stick to the recommended runs per week (
+                {state.avgRunsPerWeek})
+              </p>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions style={{ "background-color": "rgb(255, 244, 229)" }}>
+            <Button onClick={handleClose} color="primary">
+              Go Back
+            </Button>
+            <Button onClick={handleContinue} color="primary">
+              Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
       <Footer />
     </React.Fragment>
   );

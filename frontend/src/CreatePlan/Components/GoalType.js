@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -12,10 +12,17 @@ import time_goal from "../../assets/images/CreatePlan/time-goal.jpg";
 import { TimePicker } from "antd";
 import { CreatePlanContext } from "../CreatePlanContext";
 import Modal from "@material-ui/core/Modal";
-import Alert from "@material-ui/lab/Alert";
 import moment from "moment";
 import * as strings from "../../assets/utils/strings";
 import * as enums from "../../assets/utils/enums";
+import { Alert, AlertTitle } from "@material-ui/lab";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Slide from "@material-ui/core/Slide";
+import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
 
 const cards = [
   {
@@ -77,7 +84,16 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(2),
   },
+  icon: {
+    verticalAlign: "text-bottom",
+    marginRight: theme.spacing(2),
+    color: "orange",
+  },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function GoalTypeForm() {
   // This is the second form in the CreatePlan flow, it allows the user to select a goal type for their plan
@@ -88,7 +104,29 @@ export default function GoalTypeForm() {
 
   const [state, setState] = useContext(CreatePlanContext);
   const [goalTimeError, setGoalTimeError] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [openTimeModal, setOpenTimeModal] = useState(false);
+  const [openWarningModal, setOpenWarningModal] = useState(false);
+  const [recommendGoal, setRecommendedGoal] = useState();
+
+  useEffect(() => {
+    if (
+      (state.distance === enums.Distance.FIVE_KM && !state.fiveKm.completed) ||
+      (state.distance === enums.Distance.TEN_KM && !state.tenKm.completed) ||
+      (state.distance === enums.Distance.HALF_MARATHON &&
+        !state.halfMarathon.completed) ||
+      (state.distance === enums.Distance.MARATHON && !state.marathon.completed)
+    ) {
+      setRecommendedGoal(enums.GoalType.DISTANCE);
+    } else if (
+      (state.distance === enums.Distance.FIVE_KM && state.fiveKm.completed) ||
+      (state.distance === enums.Distance.TEN_KM && state.tenKm.completed) ||
+      (state.distance === enums.Distance.HALF_MARATHON &&
+        state.halfMarathon.completed) ||
+      (state.distance === enums.Distance.MARATHON && state.marathon.completed)
+    ) {
+      setRecommendedGoal(enums.GoalType.TIME);
+    }
+  }, []);
 
   function onClickHandler(goal) {
     if (goal === "Distance Goal") {
@@ -98,12 +136,17 @@ export default function GoalTypeForm() {
         goalType: enums.GoalType.DISTANCE,
         goalTime: null,
       });
+    } else if (
+      goal === "Time Goal" &&
+      recommendGoal === enums.GoalType.DISTANCE
+    ) {
+      setOpenWarningModal(true);
     } else {
       setState({
         ...state,
         goalType: enums.GoalType.TIME,
       });
-      setOpen(true);
+      setOpenTimeModal(true);
     }
   }
   function handleNext() {
@@ -115,11 +158,11 @@ export default function GoalTypeForm() {
   }
 
   function onChange(time, timeString) {
-    setState({ ...state, goalTime: timeString });
+    setState({ ...state, goalType: enums.GoalType.TIME, goalTime: timeString });
   }
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenTimeModal(false);
     setGoalTimeError(false);
   };
 
@@ -134,8 +177,17 @@ export default function GoalTypeForm() {
     };
   }
 
+  const goBackHandler = () => {
+    setOpenWarningModal(false);
+  };
+
+  const onContinueHandler = () => {
+    setOpenTimeModal(true);
+    setOpenWarningModal(false);
+  };
+
   // HTML for Goal Time Modal
-  const modalBody = (
+  const modalTimeBody = (
     <div style={modalStyle} className={classes.paper}>
       <h2>
         <b>Please enter your goal time:</b>
@@ -175,8 +227,8 @@ export default function GoalTypeForm() {
   return (
     <React.Fragment>
       <div>
-        <Modal open={open} onClose={handleClose}>
-          {modalBody}
+        <Modal open={openTimeModal} onClose={handleClose}>
+          {modalTimeBody}
         </Modal>
       </div>
       {cards.map((card) => (
@@ -201,35 +253,25 @@ export default function GoalTypeForm() {
               </Typography>
               <Typography>
                 {card.description}
-                {card.id === 1 &&
-                  ((state.distance === enums.Distance.FIVE_KM &&
-                    !state.fiveKm.completed) ||
-                    (state.distance === enums.Distance.TEN_KM &&
-                      !state.tenKm.completed) ||
-                    (state.distance === enums.Distance.HALF_MARATHON &&
-                      !state.halfMarathon.completed) ||
-                    (state.distance === enums.Distance.MARATHON &&
-                      !state.marathon.completed)) && (
-                    <Alert severity="info" className={classes.title}>
-                      Having never ran a {state.distance.toLowerCase()}, we
-                      recommend you just aim to complete it, rather than aim for
-                      a specific time.
-                    </Alert>
-                  )}
-                {card.id === 2 &&
-                  ((state.distance === enums.Distance.FIVE_KM &&
-                    state.fiveKm.completed) ||
-                    (state.distance === enums.Distance.TEN_KM &&
-                      state.tenKm.completed) ||
-                    (state.distance === enums.Distance.HALF_MARATHON &&
-                      state.halfMarathon.completed) ||
-                    (state.distance === enums.Distance.MARATHON &&
-                      state.marathon.completed)) && (
-                    <Alert severity="info" className={classes.title}>
-                      Seeing as you've ran a {state.distance.toLowerCase()}{" "}
-                      before, we recommend you aim to run it in a specific time.
-                    </Alert>
-                  )}
+                {card.id === 1 && recommendGoal === enums.GoalType.DISTANCE && (
+                  <Alert severity="info" className={classes.title}>
+                    <AlertTitle>
+                      <strong>Recommended</strong> -{" "}
+                    </AlertTitle>
+                    Having never ran a {state.distance.toLowerCase()}, we
+                    recommend you just aim to complete it, rather than aim for a
+                    specific time.
+                  </Alert>
+                )}
+                {card.id === 2 && recommendGoal === enums.GoalType.TIME && (
+                  <Alert severity="info" className={classes.title}>
+                    <AlertTitle>
+                      <strong>Recommended</strong> -{" "}
+                    </AlertTitle>
+                    Seeing as you've ran a {state.distance.toLowerCase()}{" "}
+                    before, we recommend you aim to run it in a specific time.
+                  </Alert>
+                )}
               </Typography>
             </CardContent>
             <CardActions className={classes.cardActions}>
@@ -245,6 +287,53 @@ export default function GoalTypeForm() {
           </Card>
         </Grid>
       ))}
+
+      {/* Dialog box for goal type warning */}
+      {openWarningModal && (
+        <Dialog
+          open={openWarningModal}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={goBackHandler}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle
+            id="alert-dialog-slide-title"
+            style={{ "background-color": "rgb(255, 244, 229)" }}
+          >
+            <WarningRoundedIcon className={classes.icon} />
+            {`Use a time goal for your training plan?`}
+          </DialogTitle>
+          <DialogContent
+            dividers
+            style={{ backgroundColor: "rgb(255, 244, 229)" }}
+          >
+            <DialogContentText id="alert-dialog-slide-description">
+              <p>
+                Due to the fact we can't see any runs on your Strava history
+                that have completed this distance. We strongly recommend you aim
+                for a distance goal.
+              </p>
+              <p>
+                This is because time based training plans expect you to be able
+                to run the whole distance (or near to) from the beginning. This
+                means that if you are not fully prepared, you increase your risk
+                of injury which will greatly decrease your chances of completing
+                the plan.
+              </p>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions style={{ "background-color": "rgb(255, 244, 229)" }}>
+            <Button onClick={goBackHandler} color="primary">
+              Go Back
+            </Button>
+            <Button onClick={onContinueHandler} color="primary">
+              Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </React.Fragment>
   );
 }

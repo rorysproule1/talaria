@@ -26,7 +26,25 @@ export default function FinishDateForm() {
   const [state, setState] = useContext(CreatePlanContext);
   const [planDuration, setPlanDuration] = useState();
 
-  function onChangeHandler(date) {
+  const [planStart, setPlanStart] = useState(addDays(new Date(), 5));
+
+  function addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  function onStartChangeHandler(date) {
+    setState({ ...state, startDate: date });
+
+    if (date) {
+      getPlanDuration(date);
+    } else {
+      setPlanDuration(null);
+    }
+  }
+
+  function onDurationChangeHandler(date) {
     setState({ ...state, finishDate: date });
 
     if (date) {
@@ -82,9 +100,24 @@ export default function FinishDateForm() {
       </Alert>
 
       <Grid item xs={12} sm={8} md={6}>
+        Plan Start Date:
+        <DatePicker
+          onChange={onStartChangeHandler}
+          minDate={addDays(new Date(), 1)}
+          value={state.startDate}
+          className={classes.date}
+        />
+        {planDuration && (
+          <Alert severity="info" className={classes.info}>
+            {planDuration}
+          </Alert>
+        )}
+      </Grid>
+
+      <Grid item xs={12} sm={8} md={6}>
         Plan Finish Date:
         <DatePicker
-          onChange={onChangeHandler}
+          onChange={onDurationChangeHandler}
           minDate={new Date()}
           value={state.finishDate}
           className={classes.date}
