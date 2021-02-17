@@ -19,7 +19,6 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
 import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
@@ -44,9 +43,9 @@ const cards = [
 ];
 
 const useStyles = makeStyles((theme) => ({
-  title: {
+  insight: {
     padding: "16px",
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   card: {
     height: "100%",
@@ -89,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
     color: "orange",
   },
+  warningColor: {
+    backgroundColor: "rgb(255, 244, 229)",
+  },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -105,8 +107,25 @@ export default function GoalTypeForm() {
   const [state, setState] = useContext(CreatePlanContext);
   const [goalTimeError, setGoalTimeError] = useState(false);
   const [openTimeModal, setOpenTimeModal] = useState(false);
-  const [openWarningModal, setOpenWarningModal] = useState(false);
+  const [goalWarning, setGoalWarning] = useState(false);
   const [recommendGoal, setRecommendedGoal] = useState();
+
+  var distance;
+  var time;
+  // get distance and time info for display in goal time modal
+  if (state.distance === enums.Distance.FIVE_KM) {
+    distance = "5K";
+    time = state.fiveKm.time;
+  } else if (state.distance === enums.Distance.TEN_KM) {
+    distance = "10K";
+    time = state.tenKm.time;
+  } else if (state.distance === enums.Distance.HALF_MARATHON) {
+    distance = "half marathon";
+    time = state.halfMarathon.time;
+  } else if (state.distance === enums.Distance.MARATHON) {
+    distance = "marathon";
+    time = state.marathon.time;
+  }
 
   useEffect(() => {
     if (
@@ -140,7 +159,7 @@ export default function GoalTypeForm() {
       goal === "Time Goal" &&
       recommendGoal === enums.GoalType.DISTANCE
     ) {
-      setOpenWarningModal(true);
+      setGoalWarning(true);
     } else {
       setState({
         ...state,
@@ -178,12 +197,12 @@ export default function GoalTypeForm() {
   }
 
   const goBackHandler = () => {
-    setOpenWarningModal(false);
+    setGoalWarning(false);
   };
 
   const onContinueHandler = () => {
     setOpenTimeModal(true);
-    setOpenWarningModal(false);
+    setGoalWarning(false);
   };
 
   // HTML for Goal Time Modal
@@ -192,6 +211,14 @@ export default function GoalTypeForm() {
       <h2>
         <b>Please enter your goal time:</b>
       </h2>
+      {time !== "00:00" && (
+        <p>
+          <b>
+            You completed your fastest {distance} in {time}
+          </b>
+        </p>
+      )}
+
       <p>Your goal time should be in the form HH:MM:SS. </p>
       {goalTimeError && (
         <Alert severity="error" className={classes.alert}>
@@ -249,22 +276,22 @@ export default function GoalTypeForm() {
                 component="h2"
                 style={{ fontWeight: "bold" }}
               >
-                {card.title}
+                <b>{card.title}</b>
               </Typography>
               <Typography>
                 {card.description}
                 {card.id === 1 && recommendGoal === enums.GoalType.DISTANCE && (
-                  <Alert severity="info" className={classes.title}>
+                  <Alert severity="info" className={classes.insight}>
                     <AlertTitle>
                       <strong>Recommended</strong> -{" "}
                     </AlertTitle>
                     Having never ran a {state.distance.toLowerCase()}, we
-                    recommend you just aim to complete it, rather than aim for a
-                    specific time.
+                    recommend you just aim go the distance, rather than aiming
+                    for a specific time.
                   </Alert>
                 )}
                 {card.id === 2 && recommendGoal === enums.GoalType.TIME && (
-                  <Alert severity="info" className={classes.title}>
+                  <Alert severity="info" className={classes.insight}>
                     <AlertTitle>
                       <strong>Recommended</strong> -{" "}
                     </AlertTitle>
@@ -289,30 +316,21 @@ export default function GoalTypeForm() {
       ))}
 
       {/* Dialog box for goal type warning */}
-      {openWarningModal && (
+      {goalWarning && (
         <Dialog
-          open={openWarningModal}
+          open={goalWarning}
           TransitionComponent={Transition}
           keepMounted
           onClose={goBackHandler}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle
-            id="alert-dialog-slide-title"
-            style={{ "background-color": "rgb(255, 244, 229)" }}
-          >
+          <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
-            {`Use a time goal for your training plan?`}
+            <strong>Are you sure you'd like to select this goal type?</strong>
           </DialogTitle>
-          <DialogContent
-            dividers
-            style={{ backgroundColor: "rgb(255, 244, 229)" }}
-          >
-            <DialogContentText id="alert-dialog-slide-description">
+          <DialogContent dividers className={classes.warningColor}>
+            <Typography gutterBottom>
               <p>
-                Due to the fact we can't see any runs on your Strava history
-                that have completed this distance. We strongly recommend you aim
+                Due to the fact we can't see any runs of this distance on your Strava. We strongly recommend you aim
                 for a distance goal.
               </p>
               <p>
@@ -322,9 +340,9 @@ export default function GoalTypeForm() {
                 of injury which will greatly decrease your chances of completing
                 the plan.
               </p>
-            </DialogContentText>
+            </Typography>
           </DialogContent>
-          <DialogActions style={{ "background-color": "rgb(255, 244, 229)" }}>
+          <DialogActions className={classes.warningColor}>
             <Button onClick={goBackHandler} color="primary">
               Go Back
             </Button>

@@ -17,7 +17,6 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
 import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
@@ -76,14 +75,17 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "auto",
     paddingRight: theme.spacing(2),
   },
-  title: {
+  insight: {
     padding: "16px",
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   icon: {
     verticalAlign: "text-bottom",
     marginRight: theme.spacing(2),
     color: "orange",
+  },
+  warningColor: {
+    backgroundColor: "rgb(255, 244, 229)",
   },
 }));
 
@@ -98,7 +100,7 @@ export default function DistanceForm() {
 
   const [state, setState] = useContext(CreatePlanContext);
   const [tempDistance, setTempDistance] = useState();
-  const [warning, setWarning] = useState(false);
+  const [distanceWarning, setDistanceWarning] = useState(false);
 
   function onClickHandler(distance) {
     if (distance === "5K Plan") {
@@ -109,7 +111,7 @@ export default function DistanceForm() {
       });
     } else if (distance === "10K Plan") {
       if (!state.fiveKm.completed) {
-        setWarning(true);
+        setDistanceWarning(true);
         setTempDistance(enums.Distance.TEN_KM);
       } else {
         setState({
@@ -120,7 +122,7 @@ export default function DistanceForm() {
       }
     } else if (distance === "Half-Marathon Plan") {
       if (!state.tenKm.completed) {
-        setWarning(true);
+        setDistanceWarning(true);
         setTempDistance(enums.Distance.HALF_MARATHON);
       } else {
         setState({
@@ -131,7 +133,7 @@ export default function DistanceForm() {
       }
     } else if (distance === "Marathon Plan") {
       if (!state.halfMarathon.completed) {
-        setWarning(true);
+        setDistanceWarning(true);
         setTempDistance(enums.Distance.MARATHON);
       } else {
         setState({
@@ -144,7 +146,7 @@ export default function DistanceForm() {
   }
 
   const goBackHandler = () => {
-    setWarning(false);
+    setDistanceWarning(false);
   };
 
   const onContinueHandler = () => {
@@ -169,32 +171,24 @@ export default function DistanceForm() {
           >
             <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
-              <Typography
-                gutterBottom
-                variant="h6"
-                component="h2"
-                style={{ fontWeight: "bold" }}
-              >
-                {card.title}
+              <Typography gutterBottom variant="h6" component="h2">
+                <b>{card.title}</b>
               </Typography>
               <Typography>
                 {card.description}
-
+                <p></p>
                 {card.id === 1 && state.fiveKm.completed && (
                   <Typography variant="body2" gutterBottom>
-                    <br></br>
                     <b>You last ran a 5K on {state.fiveKm.date}</b>
                   </Typography>
                 )}
                 {card.id === 2 && state.tenKm.completed && (
                   <Typography variant="body2" gutterBottom>
-                    <br></br>
                     <b>You last ran a 10K on {state.tenKm.date}</b>
                   </Typography>
                 )}
                 {card.id === 3 && state.halfMarathon.completed && (
                   <Typography variant="body2" gutterBottom>
-                    <br></br>
                     <b>
                       You last ran a half marathon on {state.halfMarathon.date}
                     </b>
@@ -202,7 +196,6 @@ export default function DistanceForm() {
                 )}
                 {card.id === 4 && state.marathon.completed && (
                   <Typography variant="body2" gutterBottom>
-                    <br></br>
                     <b>You last ran a marathon on {state.marathon.date}</b>
                   </Typography>
                 )}
@@ -210,7 +203,7 @@ export default function DistanceForm() {
                 {state.insightsFound &&
                   card.id === 1 &&
                   !state.fiveKm.completed && (
-                    <Alert severity="info" className={classes.title}>
+                    <Alert severity="info" className={classes.insight}>
                       <AlertTitle>
                         <strong>Recommended</strong> -{" "}
                       </AlertTitle>
@@ -221,7 +214,7 @@ export default function DistanceForm() {
                 {card.id === 2 &&
                   state.fiveKm.completed &&
                   !state.tenKm.completed && (
-                    <Alert severity="info" className={classes.title}>
+                    <Alert severity="info" className={classes.insight}>
                       <AlertTitle>
                         <strong>Recommended</strong> -{" "}
                       </AlertTitle>
@@ -233,7 +226,7 @@ export default function DistanceForm() {
                   state.fiveKm.completed &&
                   state.tenKm.completed &&
                   !state.halfMarathon.completed && (
-                    <Alert severity="info" className={classes.title}>
+                    <Alert severity="info" className={classes.insight}>
                       <AlertTitle>
                         <strong>Recommended</strong> -{" "}
                       </AlertTitle>
@@ -246,7 +239,7 @@ export default function DistanceForm() {
                   state.tenKm.completed &&
                   state.halfMarathon.completed &&
                   !state.marathon.completed && (
-                    <Alert severity="info" className={classes.title}>
+                    <Alert severity="info" className={classes.insight}>
                       <AlertTitle>
                         <strong>Recommended</strong> -{" "}
                       </AlertTitle>
@@ -271,39 +264,35 @@ export default function DistanceForm() {
       ))}
 
       {/* Dialog box for distance warning */}
-      {warning && (
+      {distanceWarning && (
         <Dialog
-          open={warning}
+          open={distanceWarning}
           TransitionComponent={Transition}
           keepMounted
           onClose={goBackHandler}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle
-            id="alert-dialog-slide-title"
-            style={{ "background-color": "rgb(255, 244, 229)" }}
-          >
+          <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
-            {`Use this distance?`}
+            <strong>Are you sure you'd like to select this distance?</strong>
           </DialogTitle>
-          <DialogContent
-            dividers
-            style={{ backgroundColor: "rgb(255, 244, 229)" }}
-          >
-            <DialogContentText id="alert-dialog-slide-description">
+          <DialogContent dividers className={classes.warningColor}>
+            <Typography gutterBottom>
               <p>
-                Selecting a distance you aren't prepared for increases the risk
-                of you overexerting yourself. This can lead to injury which will
-                greatly decrease your chances of completing the plan.
+                We notice you've never ran {tempDistance.toLowerCase()} on
+                Strava before.
               </p>
               <p>
-                We strongly recommend you select the distance advised for you,
-                and gradually build towards this distance.
+                Selecting a distance that you aren't prepared for increases the
+                risk of overexertion. This can lead to injury which will greatly
+                decrease your chances of completing the plan.
               </p>
-            </DialogContentText>
+              <p>
+                We strongly advise you select the distance recommended to you,
+                and gradually build your fitness towards this desired distance.
+              </p>
+            </Typography>
           </DialogContent>
-          <DialogActions style={{ "background-color": "rgb(255, 244, 229)" }}>
+          <DialogActions className={classes.warningColor}>
             <Button onClick={goBackHandler} color="primary">
               Go Back
             </Button>

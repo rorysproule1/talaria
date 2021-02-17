@@ -64,6 +64,19 @@ export default function Summary() {
             </TableRow>
           )}
           <TableRow>
+            <TableCell>Start Date:</TableCell>
+            <TableCell>
+              {state.startDate
+                ? state.startDate
+                    .toString()
+                    .substring(
+                      0,
+                      state.startDate.toString().indexOf("00:00:00")
+                    )
+                : "Not set"}
+            </TableCell>
+          </TableRow>
+          <TableRow>
             <TableCell>Finish Date:</TableCell>
             <TableCell>
               {state.finishDate

@@ -115,6 +115,7 @@ def get_strava_insights():
             if run_distance >= 10000:
                 long_run_day_list.append(run_date.weekday())
         else:
+            # If the activity isn't a run, add it to additional activites set
             additional_activities.add(activity["type"])
 
     # Get most popular long run day
@@ -124,23 +125,23 @@ def get_strava_insights():
     return {
         "five_km": {
             "completed": completed_5km,
-            "time": str(time.timedelta(seconds=fastest_5km)),
+            "time": get_time_string(fastest_5km),
             "date": date_5km,
         },
         "ten_km": {
             "completed": completed_10km,
-            "time": str(time.timedelta(seconds=fastest_10km)),
+            "time": get_time_string(fastest_10km),
             "date": date_10km,
         },
         "half_marathon": {
             # "completed": completed_half_marathon,
             "completed": False,
-            "time": str(time.timedelta(seconds=fastest_half_marathon)),
+            "time": get_time_string(fastest_half_marathon),
             "date": date_half_marathon,
         },
         "marathon": {
             "completed": completed_marathon,
-            "time": str(time.timedelta(seconds=fastest_marathon)),
+            "time": get_time_string(fastest_marathon),
             "date": date_marathon,
         },
         "additional_activities": list(additional_activities),
@@ -334,6 +335,14 @@ def get_epoch_timestamp():
         dt = dt.replace(year=dt.year - 1, day=dt.day - 1)
 
     return dt.timestamp()
+
+
+def get_time_string(run_time):
+    time_string = str(time.timedelta(seconds=run_time))
+    if time_string.startswith("0:"):
+        time_string = time_string[2:]
+
+    return time_string
 
 
 def get_day_string(day):
