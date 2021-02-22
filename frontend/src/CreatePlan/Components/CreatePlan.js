@@ -8,7 +8,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Distance from "./Distance";
 import GoalType from "./GoalType";
-import FinishDate from "./FinishDate";
+import FinishDate from "./KeyDates";
 import RunsPerWeek from "./RunsPerWeek";
 import Preferences from "./Preferences";
 import Summary from "./Summary.js";

@@ -314,7 +314,6 @@ def get_long_run_day(day_list):
 
 
 def get_blockable_days(day_list):
-    print("HI")
     data = Counter(day_list)
     day_count_list = data.most_common()
     print(day_count_list)

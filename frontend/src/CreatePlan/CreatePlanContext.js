@@ -54,10 +54,6 @@ const CreatePlanProvider = (props) => {
     additionalActivities: [],
   });
 
-  useEffect(() => {
-    console.log(state)
-  }, [state]);
-
   return (
     <CreatePlanContext.Provider value={[state, setState]}>
       {props.children}
