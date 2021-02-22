@@ -15,6 +15,8 @@ import { CreatePlanContext } from "../CreatePlanContext";
 import * as strings from "../../assets/utils/strings";
 import * as enums from "../../assets/utils/enums";
 import TextField from "@material-ui/core/TextField";
+import HelpIcon from "@material-ui/icons/Help";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -26,6 +28,10 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     marginBottom: theme.spacing(2),
+  },
+  help: {
+    marginLeft: "5px",
+    paddingTop: "5px",
   },
 }));
 
@@ -41,7 +47,7 @@ const days = [
 ];
 
 export default function PreferencesForm() {
-  // This is the last form in the CreatePlan flow, it allows the user to optionally select a range of 
+  // This is the last form in the CreatePlan flow, it allows the user to optionally select a range of
   // preferences for their plan
 
   const classes = useStyles();
@@ -62,6 +68,13 @@ export default function PreferencesForm() {
   });
   const [longRunError, setLongRunError] = useState(false);
   const [numDaysBlocked, setNumDaysBlocked] = useState(0);
+
+  var crossTrainingActivites = "";
+  if (state.additionalActivities) {
+    crossTrainingActivites =
+      "These include the activities you've already carried out on Strava: " +
+      state.additionalActivities.join(", ");
+  }
 
   const handleCheckboxChange = (event) => {
     if (!event.target.checked) {
@@ -255,6 +268,15 @@ export default function PreferencesForm() {
             )}
             <Typography className={classes.info}>
               Is there a particular day you'd like to do your long run?
+              {state.modeLongRunDay && (
+                <Tooltip
+                  title={`Your Strava indicates that the day you complete most of your long runs is ${state.modeLongRunDay}.`}
+                  aria-label="include-taper"
+                  className={classes.help}
+                >
+                  <HelpIcon />
+                </Tooltip>
+              )}
             </Typography>
             <FormControl className={classes.formControl}>
               <InputLabel>Long Run Day</InputLabel>
@@ -276,6 +298,13 @@ export default function PreferencesForm() {
 
         <Typography className={classes.info}>
           Would you like to include a taper towards the end of your plan?
+          <Tooltip
+            title="A taper reduces the volume of your weekly training mileage during the final 3 weeks of your plan, to allow your body to prepare for peak performance."
+            aria-label="include-taper"
+            className={classes.help}
+          >
+            <HelpIcon />
+          </Tooltip>
         </Typography>
         <Switch
           checked={state.includeTaper}
@@ -287,6 +316,13 @@ export default function PreferencesForm() {
         />
         <Typography className={classes.info}>
           Would you like to include cross training activities in your plan?
+          <Tooltip
+            title={`Cross training provides you with the opportunity to carry out additional exercise on your rest days. It allows you to continue to improve your overall fitness while also resting the muscles repetitively used while running.${crossTrainingActivites}`}
+            aria-label="include-cross-training"
+            className={classes.help}
+          >
+            <HelpIcon />
+          </Tooltip>
         </Typography>
         <Switch
           checked={state.includeCrossTrain}

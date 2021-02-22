@@ -17,6 +17,7 @@ import { Redirect } from "react-router-dom";
 import axios from "axios";
 import { DashboardContext } from "../DashboardContext";
 import Typography from "@material-ui/core/Typography";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -149,14 +150,16 @@ export default function Dashboard({ athleteID }) {
             {/* Athlete's Plans */}
             <Plans />
           </Grid>
-          <Fab
-            aria-label="Create"
-            className={classes.fab}
-            color="primary"
-            onClick={(e) => setCreatePlan(true)}
-          >
-            <AddIcon />
-          </Fab>
+          <Tooltip title="Create a New Plan" aria-label="create-plan">
+            <Fab
+              aria-label="Create"
+              className={classes.fab}
+              color="primary"
+              onClick={(e) => setCreatePlan(true)}
+            >
+              <AddIcon />
+            </Fab>
+          </Tooltip>
         </Container>
       </main>
       <Footer />

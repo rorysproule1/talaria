@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
@@ -8,7 +8,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Distance from "./Distance";
 import GoalType from "./GoalType";
-import FinishDate from "./FinishDate";
+import FinishDate from "./KeyDates";
 import RunsPerWeek from "./RunsPerWeek";
 import Preferences from "./Preferences";
 import Summary from "./Summary.js";
@@ -22,6 +22,13 @@ import * as urls from "../../assets/utils/urls";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import { Link as RouterLink } from "react-router-dom";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Slide from "@material-ui/core/Slide";
+import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -63,22 +70,54 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(1),
   },
+  load: {
+    margin: "auto",
+    marginLeft: theme.spacing(18),
+    marginBottom: theme.spacing(3),
+  },
+  error: {
+    display: "flex",
+    marginLeft: "auto",
+    paddingRight: theme.spacing(2),
+  },
+  icon: {
+    verticalAlign: "text-bottom",
+    marginRight: theme.spacing(2),
+    color: "orange",
+  },
 }));
 
 const steps = [
   "Distance",
   "Goal Type",
-  "Finish Date",
+  "Key Dates",
   "Runs Per Week",
   "Preferences",
   "Summary",
 ];
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
   const [state, setState] = useContext(CreatePlanContext);
+  const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState(false);
+
+  const [openRunsPerWeekWarning, setOpenRunsPerWeekWarning] = useState(false);
+
+  const onContinueHandler = () => {
+    setState({ ...state, step: state.step + 1, runsPerWeekError: false });
+    setOpenRunsPerWeekWarning(false);
+  };
+
+  const onGoBackHandler = () => {
+    setOpenRunsPerWeekWarning(false);
+  };
 
   useEffect(() => {
     /*
@@ -88,13 +127,38 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
-        // assign to context state values
-        console.log(response.data);
+        setLoading(false);
+        const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
+        setState({
+          ...state,
+          insightsFound: true,
+          fiveKm: response.data["five_km"],
+          tenKm: response.data["ten_km"],
+          halfMarathon: response.data["half_marathon"],
+          marathon: response.data["marathon"],
+          // both these runsPerWeek values are assigned as one is to set the value and the other is to inform the user
+          avgRunsPerWeek: runsPerWeek,
+          runsPerWeek: runsPerWeek,
+          modeLongRunDay: response.data["long_run_day"],
+          additionalActivities: response.data["additional_activities"],
+        });
       })
       .catch((error) => {
+        setLoadingError(true);
+        setLoading(false);
         console.log(error);
       });
   }, []);
+
+  function getRunsPerWeek(rpw) {
+    if (rpw <= 3.5) {
+      return "2-3";
+    } else if (rpw <= 5.5) {
+      return "4-5";
+    } else {
+      return "6+";
+    }
+  }
 
   const handleSubmit = () => {
     const plan_data = {
@@ -127,6 +191,16 @@ export default function CreatePlan({ athleteID }) {
     if (state.step === 3 && !state.runsPerWeek) {
       // Check if a value for RunsPerWeek has been provided on this form, if not an error is presented
       setState({ ...state, runsPerWeekError: true });
+    } else if (state.step === 3 && state.runsPerWeek) {
+      if (
+        (state.avgRunsPerWeek === "2-3" &&
+          ["4-5", "6+"].includes(state.runsPerWeek)) ||
+        (state.avgRunsPerWeek === "4-5" && state.runsPerWeek === "6+")
+      ) {
+        setOpenRunsPerWeekWarning(true);
+      } else {
+        setState({ ...state, step: state.step + 1, runsPerWeekError: false });
+      }
     } else {
       setState({ ...state, step: state.step + 1, runsPerWeekError: false });
     }
@@ -134,6 +208,10 @@ export default function CreatePlan({ athleteID }) {
 
   const handleBack = () => {
     setState({ ...state, step: state.step - 1 });
+  };
+
+  const onErrorClick = () => {
+    window.location.href = "/";
   };
 
   useEffect(() => {
@@ -233,6 +311,87 @@ export default function CreatePlan({ athleteID }) {
           </div>
         </Paper>
       </main>
+
+      {/* Dialog box for insights loading */}
+      {loading && (
+        <Dialog open={loading} TransitionComponent={Transition} keepMounted>
+          <DialogTitle>
+            <strong>Gathering your Strava run history ...</strong>
+          </DialogTitle>
+          <DialogContent>
+            <CircularProgress className={classes.load} />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Dialog box for insights loading */}
+      {loadingError && (
+        <Dialog
+          open={loadingError}
+          TransitionComponent={Transition}
+          keepMounted
+        >
+          <DialogTitle>
+            <strong>
+              There was an error gathering your Strava run history.
+            </strong>
+          </DialogTitle>
+          <DialogContent>
+            <LinkRouter
+              to={{
+                pathname: urls.Dashboard,
+                state: { athleteID: athleteID },
+              }}
+            >
+              <Button
+                color="secondary"
+                className={classes.error}
+                onClick={onErrorClick}
+              >
+                Return to Dashboard
+              </Button>
+            </LinkRouter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Dialog box for Runs Per Week */}
+      {openRunsPerWeekWarning && (
+        <Dialog
+          open={openRunsPerWeekWarning}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={onGoBackHandler}
+        >
+          <DialogTitle className={classes.warningColor}>
+            <WarningRoundedIcon className={classes.icon} />
+            {`Are you sure you'd like to select ${state.runsPerWeek} runs per week?`}
+          </DialogTitle>
+          <DialogContent dividers className={classes.warningColor}>
+            <Typography gutterBottom>
+              <p>
+                Selecting a number of runs per week that is higher than your
+                current 6 week average greatly increases the chance of you
+                injuring yourself and thus failing to complete this training
+                plan.
+              </p>
+              <p>
+                We strongly advise you stick to the recommended runs per week (
+                {state.avgRunsPerWeek})
+              </p>
+            </Typography>
+          </DialogContent>
+          <DialogActions className={classes.warningColor}>
+            <Button onClick={onGoBackHandler} color="primary">
+              Go Back
+            </Button>
+            <Button onClick={onContinueHandler} color="primary">
+              Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
       <Footer />
     </React.Fragment>
   );

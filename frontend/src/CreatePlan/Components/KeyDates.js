@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import DatePicker from "react-date-picker";
@@ -18,15 +18,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function FinishDateForm() {
+export default function KeyDatesForm() {
   // This is the third form in the CreatePlan flow, it allows the user to optionally select a finish date for their plan
-
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);
   const [planDuration, setPlanDuration] = useState();
 
-  function onChangeHandler(date) {
+  useEffect(() => {
+    // on loading, set the default startDate to tomorrow
+    setState({ ...state, startDate: addDays(new Date(), 1) });
+  }, []);
+
+  function addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  function onStartChangeHandler(date) {
+    setState({ ...state, startDate: date });
+
+    if (date && state.finishDate) {
+      getPlanDuration(state.finishDate);
+    } else {
+      setPlanDuration(null);
+    }
+  }
+
+  function onFinishChangeHandler(date) {
     setState({ ...state, finishDate: date });
 
     if (date) {
@@ -38,7 +58,10 @@ export default function FinishDateForm() {
 
   function getPlanDuration(date) {
     // Calculation of the amount of days/weeks between the current date of plan creation and the desired finish date
-    var diffInMs = date - new Date();
+    var diffInMs = date - addDays(new Date(), 1);
+    if (state.startDate) {
+      diffInMs = date - state.startDate;
+    }
     var diffInDays = diffInMs / (1000 * 60 * 60 * 24);
     var planString = "";
 
@@ -82,10 +105,21 @@ export default function FinishDateForm() {
       </Alert>
 
       <Grid item xs={12} sm={8} md={6}>
+        Plan Start Date:
+        <DatePicker
+          onChange={onStartChangeHandler}
+          minDate={addDays(new Date(), 1)}
+          value={state.startDate}
+          className={classes.date}
+          clearIcon={null}
+        />
+      </Grid>
+
+      <Grid item xs={12} sm={8} md={6}>
         Plan Finish Date:
         <DatePicker
-          onChange={onChangeHandler}
-          minDate={new Date()}
+          onChange={onFinishChangeHandler}
+          minDate={addDays(state.startDate, 42)}
           value={state.finishDate}
           className={classes.date}
         />

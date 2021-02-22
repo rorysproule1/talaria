@@ -3,8 +3,8 @@
  */
 
 export const Distance = {
-  FIVE_KM: "5KM",
-  TEN_KM: "10KM",
+  FIVE_KM: "5K",
+  TEN_KM: "10K",
   HALF_MARATHON: "HALF-MARATHON",
   MARATHON: "MARATHON",
 };
