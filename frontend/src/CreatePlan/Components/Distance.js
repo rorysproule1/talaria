@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -108,6 +108,9 @@ export default function DistanceForm() {
         ...state,
         step: state.step + 1,
         distance: enums.Distance.FIVE_KM,
+        // goal details are nulled here to prevent bug of someone returning and having a goal time lower than the min
+        goalType: null,
+        goalTime: null,
       });
     } else if (distance === "10K Plan") {
       if (!state.fiveKm.completed) {
@@ -118,6 +121,8 @@ export default function DistanceForm() {
           ...state,
           step: state.step + 1,
           distance: enums.Distance.TEN_KM,
+          goalType: null,
+          goalTime: null,
         });
       }
     } else if (distance === "Half-Marathon Plan") {
@@ -129,6 +134,8 @@ export default function DistanceForm() {
           ...state,
           step: state.step + 1,
           distance: enums.Distance.HALF_MARATHON,
+          goalType: null,
+          goalTime: null,
         });
       }
     } else if (distance === "Marathon Plan") {
@@ -140,12 +147,14 @@ export default function DistanceForm() {
           ...state,
           step: state.step + 1,
           distance: enums.Distance.MARATHON,
+          goalType: null,
+          goalTime: null,
         });
       }
     }
   }
 
-  const goBackHandler = () => {
+  const onGoBackHandler = () => {
     setDistanceWarning(false);
   };
 
@@ -269,7 +278,7 @@ export default function DistanceForm() {
           open={distanceWarning}
           TransitionComponent={Transition}
           keepMounted
-          onClose={goBackHandler}
+          onClose={onGoBackHandler}
         >
           <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
@@ -293,7 +302,7 @@ export default function DistanceForm() {
             </Typography>
           </DialogContent>
           <DialogActions className={classes.warningColor}>
-            <Button onClick={goBackHandler} color="primary">
+            <Button onClick={onGoBackHandler} color="primary">
               Go Back
             </Button>
             <Button onClick={onContinueHandler} color="primary">

@@ -8,6 +8,7 @@ import { CreatePlanContext } from "../CreatePlanContext";
 import Alert from "@material-ui/lab/Alert";
 import { Typography } from "@material-ui/core";
 import * as enums from "../../assets/utils/enums";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme) => ({
   capitalize: {
@@ -27,6 +28,10 @@ export default function Summary() {
 
   const classes = useStyles();
   const [state, setState] = useContext(CreatePlanContext);
+
+  function onChangeHandler(changeStep) {
+    setState({ ...state, step: changeStep });
+  }
 
   return (
     <React.Fragment>
@@ -50,30 +55,65 @@ export default function Summary() {
             <TableCell className={classes.capitalize}>
               {state.distance.toLowerCase()}
             </TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(0)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Goal Type:</TableCell>
             <TableCell className={classes.capitalize}>
               {state.goalType.toLowerCase()}
             </TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(1)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           {state.goalType === enums.GoalType.TIME && (
             <TableRow>
               <TableCell>Goal Time:</TableCell>
               <TableCell>{state.goalTime}</TableCell>
+              <TableCell>
+                <Button
+                  size="small"
+                  color="primary"
+                  className={classes.button}
+                  onClick={(e) => onChangeHandler(1)}
+                >
+                  Change
+                </Button>
+              </TableCell>
             </TableRow>
           )}
           <TableRow>
             <TableCell>Start Date:</TableCell>
             <TableCell>
               {state.startDate
-                ? state.startDate
-                    .toString()
-                    .substring(
-                      0,
-                      state.startDate.toString().indexOf("00:00:00")
-                    )
-                : "Not set"}
+                .toString()
+                .substring(0, state.startDate.toString().indexOf("GMT") - 9)}
+            </TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(2)}
+              >
+                Change
+              </Button>
             </TableCell>
           </TableRow>
           <TableRow>
@@ -88,10 +128,30 @@ export default function Summary() {
                     )
                 : "Not set"}
             </TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(2)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Runs Per Week:</TableCell>
             <TableCell>{state.runsPerWeek}</TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(3)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Blocked Days:</TableCell>
@@ -102,6 +162,16 @@ export default function Summary() {
                 ? state.blockedDays
                 : "N/A"}
             </TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(4)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           {state.distance.includes(enums.Distance.MARATHON) && (
             <TableRow>
@@ -109,19 +179,59 @@ export default function Summary() {
               <TableCell>
                 {state.longRunDay ? state.longRunDay : "N/A"}
               </TableCell>
+              <TableCell>
+                <Button
+                  size="small"
+                  color="primary"
+                  className={classes.button}
+                  onClick={(e) => onChangeHandler(4)}
+                >
+                  Change
+                </Button>
+              </TableCell>
             </TableRow>
           )}
           <TableRow>
             <TableCell>Include Taper:</TableCell>
             <TableCell>{state.includeTaper ? "Yes" : "No"}</TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(4)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Include Cross Training:</TableCell>
             <TableCell>{state.includeCrossTrain ? "Yes" : "No"}</TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(4)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Plan Name</TableCell>
             <TableCell>{state.planName ? state.planName : "N/A"}</TableCell>
+            <TableCell>
+              <Button
+                size="small"
+                color="primary"
+                className={classes.button}
+                onClick={(e) => onChangeHandler(4)}
+              >
+                Change
+              </Button>
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>

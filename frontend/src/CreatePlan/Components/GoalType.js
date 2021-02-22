@@ -11,7 +11,6 @@ import distance_goal from "../../assets/images/CreatePlan/distance-goal.jpg";
 import time_goal from "../../assets/images/CreatePlan/time-goal.jpg";
 import { TimePicker } from "antd";
 import { CreatePlanContext } from "../CreatePlanContext";
-import Modal from "@material-ui/core/Modal";
 import moment from "moment";
 import * as strings from "../../assets/utils/strings";
 import * as enums from "../../assets/utils/enums";
@@ -102,32 +101,40 @@ export default function GoalTypeForm() {
   // and suggests to them if they should go for distance or time (also what time to go for)
 
   const classes = useStyles();
-  const [modalStyle] = useState(getModalStyle);
 
   const [state, setState] = useContext(CreatePlanContext);
-  const [goalTimeError, setGoalTimeError] = useState(false);
-  const [openTimeModal, setOpenTimeModal] = useState(false);
+  const [goalTimeError, setGoalTimeError] = useState({
+    isError: false,
+    message: "",
+  });
+  const [openTimeInput, setOpenTimeInput] = useState(false);
   const [goalWarning, setGoalWarning] = useState(false);
   const [recommendGoal, setRecommendedGoal] = useState();
 
   var distance;
   var time;
-  // get distance and time info for display in goal time modal
+  var minTime;
+  // get distance and time info for display in goal time input and the min selectable time
   if (state.distance === enums.Distance.FIVE_KM) {
     distance = "5K";
     time = state.fiveKm.time;
+    minTime = moment("00:15:00", "HH:mm:ss");
   } else if (state.distance === enums.Distance.TEN_KM) {
     distance = "10K";
     time = state.tenKm.time;
+    minTime = moment("00:30:00", "HH:mm:ss");
   } else if (state.distance === enums.Distance.HALF_MARATHON) {
     distance = "half marathon";
     time = state.halfMarathon.time;
+    minTime = moment("01:00:00", "HH:mm:ss");
   } else if (state.distance === enums.Distance.MARATHON) {
     distance = "marathon";
     time = state.marathon.time;
+    minTime = moment("02:00:00", "HH:mm:ss");
   }
 
   useEffect(() => {
+    // find the recommended time goal for the distance they have selected
     if (
       (state.distance === enums.Distance.FIVE_KM && !state.fiveKm.completed) ||
       (state.distance === enums.Distance.TEN_KM && !state.tenKm.completed) ||
@@ -165,99 +172,79 @@ export default function GoalTypeForm() {
         ...state,
         goalType: enums.GoalType.TIME,
       });
-      setOpenTimeModal(true);
+      setOpenTimeInput(true);
     }
   }
   function handleNext() {
     if (state.goalTime) {
       setState({ ...state, step: state.step + 1 });
     } else {
-      setGoalTimeError(true);
+      setGoalTimeError({
+        ...goalTimeError,
+        isError: true,
+        message: strings.GoalTimeError,
+      });
     }
   }
 
   function onChange(time, timeString) {
-    setState({ ...state, goalType: enums.GoalType.TIME, goalTime: timeString });
+    if (time !== null) {
+      if (time.hours() < minTime.hours()) {
+        setGoalTimeError({
+          ...goalTimeError,
+          isError: true,
+          message: `The minimum selectable time for a ${distance} is ${minTime.format(
+            "HH:mm:ss"
+          )}`,
+        });
+      } else if (time.hours() > minTime.hours()) {
+        setState({
+          ...state,
+          goalType: enums.GoalType.TIME,
+          goalTime: timeString,
+        });
+        setGoalTimeError({ ...goalTimeError, isError: false, message: "" });
+      } else if (time.hours() === minTime.hours()) {
+        if (time.minutes() >= minTime.minutes()) {
+          setState({
+            ...state,
+            goalType: enums.GoalType.TIME,
+            goalTime: timeString,
+          });
+          setGoalTimeError({ ...goalTimeError, isError: false, message: "" });
+        } else {
+          setGoalTimeError({
+            ...goalTimeError,
+            isError: true,
+            message: `The minimum selectable time for a ${distance} is ${minTime.format(
+              "HH:mm:ss"
+            )}`,
+          });
+        }
+      }
+    } else {
+      setState({
+        ...state,
+        goalType: enums.GoalType.TIME,
+        goalTime: timeString,
+      });
+      setGoalTimeError({ ...goalTimeError, isError: false, message: "" });
+    }
   }
 
-  const handleClose = () => {
-    setOpenTimeModal(false);
-    setGoalTimeError(false);
-  };
-
-  function getModalStyle() {
-    const top = 50;
-    const left = 50;
-
-    return {
-      top: `${top}%`,
-      left: `${left}%`,
-      transform: `translate(-${top}%, -${left}%)`,
-    };
-  }
-
-  const goBackHandler = () => {
+  const onGoBackHandler = () => {
+    setOpenTimeInput(false);
+    setGoalTimeError({ ...goalTimeError, isError: false, message: "" });
     setGoalWarning(false);
   };
 
   const onContinueHandler = () => {
-    setOpenTimeModal(true);
+    setOpenTimeInput(true);
     setGoalWarning(false);
   };
 
-  // HTML for Goal Time Modal
-  const modalTimeBody = (
-    <div style={modalStyle} className={classes.paper}>
-      <h2>
-        <b>Please enter your goal time:</b>
-      </h2>
-      {time !== "00:00" && (
-        <p>
-          <b>
-            You completed your fastest {distance} in {time}
-          </b>
-        </p>
-      )}
-
-      <p>Your goal time should be in the form HH:MM:SS. </p>
-      {goalTimeError && (
-        <Alert severity="error" className={classes.alert}>
-          {strings.GoalTimeError}
-        </Alert>
-      )}
-      <div className={classes.input}>
-        <TimePicker
-          onChange={onChange}
-          className={classes.time}
-          showNow={false}
-          value={
-            state.goalTime
-              ? moment(state.goalTime, "HH:mm:ss")
-              : moment("00:00:00", "HH:mm:ss")
-          }
-          size="large"
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNext}
-          className={classes.button}
-        >
-          SET
-        </Button>
-      </div>
-
-      <Modal />
-    </div>
-  );
-
   return (
     <React.Fragment>
-      <div>
-        <Modal open={openTimeModal} onClose={handleClose}>
-          {modalTimeBody}
-        </Modal>
-      </div>
       {cards.map((card) => (
         <Grid item key={card.id} xs={12} sm={8} md={6}>
           <Card
@@ -270,12 +257,7 @@ export default function GoalTypeForm() {
           >
             <CardMedia className={classes.cardMedia} image={card.photo} />
             <CardContent className={classes.cardContent}>
-              <Typography
-                gutterBottom
-                variant="h6"
-                component="h2"
-                style={{ fontWeight: "bold" }}
-              >
+              <Typography gutterBottom variant="h6" component="h2">
                 <b>{card.title}</b>
               </Typography>
               <Typography>
@@ -321,7 +303,7 @@ export default function GoalTypeForm() {
           open={goalWarning}
           TransitionComponent={Transition}
           keepMounted
-          onClose={goBackHandler}
+          onClose={onGoBackHandler}
         >
           <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
@@ -330,8 +312,8 @@ export default function GoalTypeForm() {
           <DialogContent dividers className={classes.warningColor}>
             <Typography gutterBottom>
               <p>
-                Due to the fact we can't see any runs of this distance on your Strava. We strongly recommend you aim
-                for a distance goal.
+                Due to the fact we can't see any runs of this distance on your
+                Strava. We strongly recommend you aim for a distance goal.
               </p>
               <p>
                 This is because time based training plans expect you to be able
@@ -343,10 +325,67 @@ export default function GoalTypeForm() {
             </Typography>
           </DialogContent>
           <DialogActions className={classes.warningColor}>
-            <Button onClick={goBackHandler} color="primary">
+            <Button onClick={onGoBackHandler} color="primary">
               Go Back
             </Button>
             <Button onClick={onContinueHandler} color="primary">
+              Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Dialog box for goal time input */}
+      {openTimeInput && (
+        <Dialog
+          open={openTimeInput}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={onGoBackHandler}
+        >
+          <DialogTitle>
+            <strong>Please enter your goal time:</strong>
+          </DialogTitle>
+          <DialogContent dividers>
+            {time !== "00:00" && (
+              <p>
+                <b>
+                  You completed your fastest {distance} in {time}
+                </b>
+              </p>
+            )}
+            <p>Your goal time should be in the form HH:MM:SS. </p>
+            {goalTimeError.isError && (
+              <Alert severity="error" className={classes.alert}>
+                {goalTimeError.message}
+              </Alert>
+            )}
+            <div>
+              <TimePicker
+                onChange={onChange}
+                showNow={false}
+                value={
+                  state.goalTime
+                    ? moment(state.goalTime, "HH:mm:ss")
+                    : moment("00:00:00", "HH:mm:ss")
+                }
+                size="large"
+                secondStep={15}
+              />
+            </div>
+            <br></br>
+            <a
+              href="https://www.runnersworld.com/uk/training/a761681/rws-race-time-predictor/"
+              target="_blank"
+            >
+              If you are unsure, click here to use a race time predictor
+            </a>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onGoBackHandler} color="primary">
+              Go Back
+            </Button>
+            <Button onClick={handleNext} color="primary">
               Continue
             </Button>
           </DialogActions>

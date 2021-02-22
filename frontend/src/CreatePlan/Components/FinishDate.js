@@ -20,13 +20,13 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FinishDateForm() {
   // This is the third form in the CreatePlan flow, it allows the user to optionally select a finish date for their plan
-
   const classes = useStyles();
 
   const [state, setState] = useContext(CreatePlanContext);
   const [planDuration, setPlanDuration] = useState();
 
   useEffect(() => {
+    // on loading, set the default startDate to tomorrow
     setState({ ...state, startDate: addDays(new Date(), 1) });
   }, []);
 
@@ -60,7 +60,7 @@ export default function FinishDateForm() {
     // Calculation of the amount of days/weeks between the current date of plan creation and the desired finish date
     var diffInMs = date - addDays(new Date(), 1);
     if (state.startDate) {
-      diffInMs = date - state.startDate
+      diffInMs = date - state.startDate;
     }
     var diffInDays = diffInMs / (1000 * 60 * 60 * 24);
     var planString = "";

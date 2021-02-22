@@ -22,12 +22,10 @@ import * as urls from "../../assets/utils/urls";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import { Link as RouterLink } from "react-router-dom";
-import Modal from "@material-ui/core/Modal";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
 import WarningRoundedIcon from "@material-ui/icons/WarningRounded";
@@ -72,17 +70,10 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(1),
   },
-  modal: {
-    position: "absolute",
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
   load: {
     margin: "auto",
-    marginLeft: theme.spacing(16),
+    marginLeft: theme.spacing(18),
+    marginBottom: theme.spacing(3),
   },
   error: {
     display: "flex",
@@ -111,7 +102,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function CreatePlan({ athleteID }) {
   const classes = useStyles();
-  const [modalStyle] = useState(getModalStyle);
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
   const [state, setState] = useContext(CreatePlanContext);
@@ -120,12 +110,12 @@ export default function CreatePlan({ athleteID }) {
 
   const [openRunsPerWeekWarning, setOpenRunsPerWeekWarning] = useState(false);
 
-  const handleContinue = () => {
+  const onContinueHandler = () => {
     setState({ ...state, step: state.step + 1, runsPerWeekError: false });
     setOpenRunsPerWeekWarning(false);
   };
 
-  const handleClose = () => {
+  const onGoBackHandler = () => {
     setOpenRunsPerWeekWarning(false);
   };
 
@@ -137,7 +127,6 @@ export default function CreatePlan({ athleteID }) {
     axios
       .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
       .then((response) => {
-        console.log(response.data);
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
         setState({
@@ -156,6 +145,7 @@ export default function CreatePlan({ athleteID }) {
       })
       .catch((error) => {
         setLoadingError(true);
+        setLoading(false);
         console.log(error);
       });
   }, []);
@@ -249,56 +239,8 @@ export default function CreatePlan({ athleteID }) {
     }
   }
 
-  function getModalStyle() {
-    const top = 50;
-    const left = 50;
-
-    return {
-      top: `${top}%`,
-      left: `${left}%`,
-      transform: `translate(-${top}%, -${left}%)`,
-    };
-  }
-
-  // HTML for Insights loading
-  const modalBody = (
-    <div style={modalStyle} className={classes.modal}>
-      <h2>
-        <b>Please wait while we gather data on your Strava history . . .</b>
-      </h2>
-      <CircularProgress className={classes.load} />
-      <Modal />
-    </div>
-  );
-
-  // HTML for Insights error
-  const modalBodyError = (
-    <div style={modalStyle} className={classes.modal}>
-      <h2>
-        <b>There was an error getting your Strava history.</b>
-      </h2>
-      <LinkRouter
-        to={{
-          pathname: urls.Dashboard,
-          state: { athleteID: athleteID },
-        }}
-      >
-        <Button
-          color="secondary"
-          className={classes.error}
-          onClick={onErrorClick}
-        >
-          Return to Dashboard
-        </Button>
-      </LinkRouter>
-
-      <Modal />
-    </div>
-  );
-
   return (
     <React.Fragment>
-      <Modal open={loading}>{loadingError ? modalBodyError : modalBody}</Modal>
       <Header connectToStrava={false} />
       <Breadcrumbs
         className={classes.breadcrumb}
@@ -370,28 +312,63 @@ export default function CreatePlan({ athleteID }) {
         </Paper>
       </main>
 
+      {/* Dialog box for insights loading */}
+      {loading && (
+        <Dialog open={loading} TransitionComponent={Transition} keepMounted>
+          <DialogTitle>
+            <strong>Gathering your Strava run history ...</strong>
+          </DialogTitle>
+          <DialogContent>
+            <CircularProgress className={classes.load} />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Dialog box for insights loading */}
+      {loadingError && (
+        <Dialog
+          open={loadingError}
+          TransitionComponent={Transition}
+          keepMounted
+        >
+          <DialogTitle>
+            <strong>
+              There was an error gathering your Strava run history.
+            </strong>
+          </DialogTitle>
+          <DialogContent>
+            <LinkRouter
+              to={{
+                pathname: urls.Dashboard,
+                state: { athleteID: athleteID },
+              }}
+            >
+              <Button
+                color="secondary"
+                className={classes.error}
+                onClick={onErrorClick}
+              >
+                Return to Dashboard
+              </Button>
+            </LinkRouter>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Dialog box for Runs Per Week */}
       {openRunsPerWeekWarning && (
         <Dialog
           open={openRunsPerWeekWarning}
           TransitionComponent={Transition}
           keepMounted
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
+          onClose={onGoBackHandler}
         >
-          <DialogTitle
-            id="alert-dialog-slide-title"
-            style={{ "background-color": "rgb(255, 244, 229)" }}
-          >
+          <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
-            {`Use ${state.runsPerWeek} runs per week?`}
+            {`Are you sure you'd like to select ${state.runsPerWeek} runs per week?`}
           </DialogTitle>
-          <DialogContent
-            dividers
-            style={{ backgroundColor: "rgb(255, 244, 229)" }}
-          >
-            <DialogContentText id="alert-dialog-slide-description">
+          <DialogContent dividers className={classes.warningColor}>
+            <Typography gutterBottom>
               <p>
                 Selecting a number of runs per week that is higher than your
                 current 6 week average greatly increases the chance of you
@@ -402,13 +379,13 @@ export default function CreatePlan({ athleteID }) {
                 We strongly advise you stick to the recommended runs per week (
                 {state.avgRunsPerWeek})
               </p>
-            </DialogContentText>
+            </Typography>
           </DialogContent>
-          <DialogActions style={{ "background-color": "rgb(255, 244, 229)" }}>
-            <Button onClick={handleClose} color="primary">
+          <DialogActions className={classes.warningColor}>
+            <Button onClick={onGoBackHandler} color="primary">
               Go Back
             </Button>
-            <Button onClick={handleContinue} color="primary">
+            <Button onClick={onContinueHandler} color="primary">
               Continue
             </Button>
           </DialogActions>

@@ -134,8 +134,7 @@ def get_strava_insights():
             "date": date_10km,
         },
         "half_marathon": {
-            # "completed": completed_half_marathon,
-            "completed": False,
+            "completed": completed_half_marathon,
             "time": get_time_string(fastest_half_marathon),
             "date": date_half_marathon,
         },
