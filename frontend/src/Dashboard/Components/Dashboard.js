@@ -16,7 +16,6 @@ import * as urls from "../../assets/utils/urls";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 import { DashboardContext } from "../DashboardContext";
-import Typography from "@material-ui/core/Typography";
 import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({

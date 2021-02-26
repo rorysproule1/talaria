@@ -9,9 +9,9 @@ import Typography from "@material-ui/core/Typography";
 import * as enums from "../../assets/utils/enums";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-function preventDefault(event) {
-  event.preventDefault();
-}
+// function preventDefault(event) {
+//   event.preventDefault();
+// }
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
@@ -71,7 +71,9 @@ export default function Plans() {
                 </Typography>
 
                 <div className={classes.seeMore}>
-                  <Link color="primary" href="#" onClick={preventDefault}>
+                  <Link color="primary" href="/view-plan" 
+                  // onClick={preventDefault}
+                  >
                     View Plan
                   </Link>
                 </div>

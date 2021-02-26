@@ -20,9 +20,9 @@ def post_plan():
 
     if athlete_id:
         if not validate_plan_data(body):
-            return "Error validating athlete's data", 400
+            return "An error occurred when validating the plan details", 400
     else:
-        return "Error obtaining the athlete's id", 400
+        return "An error occurred when getting the athlete's id", 400
 
     body["plan"] = generate_training_plan(athlete_id, body)
 
@@ -117,10 +117,19 @@ def generate_training_plan(athlete_id, plan):
     # Create insights from these activities to help in plan generation
     insights = get_insights(activities)
 
-    plan_length = calculate_plan_length(finish_date, activities)
+    # plan_length = calculate_plan_length(finish_date, activities)
 
     goal_type = plan.get("goal_type")
     if goal_type == "DISTANCE":
+        if distance == "5KM":
+            a = 1
+        elif distance == "10KM":
+            a = 1
+        elif distance == "HALF-MARATHON":
+            a = 1
+        elif distance == "MARATHON":
+            a = 1
+    elif goal_type == "TIME":
         if distance == "5KM":
             a = 1
         elif distance == "10KM":
