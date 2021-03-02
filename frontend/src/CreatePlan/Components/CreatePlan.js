@@ -85,6 +85,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
     color: "orange",
   },
+  warningColor: {
+    backgroundColor: "rgb(255, 244, 229)",
+  },
 }));
 
 const steps = [
