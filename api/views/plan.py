@@ -1,37 +1,13 @@
 from flask import Blueprint, request
-import datetime
+from datetime import datetime
+
 from database.db import mongo
 from .strava import get_activities
-from .shared import convert_iso_to_datetime
+from .shared import convert_iso_to_date, convert_iso_to_datetime
+import datetime as time
+import math
 
 plan = Blueprint("plan", __name__)
-
-
-@plan.route("/plans", methods=["POST"])
-def post_plan():
-
-    """
-    This endpoint is used to post a proposed plan in the plan creation flow, the details of it are
-    validated and then stored in the plan collection
-    """
-
-    body = request.get_json()
-    athlete_id = body.get("athlete_id")
-
-    if athlete_id:
-        if not validate_plan_data(body):
-            return "An error occurred when validating the plan details", 400
-    else:
-        return "An error occurred when getting the athlete's id", 400
-
-    body["plan"] = generate_training_plan(athlete_id, body)
-
-    try:
-        insert = mongo.db.plans.insert_one(body)
-    except Exception as e:
-        return "An error occurred when adding the new plan", 500
-
-    return "Plan added successfully!", 201
 
 
 @plan.route("/plans/<string:athlete_id>", methods=["GET"])
@@ -55,11 +31,39 @@ def get_all_plans(athlete_id):
     return {"plans": result}, 200
 
 
+@plan.route("/plans", methods=["POST"])
+def post_plan():
+
+    """
+    This endpoint is used to post a proposed plan frin the plan creation flow, the details of it are
+    validated and then the plan activities are generated. It is stored in the plan collection.
+    """
+
+    body = request.get_json()
+    athlete_id = body.get("athlete_id")
+
+    # if athlete_id:
+    #     if not validate_plan_data(body):
+    #         return "An error occurred when validating the plan details", 400
+    # else:
+    #     return "An error occurred when getting the athlete's id", 400
+
+    body["activities"] = generate_plan_activities(athlete_id, body)
+
+    # try:
+    #     mongo.db.plans.insert_one(body)
+    # except Exception as e:
+    #     return "An error occurred when adding the new plan", 500
+
+    return "Plan added successfully!", 201
+
+
 def validate_plan_data(body):
     distance = body.get("distance")
     goal_type = body.get("goal_type")
     runs_per_week = body.get("runs_per_week")
     goal_time = body.get("goal_time")
+    start_date = body.get("start_date")
     finish_date = body.get("finish_date")
     include_taper = (body.get(" include_taper"),)
     include_cross_train = (body.get("include_cross_train"),)
@@ -94,62 +98,401 @@ def validate_plan_data(body):
     return True
 
 
-def generate_training_plan(athlete_id, plan):
+def generate_plan_activities(athlete_id, plan):
 
     """
-    This is the key function used to generate the training plan based off the plan details provided by the athlete
+    This is the key function used to generate the activities of the plan based off the details provided by the athlete
     """
 
     # Get all the relevant info from the plan data provided by the athlete
-    distance = plan.get("distance")
-    goal_type = plan.get("goal_type")
-    runs_per_week = plan.get("runs_per_week")
-    goal_time = plan.get("goal_time")
-    finish_date = plan.get("finish_date")
-    include_taper = plan.get("include_taper")
-    include_cross_train = plan.get("include_cross_train")
-    long_run_day = plan.get("long_run_day")
-    blocked_days = plan.get("blocked_days")
+    plan = {
+        "distance": plan.get("distance"),
+        "goal_type": plan.get("goal_type"),
+        "runs_per_week": plan.get("runs_per_week"),
+        "goal_time": plan.get("goal_time"),
+        "start_date": plan.get("start_date"),
+        "finish_date": plan.get("finish_date"),
+        "include_taper": plan.get("include_taper"),
+        # "include_cross_train": plan.get("include_cross_train"),
+        "long_run_day": plan.get("long_run_day"),
+        "blocked_days": plan.get("blocked_days"),
+    }
+    plan["blocked_days"] = convert_blocked_days(plan["blocked_days"])
 
     # Get all the athlete's past strava activities
-    activities = get_activities(str(athlete_id))
+    strava_activities = get_activities(str(athlete_id))
 
     # Create insights from these activities to help in plan generation
-    insights = get_insights(activities)
+    insights = get_insights(strava_activities, plan["distance"])
 
-    # plan_length = calculate_plan_length(finish_date, activities)
+    plan_activities = []
+    if plan["distance"] == "5K":
+        plan_activities = generate_5KM_plan(plan, insights)
 
-    goal_type = plan.get("goal_type")
-    if goal_type == "DISTANCE":
-        if distance == "5KM":
-            a = 1
-        elif distance == "10KM":
-            a = 1
-        elif distance == "HALF-MARATHON":
-            a = 1
-        elif distance == "MARATHON":
-            a = 1
-    elif goal_type == "TIME":
-        if distance == "5KM":
-            a = 1
-        elif distance == "10KM":
-            a = 1
-        elif distance == "HALF-MARATHON":
-            a = 1
-        elif distance == "MARATHON":
-            a = 1
+    return plan_activities
+
+
+def get_insights(activities, plan_distance):
+
+    twelve_weeks_ago = time.date.today() - time.timedelta(weeks=12)
+    max_distance = 0
+    total_distance = 0
+    number_of_runs = 0
+    ran_distance_before = False
+    plan_distance = get_distance_float(plan_distance)
+    avg_speed = 0
+
+    for activity in activities:
+        if activity["type"] == "Run":
+            run_date = convert_iso_to_date(activity["start_date"])
+
+            if activity["distance"] >= plan_distance:
+                ran_distance_before = True
+
+            # Look at the last 12 weeks
+            if run_date > twelve_weeks_ago:
+                if activity["distance"] > max_distance:
+                    max_distance = activity["distance"]
+
+                avg_speed += activity["average_speed"]
+                total_distance += activity["distance"]
+                number_of_runs += 1
+
+    avg_ms = avg_speed / number_of_runs
+
+    avg_pace = calculate_time_per_km(avg_ms)
+    easy_pace = calculate_time_per_km(avg_ms * 1.1)
+    fast_pace = calculate_time_per_km(avg_ms * 0.9)
+
+    return {
+        "avg_weekly_distance": round(total_distance / 12, 2),
+        "max_distance": max_distance,
+        "avg_run_distance": round(total_distance / number_of_runs, 2),
+        "easy_pace": easy_pace,
+        "avg_pace": avg_pace,
+        "fast_pace": fast_pace,
+        "ran_distance_before": ran_distance_before,
+    }
+
+
+def calculate_time_per_km(metres_per_second):
+    sec_km = math.floor(1000 / metres_per_second)
+    min_km = math.floor(sec_km / 60)
+    min_sec_per_km = f"{min_km}.{ sec_km % 60}"
+
+    return float(min_sec_per_km)
+
+
+def generate_5KM_plan(plan, insights):
+
+    activities = []
+    if plan["goal_type"] == "DISTANCE":
+        if not insights["ran_distance_before"]:
+            activities = generate_c25k_activities()
+        else:
+            # activities = generate_5KM_distance_activities(insights
+            activities = generate_c25k_activities()
+    elif plan["goal_type"] == "TIME":
+        # activities = generate_5KM_time_activities()
+        activities = generate_c25k_activities()
+
+    activities = allocate_activity_dates(activities, plan)
 
     return activities
 
 
-def get_insights(activities):
+def generate_5KM_distance_activities(insights):
     a = 1
 
 
-def calculate_plan_length(finish_date, activities):
-    if finish_date:
-        # calculate weeks until this date
-        a = 1
+def allocate_activity_dates(activities, plan):
+
+    # We take the start date as the current date
+    current_date = convert_iso_to_date(plan["start_date"])
+    current_date = datetime.combine(current_date, datetime.min.time())
+    current_day = current_date.weekday()
+    active_yesterday = False
+    active_streak = 0
+
+    for activity in activities:
+        activity_assigned = False
+        while not activity_assigned:
+            if current_day not in plan["blocked_days"]:
+                # With 2-3 rpw, we take a rest day between runs
+                if plan["runs_per_week"] == "2-3":
+                    if not active_yesterday:
+                        activity["date"] = current_date
+                        active_yesterday = True
+                        active_streak += 1
+                        activity_assigned = True
+                    else:
+                        active_yesterday = False
+                        active_streak += 0
+                if plan["runs_per_week"] == "4-5":
+                    # With 2-4 rpw, we take a rest day after 2 consecutive runs
+                    if active_streak < 2:
+                        activity["date"] = current_date
+                        active_yesterday = True
+                        active_streak += 1
+                        activity_assigned = True
+                    else:
+                        active_streak = 0
+                        active_yesterday = False
+                if plan["runs_per_week"] == "6+":
+                    # With 6+ rpw, if its a half or full marathon, the long run will deal with the rest day
+                    if plan["distance"] in ["HALF-MARATHON", "MARATHON"]:
+                        activity["date"] = current_date
+                        active_yesterday = True
+                        active_streak += 1
+                        activity_assigned = True
+                    else:
+                        # Otherwise, don't allow more than 4 consecutive runs
+                        if active_streak < 4:
+                            activity["date"] = current_date
+                            active_yesterday = True
+                            active_streak += 1
+                            activity_assigned = True
+                        else:
+                            active_streak = 0
+                            active_yesterday = False
+            else:
+                active_streak = 0
+                active_yesterday = False
+
+            # Increment date + day of the week
+            # There is also a rest day after a long run so we skip the next day
+            if activity["run_type"] != "LONG":
+                current_day = increment_day(current_day, False)
+                current_date = current_date + time.timedelta(days=1)
+            else:
+                current_day = increment_day(current_day, True)
+                current_date = current_date + time.timedelta(days=2)
+                active_yesterday = False
+                active_streak = 0
+
+    return activities
+
+
+def increment_day(day, long_run):
+    if long_run:
+        if day == 6:
+            return 1
+        if day == 5:
+            return 0
+        else:
+            return day + 2
     else:
-        # no finish date provided, so we calculate a plan length
-        a = 1
+        if day == 6:
+            return 0
+        else:
+            return day + 1
+
+
+def generate_c25k_activities():
+    activities = [
+        # Week 1
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "60 seconds running with 90 seconds walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "60 seconds running with 90 seconds walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "60 seconds running with 90 seconds walking",
+            "date": None,
+        },
+        # Week 2
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "90 seconds running with 2 minutes walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "90 seconds running with 2 minutes walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "90 seconds running with 2 minutes walking",
+            "date": None,
+        },
+        # Week 3
+        {
+            "run_type": "BASE",
+            "time": "18 Mins",
+            "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "18 Mins",
+            "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "18 Mins",
+            "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
+            "date": None,
+        },
+        # Week 4
+        {
+            "run_type": "BASE",
+            "time": "21.5 Mins",
+            "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "21.5 Mins",
+            "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "21.5 Mins",
+            "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
+            "date": None,
+        },
+        # Week 5
+        {
+            "run_type": "BASE",
+            "time": "21 Mins",
+            "description": "5 minutes running, 3 minutes walking, 5 minutes running, 3 minutes walking, 5 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "21 Mins",
+            "description": "8 minutes running, 5 minutes walking, 8 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "20 Mins",
+            "description": "20 minutes running, with no walking",
+            "date": None,
+        },
+        # Week 6
+        {
+            "run_type": "BASE",
+            "time": "24 Mins",
+            "description": "5 minutes running, 3 minutes walking, 8 minutes running, 3 minutes walking, 5 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "23 Mins",
+            "description": "10 minutes running, 3 minutes walking, 10 minutes running",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "25 Mins",
+            "description": "25 minutes running, with no walking",
+            "date": None,
+        },
+        # Week 7
+        {
+            "run_type": "BASE",
+            "time": "25 Mins",
+            "description": "25 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "25 Mins",
+            "description": "25 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "25 Mins",
+            "description": "25 minutes running, with no walking",
+            "date": None,
+        },
+        # Week 8
+        {
+            "run_type": "BASE",
+            "time": "28 Mins",
+            "description": "28 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "25 Mins",
+            "description": "28 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "28 Mins",
+            "description": "28 minutes running, with no walking",
+            "date": None,
+        },
+        # Week 9
+        {
+            "run_type": "BASE",
+            "time": "30 Mins",
+            "description": "28 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "30 Mins",
+            "description": "30 minutes running, with no walking",
+            "date": None,
+        },
+        {
+            "run_type": "BASE",
+            "time": "30 Mins",
+            "description": "30 minutes running, with no walking",
+            "date": None,
+        },
+    ]
+
+    return activities
+
+
+def get_distance_float(distance):
+    if distance == "5K":
+        return 5.0
+    elif distance == "10K":
+        return 10.0
+    elif distance == "HALF-MARATHON":
+        return 21.1
+    elif distance == "MARATHON":
+        return 42.2
+
+
+def convert_blocked_days(blocked_days):
+    blocked_list = []
+    for day in blocked_days:
+        if day == "Monday":
+            blocked_list.append(0)
+        elif day == "Tuesday":
+            blocked_list.append(1)
+        elif day == "Wednesday":
+            blocked_list.append(2)
+        elif day == "Thursday":
+            blocked_list.append(3)
+        elif day == "Friday":
+            blocked_list.append(4)
+        elif day == "Saturday":
+            blocked_list.append(5)
+        elif day == "Sunday":
+            blocked_list.append(6)
+
+    return blocked_list

@@ -42,7 +42,7 @@ export default function RecentRun() {
           <List>
             <ListItem>
               <ListItemText
-                primary={state.recentRun["distance"] + "km"}
+                primary={state.recentRun["distance"] + "KM"}
                 secondary="Distance"
               />
               <ListItemText
