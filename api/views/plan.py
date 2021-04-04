@@ -6,6 +6,7 @@ from .strava import get_strava_activities
 from .shared import convert_iso_to_date, convert_iso_to_datetime
 import datetime as time
 import math
+from bson import ObjectId
 
 plan = Blueprint("plan", __name__)
 
@@ -31,6 +32,22 @@ def get_all_plans(athlete_id):
     return {"plans": result}, 200
 
 
+@plan.route("/plan/<string:plan_id>", methods=["GET"])
+def get_one_plan(plan_id):
+
+    """
+    This endpoint is used to get the specified training plan selected by the user.
+    """
+
+    plan = mongo.db.plans.find_one({"_id": ObjectId(plan_id)})
+
+    if plan is not None:
+        plan["_id"] = str(plan["_id"])
+        return plan, 200
+    else:
+        return "No plan was found with this ID", 404
+
+
 @plan.route("/plans", methods=["POST"])
 def post_plan():
 
@@ -50,10 +67,10 @@ def post_plan():
 
     body["activities"] = generate_plan_activities(athlete_id, body)
 
-    # try:
-    #     mongo.db.plans.insert_one(body)
-    # except Exception as e:
-    #     return "An error occurred when adding the new plan", 500
+    try:
+        mongo.db.plans.insert_one(body)
+    except Exception as e:
+        return "An error occurred when adding the new plan", 500
 
     return body, 201
 
@@ -129,7 +146,6 @@ def generate_plan_activities(athlete_id, plan):
 
     # Allocate these activities to their appropriate dates, using the preferences set in the plan details 
     plan_activities = allocate_activity_dates(plan_activities, plan)
-    print(insights)
 
     return plan_activities
 
@@ -311,18 +327,24 @@ def generate_c25k_activities():
             "time": "20 Mins",
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "20 Mins",
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "20 Mins",
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 2
         {
@@ -330,18 +352,24 @@ def generate_c25k_activities():
             "time": "20 Mins",
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "20 Mins",
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "20 Mins",
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 3
         {
@@ -349,18 +377,24 @@ def generate_c25k_activities():
             "time": "18 Mins",
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "18 Mins",
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "18 Mins",
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 4
         {
@@ -368,18 +402,24 @@ def generate_c25k_activities():
             "time": "21.5 Mins",
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "21.5 Mins",
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "21.5 Mins",
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 5
         {
@@ -387,18 +427,24 @@ def generate_c25k_activities():
             "time": "21 Mins",
             "description": "5 minutes running, 3 minutes walking, 5 minutes running, 3 minutes walking, 5 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "21 Mins",
             "description": "8 minutes running, 5 minutes walking, 8 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "20 Mins",
             "description": "20 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 6
         {
@@ -406,18 +452,24 @@ def generate_c25k_activities():
             "time": "24 Mins",
             "description": "5 minutes running, 3 minutes walking, 8 minutes running, 3 minutes walking, 5 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "23 Mins",
             "description": "10 minutes running, 3 minutes walking, 10 minutes running",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "25 Mins",
             "description": "25 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 7
         {
@@ -425,18 +477,24 @@ def generate_c25k_activities():
             "time": "25 Mins",
             "description": "25 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "25 Mins",
             "description": "25 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "25 Mins",
             "description": "25 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 8
         {
@@ -444,18 +502,24 @@ def generate_c25k_activities():
             "time": "28 Mins",
             "description": "28 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "25 Mins",
             "description": "28 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "28 Mins",
             "description": "28 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         # Week 9
         {
@@ -463,18 +527,24 @@ def generate_c25k_activities():
             "time": "30 Mins",
             "description": "28 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "30 Mins",
             "description": "30 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
         {
             "run_type": "BASE",
             "time": "30 Mins",
             "description": "30 minutes running, with no walking",
             "date": None,
+            "completed": False,
+            "missed": False
         },
     ]
 

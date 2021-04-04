@@ -69,7 +69,11 @@ export default function Plans() {
                 </Typography>
 
                 <div className={classes.seeMore}>
-                  <Link color="primary" href="/view-plan">
+                  <Link
+                    color="primary"
+                    href="/view-plan"
+                    onClick={(e) => sessionStorage.setItem("planID", plan._id)}
+                  >
                     View Plan
                   </Link>
                 </div>

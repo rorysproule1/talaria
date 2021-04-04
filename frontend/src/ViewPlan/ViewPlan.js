@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect, useContext } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -10,6 +10,7 @@ import * as urls from "../assets/utils/urls";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import { Link as RouterLink } from "react-router-dom";
+import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
@@ -43,9 +44,31 @@ const events = [
   },
 ];
 
+// class EventComponent extends React.Component {
+//   render() {
+//     return <h1>here we go!</h1>
+//   }
+// }
+
 export default function ViewPlan() {
   const classes = useStyles();
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
+
+  useEffect(() => {
+    /*
+     On entry to CreatePlan, we get our list of strava insights to be used throughout plan creation to
+     provide personalised suggestions
+    */
+    axios
+      .get(urls.Plan + "/" + sessionStorage.planID )
+      .then((response) => {
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
   return (
     <React.Fragment>
       <Header connectToStrava={false} />
@@ -67,7 +90,7 @@ export default function ViewPlan() {
           View Plan
         </Typography>
       </Breadcrumbs>
-      <div style={{ height: "500pt", marginTop: "10px" }}>
+      <div style={{ height: "500pt", margin: "20px" }}>
         <Calendar
           events={events}
           startAccessor="start"
@@ -75,8 +98,13 @@ export default function ViewPlan() {
           defaultDate={moment().toDate()}
           localizer={localizer}
           views={["month", "week"]}
+          // popup={true}
+          // components={{
+          //   event: EventComponent
+          // }}
         />
       </div>
+      <Footer />
     </React.Fragment>
   );
 }
