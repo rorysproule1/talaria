@@ -10,10 +10,10 @@ export default function CreatePlanWrapper(props) {
 
   return (
     <React.Fragment>
-      {props.location.state ? (
+      {sessionStorage.athleteID ? (
         <CreatePlanProvider>
           <React.Fragment>
-            <CreatePlan athleteID={props.location.state.athleteID} />
+            <CreatePlan />
           </React.Fragment>
         </CreatePlanProvider>
       ) : (

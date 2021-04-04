@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from datetime import datetime
 
 from database.db import mongo
-from .strava import get_activities
+from .strava import get_strava_activities
 from .shared import convert_iso_to_date, convert_iso_to_datetime
 import datetime as time
 import math
@@ -55,7 +55,7 @@ def post_plan():
     # except Exception as e:
     #     return "An error occurred when adding the new plan", 500
 
-    return "Plan added successfully!", 201
+    return body, 201
 
 
 def validate_plan_data(body):
@@ -113,21 +113,23 @@ def generate_plan_activities(athlete_id, plan):
         "start_date": plan.get("start_date"),
         "finish_date": plan.get("finish_date"),
         "include_taper": plan.get("include_taper"),
-        # "include_cross_train": plan.get("include_cross_train"),
         "long_run_day": plan.get("long_run_day"),
         "blocked_days": plan.get("blocked_days"),
     }
     plan["blocked_days"] = convert_blocked_days(plan["blocked_days"])
 
     # Get all the athlete's past strava activities
-    strava_activities = get_activities(str(athlete_id))
+    strava_activities = get_strava_activities(str(athlete_id))
 
     # Create insights from these activities to help in plan generation
     insights = get_insights(strava_activities, plan["distance"])
 
-    plan_activities = []
-    if plan["distance"] == "5K":
-        plan_activities = generate_5KM_plan(plan, insights)
+    # Generate the activites for the plan based off both the plan details and strava insights
+    plan_activities = generate_activities(plan, insights)
+
+    # Allocate these activities to their appropriate dates, using the preferences set in the plan details 
+    plan_activities = allocate_activity_dates(plan_activities, plan)
+    print(insights)
 
     return plan_activities
 
@@ -160,17 +162,14 @@ def get_insights(activities, plan_distance):
 
     avg_ms = avg_speed / number_of_runs
 
-    avg_pace = calculate_time_per_km(avg_ms)
-    easy_pace = calculate_time_per_km(avg_ms * 1.1)
-    fast_pace = calculate_time_per_km(avg_ms * 0.9)
-
     return {
         "avg_weekly_distance": round(total_distance / 12, 2),
         "max_distance": max_distance,
         "avg_run_distance": round(total_distance / number_of_runs, 2),
-        "easy_pace": easy_pace,
-        "avg_pace": avg_pace,
-        "fast_pace": fast_pace,
+        "avg_run_time": 0,
+        "easy_pace": calculate_time_per_km(avg_ms),
+        "avg_pace": calculate_time_per_km(avg_ms * 1.1),
+        "fast_pace": calculate_time_per_km(avg_ms * 0.9),
         "ran_distance_before": ran_distance_before,
     }
 
@@ -183,25 +182,36 @@ def calculate_time_per_km(metres_per_second):
     return float(min_sec_per_km)
 
 
-def generate_5KM_plan(plan, insights):
+def generate_activities(plan, insights):
+    plan_activities = []
 
-    activities = []
     if plan["goal_type"] == "DISTANCE":
-        if not insights["ran_distance_before"]:
-            activities = generate_c25k_activities()
-        else:
-            # activities = generate_5KM_distance_activities(insights
-            activities = generate_c25k_activities()
+        plan_activities = generate_distance_plan(plan, insights)
     elif plan["goal_type"] == "TIME":
-        # activities = generate_5KM_time_activities()
-        activities = generate_c25k_activities()
+        plan_activities = generate_time_plan(plan, insights)
 
-    activities = allocate_activity_dates(activities, plan)
-
-    return activities
+    return plan_activities
 
 
-def generate_5KM_distance_activities(insights):
+def generate_distance_plan(plan, insights):
+
+    return generate_c25k_activities()
+
+    if plan["distance"] == "5K" and not insights["ran_distance_before"]:
+        return generate_c25k_activities()
+    else:
+        if plan["distance"] == "HALF-MARATHON":
+            max_long_run_distance = 16
+
+        elif plan["distance"] == "HALF-MARATHON":
+            max_long_run_distance = 20
+            base_run_distance = insights["avg_run_distance"]
+            long_run_distance = math.ceil(base_run_distance * 1.5)
+            base_run_time = insights["avg_run_time"]
+            base_long_run_time = math.ceil(base_run_time * 1.5)
+
+
+def generate_time_plan(plan, insights):
     a = 1
 
 
@@ -214,8 +224,10 @@ def allocate_activity_dates(activities, plan):
     active_yesterday = False
     active_streak = 0
 
+    # Loop through all the generated activities
     for activity in activities:
         activity_assigned = False
+        # Loop until the activity is assigned to a date
         while not activity_assigned:
             if current_day not in plan["blocked_days"]:
                 # With 2-3 rpw, we take a rest day between runs
@@ -289,6 +301,9 @@ def increment_day(day, long_run):
 
 
 def generate_c25k_activities():
+
+    # Using NHS C25K - https://www.nhs.uk/live-well/exercise/couch-to-5k-week-by-week/
+
     activities = [
         # Week 1
         {

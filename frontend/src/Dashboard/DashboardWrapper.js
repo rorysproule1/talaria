@@ -9,10 +9,10 @@ export default function DashboardWrapper(props) {
   // it also provides the components within it access to the DashboardContext
   return (
     <React.Fragment>
-      {props.location.state ? (
+      {sessionStorage.athleteID ? (
         <DashboardProvider>
           <React.Fragment>
-            <Dashboard athleteID={props.location.state.athleteID} />
+            <Dashboard />
           </React.Fragment>
         </DashboardProvider>
       ) : (

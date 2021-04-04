@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Title from "./Title";
@@ -8,10 +8,8 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import * as enums from "../../assets/utils/enums";
 import CircularProgress from "@material-ui/core/CircularProgress";
-
-// function preventDefault(event) {
-//   event.preventDefault();
-// }
+import * as urls from "../../assets/utils/urls";
+import { Redirect } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
@@ -33,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     marginLeft: "auto",
     marginRight: "auto",
-  }
+  },
 }));
 
 export default function Plans() {
@@ -71,9 +69,7 @@ export default function Plans() {
                 </Typography>
 
                 <div className={classes.seeMore}>
-                  <Link color="primary" href="/view-plan" 
-                  // onClick={preventDefault}
-                  >
+                  <Link color="primary" href="/view-plan">
                     View Plan
                   </Link>
                 </div>

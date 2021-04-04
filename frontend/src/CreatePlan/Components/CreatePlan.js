@@ -103,7 +103,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function CreatePlan({ athleteID }) {
+export default function CreatePlan() {
   const classes = useStyles();
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
@@ -128,7 +128,7 @@ export default function CreatePlan({ athleteID }) {
      provide personalised suggestions
     */
     axios
-      .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
+      .get(urls.StravaInsights, { params: { athlete_id: sessionStorage.athleteID } })
       .then((response) => {
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
@@ -165,7 +165,7 @@ export default function CreatePlan({ athleteID }) {
 
   const handleSubmit = () => {
     const plan_data = {
-      athlete_id: athleteID,
+      athlete_id: sessionStorage.athleteID,
       distance: state.distance,
       goal_type: state.goalType,
       goal_time: state.goalTime,
@@ -256,7 +256,6 @@ export default function CreatePlan({ athleteID }) {
           color="inherit"
           to={{
             pathname: urls.Dashboard,
-            state: { athleteID: athleteID },
           }}
         >
           Home
@@ -345,7 +344,6 @@ export default function CreatePlan({ athleteID }) {
             <LinkRouter
               to={{
                 pathname: urls.Dashboard,
-                state: { athleteID: athleteID },
               }}
             >
               <Button
