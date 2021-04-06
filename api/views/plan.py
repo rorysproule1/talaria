@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from datetime import datetime
+from datetime import date
 
 from database.db import mongo
 from .strava import get_strava_activities
@@ -32,20 +33,79 @@ def get_all_plans(athlete_id):
     return {"plans": result}, 200
 
 
-@plan.route("/plan/<string:plan_id>", methods=["GET"])
-def get_one_plan(plan_id):
+@plan.route("/plans/<string:athlete_id>/<string:plan_id>", methods=["GET"])
+def get_one_plan(athlete_id, plan_id):
 
     """
     This endpoint is used to get the specified training plan selected by the user.
+    Adds extra details that are displayed about each plan activity
     """
 
     plan = mongo.db.plans.find_one({"_id": ObjectId(plan_id)})
 
     if plan is not None:
         plan["_id"] = str(plan["_id"])
+
+        strava_activities = get_strava_activities(str(athlete_id))
+
+        # Get the key data for each strava run
+        run_data = []
+        for activity in strava_activities:
+            run_data.append(
+                {
+                    "id": activity["id"],
+                    "date": convert_iso_to_date(activity["start_date"]),
+                    "polyline": activity["map"].get("summary_polyline"),
+                    "start_coord": activity["start_latlng"],
+                    "end_coord": activity["end_latlng"],
+                }
+            )
+        
+        for activity in plan["activities"]:
+
+            # Set the completed and missed default values to False
+            activity["completed"] = False
+            activity["missed"] = False
+
+            # Check if the activity has been completed or missed
+            if activity["date"].date() in run_data:
+                activity["completed"] = True
+                polyline_data = next(
+                    (
+                        item["polyline"]
+                        for item in run_data
+                        if item["date"] == activity["date"].date()
+                    ),
+                    None,
+                )
+                activity["polyline"] = polyline_data["polyline"]
+                activity["start_coord"] = polyline_data["start_coord"]
+                activity["end_coord"] = polyline_data["end_coord"]
+            elif activity["date"].date() < date.today():
+                activity["missed"] = True
+                #TEMPORARY
+                activity["polyline"] = run_data[1]["polyline"]
+                activity["start_coord"] = run_data[1]["start_coord"]
+                activity["end_coord"] = run_data[1]["end_coord"]
+            # TEMPORARY
+            else:
+                activity["polyline"] = run_data[1]["polyline"]
+                activity["start_coord"] = run_data[1]["start_coord"]
+                activity["end_coord"] = run_data[1]["end_coord"]
+
         return plan, 200
     else:
         return "No plan was found with this ID", 404
+
+
+@plan.route("/plans/<string:plan_id>", methods=["DELETE"])
+def delete_plan(plan_id):
+
+    result = mongo.db.plans.delete_one({"_id": ObjectId(plan_id)})
+    if result.deleted_count == 1:
+        return {}, 204
+    else:
+        return "No plan found with this ID", 404
 
 
 @plan.route("/plans", methods=["POST"])
@@ -65,14 +125,18 @@ def post_plan():
     # else:
     #     return "An error occurred when getting the athlete's id", 400
 
+    # If no plan name was given, generate one
+    if not body["name"]:
+        body["name"] = generate_plan_name(body)
+
     body["activities"] = generate_plan_activities(athlete_id, body)
 
-    try:
-        mongo.db.plans.insert_one(body)
-    except Exception as e:
-        return "An error occurred when adding the new plan", 500
+    plan = mongo.db.plans.insert_one(body)
 
-    return body, 201
+    if plan:
+        return str(plan.inserted_id), 201
+    else:
+        return "An error occurred when adding the new plan", 500
 
 
 def validate_plan_data(body):
@@ -144,7 +208,7 @@ def generate_plan_activities(athlete_id, plan):
     # Generate the activites for the plan based off both the plan details and strava insights
     plan_activities = generate_activities(plan, insights)
 
-    # Allocate these activities to their appropriate dates, using the preferences set in the plan details 
+    # Allocate these activities to their appropriate dates, using the preferences set in the plan details
     plan_activities = allocate_activity_dates(plan_activities, plan)
 
     return plan_activities
@@ -190,6 +254,17 @@ def get_insights(activities, plan_distance):
     }
 
 
+def generate_plan_name(plan):
+    name = ""
+
+    if plan["goal_type"] == "DISTANCE":
+        name = plan["distance"].title() + " Distance Plan"
+    else:
+        name = "Sub " + plan["goal_time"] + " Time Plan"
+
+    return name
+
+
 def calculate_time_per_km(metres_per_second):
     sec_km = math.floor(1000 / metres_per_second)
     min_km = math.floor(sec_km / 60)
@@ -228,7 +303,7 @@ def generate_distance_plan(plan, insights):
 
 
 def generate_time_plan(plan, insights):
-    a = 1
+    return generate_c25k_activities()
 
 
 def allocate_activity_dates(activities, plan):
@@ -323,228 +398,201 @@ def generate_c25k_activities():
     activities = [
         # Week 1
         {
+            "activity_id": 1,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 2,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 3,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "60 seconds running with 90 seconds walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 2
         {
+            "activity_id": 4,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 5,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 6,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "90 seconds running with 2 minutes walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 3
         {
+            "activity_id": 7,
             "run_type": "BASE",
-            "time": "18 Mins",
+            "time": 18,
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 8,
             "run_type": "BASE",
-            "time": "18 Mins",
+            "time": 18,
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 9,
             "run_type": "BASE",
-            "time": "18 Mins",
+            "time": 18,
             "description": "2x 90 seconds of running, 90 seconds of walking, 3 minutes of running, 3 minutes of walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 4
         {
+            "activity_id": 10,
             "run_type": "BASE",
-            "time": "21.5 Mins",
+            "time": 22,
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 11,
             "run_type": "BASE",
-            "time": "21.5 Mins",
+            "time": 22,
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 12,
             "run_type": "BASE",
-            "time": "21.5 Mins",
+            "time": 22,
             "description": "3 minutes of running, 90 seconds walking, 5 minutes running, 2 ½ minutes walking, 3 minutes running, 90 seconds walking, 5 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 5
         {
+            "activity_id": 13,
             "run_type": "BASE",
-            "time": "21 Mins",
+            "time": 21,
             "description": "5 minutes running, 3 minutes walking, 5 minutes running, 3 minutes walking, 5 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 14,
             "run_type": "BASE",
-            "time": "21 Mins",
+            "time": 21,
             "description": "8 minutes running, 5 minutes walking, 8 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 15,
             "run_type": "BASE",
-            "time": "20 Mins",
+            "time": 20,
             "description": "20 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 6
         {
+            "activity_id": 16,
             "run_type": "BASE",
-            "time": "24 Mins",
+            "time": 24,
             "description": "5 minutes running, 3 minutes walking, 8 minutes running, 3 minutes walking, 5 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 17,
             "run_type": "BASE",
-            "time": "23 Mins",
+            "time": 23,
             "description": "10 minutes running, 3 minutes walking, 10 minutes running",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 18,
             "run_type": "BASE",
-            "time": "25 Mins",
+            "time": 25,
             "description": "25 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 7
         {
+            "activity_id": 19,
             "run_type": "BASE",
-            "time": "25 Mins",
+            "time": 25,
             "description": "25 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 20,
             "run_type": "BASE",
-            "time": "25 Mins",
+            "time": 25,
             "description": "25 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 21,
             "run_type": "BASE",
-            "time": "25 Mins",
+            "time": 25,
             "description": "25 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 8
         {
+            "activity_id": 22,
             "run_type": "BASE",
-            "time": "28 Mins",
+            "time": 28,
             "description": "28 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 23,
             "run_type": "BASE",
-            "time": "25 Mins",
+            "time": 25,
             "description": "28 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 24,
             "run_type": "BASE",
-            "time": "28 Mins",
+            "time": 28,
             "description": "28 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         # Week 9
         {
+            "activity_id": 25,
             "run_type": "BASE",
-            "time": "30 Mins",
+            "time": 30,
             "description": "28 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 26,
             "run_type": "BASE",
-            "time": "30 Mins",
+            "time": 30,
             "description": "30 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
         {
+            "activity_id": 27,
             "run_type": "BASE",
-            "time": "30 Mins",
+            "time": 30,
             "description": "30 minutes running, with no walking",
             "date": None,
-            "completed": False,
-            "missed": False
         },
     ]
 

@@ -183,7 +183,7 @@ export default function CreatePlan() {
       .post(urls.Plans, plan_data, {})
       .then((response) => {
         setState({ ...state, planSubmitted: true, planSubmittedError: false });
-        console.log(response.data)
+        sessionStorage.setItem("planID", response.data)
       })
       .catch((error) => {
         console.error("Error while posting plan details");
@@ -328,7 +328,7 @@ export default function CreatePlan() {
         </Dialog>
       )}
 
-      {/* Dialog box for insights loading */}
+      {/* Dialog box for insights loading error */}
       {loadingError && (
         <Dialog
           open={loadingError}

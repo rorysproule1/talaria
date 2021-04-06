@@ -3,3 +3,8 @@
 .ant-picker-dropdown {
     z-index: 10000 !important
 }
+
+.leaflet-container{
+    width: 30vw;
+    height: 40vh;
+}

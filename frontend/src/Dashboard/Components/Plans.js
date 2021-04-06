@@ -8,8 +8,6 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import * as enums from "../../assets/utils/enums";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import * as urls from "../../assets/utils/urls";
-import { Redirect } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
