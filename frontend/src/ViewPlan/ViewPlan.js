@@ -42,8 +42,6 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(1),
-    // textAlign: "center",
-    // color: theme.palette.text.secondary,
   },
   icon: {
     verticalAlign: "text-bottom",
@@ -80,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
 
 const now = new Date();
 let activityEvents = [];
+let activityDates = [];
 
 export default function ViewPlan() {
   const classes = useStyles();
@@ -93,8 +92,8 @@ export default function ViewPlan() {
   const [deleteStatus, setDeleteStatus] = useState("");
   const [selectedActivity, setSelectedActivity] = useState();
 
-  // get plan data
   useEffect(() => {
+    // get the extended details for this plan
     axios
       .get(
         urls.Plans +
@@ -115,32 +114,59 @@ export default function ViewPlan() {
       });
   }, []);
 
-  // for each activity of the plan, create an event object to be displayed
   useEffect(() => {
-    console.log(plan);
     if (plan) {
+      // create Event objects for each activity
       plan.activities.forEach(createEvent);
+
+      // create Event objects for the resr days
+      var startDate = plan.activities[0]["date"];
+      startDate = new Date(startDate);
+      var finishDate = plan.activities[plan.activities.length - 1]["date"];
+      finishDate = new Date(finishDate);
+      var loop = startDate;
+      while (loop < finishDate) {
+        if (activityDates.includes(new Date(loop).toISOString())) {
+          var title = "Rest Day";
+          if (plan["cross_train"]) {
+            title = "Rest or Cross Train";
+          }
+          activityEvents.push({
+            title: title,
+            allDay: true,
+            start: loop,
+            end: loop,
+            type: enums.EventType.REST,
+          });
+
+          setActivityEvents(activityEvents);
+        }
+
+        var newDate = loop.setDate(loop.getDate() + 1);
+        loop = new Date(newDate);
+      }
     }
   }, [plan]);
 
   function createEvent(item, index) {
     const activityDate = new Date(item.date).toISOString();
+    activityDates.push(activityDate);
 
     if (index === 0) {
       activityEvents.push({
-        title: "Plan Start",
+        title: "PLAN START",
         allDay: true,
         start: activityDate,
         end: activityDate,
-        milestone: true,
+        type: enums.EventType.MILESTONE,
       });
     } else if (index + 1 === plan.activities.length) {
       activityEvents.push({
-        title: "Plan Finish",
+        title: "PLAN FINISH",
         allDay: true,
         start: activityDate,
         end: activityDate,
-        milestone: true,
+        type: enums.EventType.MILESTONE,
       });
     }
 
@@ -158,7 +184,7 @@ export default function ViewPlan() {
       polyline: decode(item.polyline),
       start_coord: item.start_coord,
       end_coord: item.end_coord,
-      milestone: false,
+      type: enums.EventType.ACTIVITY,
     });
 
     setActivityEvents(activityEvents);
@@ -167,6 +193,22 @@ export default function ViewPlan() {
   function capitalize(str) {
     const lower = str.toLowerCase();
     return str.charAt(0).toUpperCase() + lower.slice(1);
+  }
+
+  function Event({ event }) {
+    if (event.type === enums.EventType.ACTIVITY) {
+      return (
+        <span>
+          <strong>Activity {event.id}: </strong> {event.title}
+        </span>
+      );
+    } else {
+      return (
+        <span>
+          <strong>{event.title}</strong>
+        </span>
+      );
+    }
   }
 
   const customDayPropGetter = (date) => {
@@ -185,8 +227,10 @@ export default function ViewPlan() {
 
   function eventStyleGetter(event) {
     var backgroundColor = "#8884D8";
-    if (event.milestone) {
+    if (event.type === enums.EventType.MILESTONE) {
       backgroundColor = "#f5568d";
+    } else if (event.type === enums.EventType.REST) {
+      backgroundColor = "#ffffff";
     } else {
       // change color of event dependant on if its completion status
       if (event.missed == true) {
@@ -207,67 +251,15 @@ export default function ViewPlan() {
     };
   }
 
-  const onErrorClick = () => {
+  const onErrorHandler = () => {
     window.location.href = "/";
   };
 
-  function Event({ event }) {
-    if (!event.milestone) {
-      return (
-        <span>
-          <strong>Activity {event.id}: </strong> {event.title}
-        </span>
-      );
-    } else {
-      return (
-        <span>
-          <strong>{event.title}</strong>
-        </span>
-      );
-    }
-  }
-
-  // source: http://doublespringlabs.blogspot.com.br/2012/11/decoding-polylines-from-google-maps.html
-  // decode function to convert encoded polyline from Strava API to latlong pairs to output route of activity
-  function decode(encoded) {
-    // array that holds the points
-    var points = [];
-    var index = 0,
-      len = encoded.length;
-    var lat = 0,
-      lng = 0;
-    while (index < len) {
-      var b,
-        shift = 0,
-        result = 0;
-      do {
-        b = encoded.charAt(index++).charCodeAt(0) - 63; //finds ascii                                                                                    //and substract it by 63
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-
-      var dlat = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.charAt(index++).charCodeAt(0) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      var dlng = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-
-      points.push({ lat: lat / 1e5, lng: lng / 1e5 });
-    }
-    return points;
-  }
-
-  const handleCancel = () => {
+  const onCancelHandler = () => {
     setShowDeleteModal(false);
   };
 
-  const handleDelete = () => {
+  const onDeleteHandler = () => {
     axios
       .delete(urls.Plans + "/" + sessionStorage.planID)
       .then((response) => {
@@ -281,13 +273,16 @@ export default function ViewPlan() {
       });
   };
 
-  const handleActivityClose = () => {
+  const onActivityCloseHandler = () => {
     setSelectedActivity();
   };
 
-  function onEventSelect(event) {
-    if (!event.milestone) {
-      setSelectedActivity(event)
+  function onEventSelectHandler(event) {
+    if (
+      event.type !== enums.EventType.MILESTONE &&
+      event.type !== enums.EventType.REST
+    ) {
+      setSelectedActivity(event);
     }
   }
 
@@ -336,16 +331,17 @@ export default function ViewPlan() {
           <Card className={classes.padding} variant="outlined">
             <CardHeader
               action={
-                <IconButton
-                  aria-label="delete-plan"
-                  onClick={(e) => setShowDeleteModal(true)}
-                >
-                  <DeleteOutlinedIcon color="secondary" />
-                </IconButton>
+                deleteStatus !== "DELETED" && (
+                  <IconButton
+                    aria-label="delete-plan"
+                    onClick={(e) => setShowDeleteModal(true)}
+                  >
+                    <DeleteOutlinedIcon color="secondary" />
+                  </IconButton>
+                )
               }
               title={plan && plan.name && plan.name}
               titleTypographyProps={{ variant: "h3" }}
-              // subheader="September 14, 2016"
             />
             <CardContent>
               <Grid container spacing={1}>
@@ -535,7 +531,7 @@ export default function ViewPlan() {
           defaultDate={moment().toDate()}
           localizer={localizer}
           views={["month", "week"]}
-          onSelectEvent={(event) => onEventSelect(event)}
+          onSelectEvent={(event) => onEventSelectHandler(event)}
           dayPropGetter={customDayPropGetter}
           eventPropGetter={eventStyleGetter}
           components={{
@@ -552,14 +548,14 @@ export default function ViewPlan() {
           open={selectedActivity}
           TransitionComponent={Transition}
           keepMounted
-          onClose={handleActivityClose}
+          onClose={onActivityCloseHandler}
         >
           <DialogTitle>
             <strong>Training Run {selectedActivity.id}</strong>
             <IconButton
               aria-label="close"
               className={classes.closeButton}
-              onClick={handleActivityClose}
+              onClick={onActivityCloseHandler}
             >
               <CloseIcon />
             </IconButton>
@@ -643,7 +639,7 @@ export default function ViewPlan() {
               <Button
                 color="secondary"
                 className={classes.error}
-                onClick={onErrorClick}
+                onClick={onErrorHandler}
               >
                 Return to Dashboard
               </Button>
@@ -667,10 +663,10 @@ export default function ViewPlan() {
             </strong>
           </DialogTitle>
           <DialogActions className={classes.warningColor}>
-            <Button autoFocus onClick={handleCancel} color="primary">
+            <Button autoFocus onClick={onCancelHandler} color="primary">
               No
             </Button>
-            <Button onClick={handleDelete} color="primary">
+            <Button onClick={onDeleteHandler} color="primary">
               Yes
             </Button>
           </DialogActions>
@@ -678,4 +674,40 @@ export default function ViewPlan() {
       )}
     </React.Fragment>
   );
+}
+
+// source: http://doublespringlabs.blogspot.com.br/2012/11/decoding-polylines-from-google-maps.html
+// decode function to convert encoded polyline from Strava API to latlong pairs to output route of activity
+function decode(encoded) {
+  // array that holds the points
+  var points = [];
+  var index = 0,
+    len = encoded.length;
+  var lat = 0,
+    lng = 0;
+  while (index < len) {
+    var b,
+      shift = 0,
+      result = 0;
+    do {
+      b = encoded.charAt(index++).charCodeAt(0) - 63; //finds ascii                                                                                    //and substract it by 63
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+
+    var dlat = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+    lat += dlat;
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charAt(index++).charCodeAt(0) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    var dlng = (result & 1) != 0 ? ~(result >> 1) : result >> 1;
+    lng += dlng;
+
+    points.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+  return points;
 }

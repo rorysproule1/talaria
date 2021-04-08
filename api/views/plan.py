@@ -21,16 +21,16 @@ def get_all_plans(athlete_id):
     """
 
     try:
-        cursor = mongo.db.plans.find({"athlete_id": athlete_id})
+        cursor = mongo.db.plans.find({"athlete_id": athlete_id}).sort('finish_date', 1)
     except Exception as e:
         return "An error occurred when getting athlete's plans", 500
 
-    result = []
-    for doc in cursor:
-        doc["_id"] = str(doc["_id"])
-        result.append(doc)
+    plan_list = []
+    for plan in cursor:
+        plan["_id"] = str(plan["_id"])
+        plan_list.append(plan)
 
-    return {"plans": result}, 200
+    return {"plans": plan_list}, 200
 
 
 @plan.route("/plans/<string:athlete_id>/<string:plan_id>", methods=["GET"])

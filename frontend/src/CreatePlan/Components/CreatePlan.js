@@ -164,6 +164,9 @@ export default function CreatePlan() {
   }
 
   const handleSubmit = () => {
+    const body = document.querySelector("#root");
+    body.scrollIntoView();
+    
     const plan_data = {
       athlete_id: sessionStorage.athleteID,
       distance: state.distance,

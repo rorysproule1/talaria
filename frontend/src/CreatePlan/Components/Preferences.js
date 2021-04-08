@@ -182,6 +182,7 @@ export default function PreferencesForm() {
           className={classes.input}
           value={state.planName}
           onChange={(e) => setState({ ...state, planName: e.target.value })}
+          inputProps={{ maxLength: 50 }}
         />
         <Typography className={classes.info}>
           Is there any particular days you'd not like to run on during the plan?
