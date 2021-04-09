@@ -28,4 +28,4 @@ export const EventType = {
   MILESTONE: "MILESTONE",
   REST: "REST",
   ACTIVITY: "ACTIVITY",
-}
+};

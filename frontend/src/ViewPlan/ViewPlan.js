@@ -119,14 +119,14 @@ export default function ViewPlan() {
       // create Event objects for each activity
       plan.activities.forEach(createEvent);
 
-      // create Event objects for the resr days
+      // create Event objects for the rest days
       var startDate = plan.activities[0]["date"];
       startDate = new Date(startDate);
       var finishDate = plan.activities[plan.activities.length - 1]["date"];
       finishDate = new Date(finishDate);
-      var loop = startDate;
-      while (loop < finishDate) {
-        if (activityDates.includes(new Date(loop).toISOString())) {
+      var currentDate = startDate;
+      while (currentDate < finishDate) {
+        if (activityDates.includes(new Date(currentDate).toISOString())) {
           var title = "Rest Day";
           if (plan["cross_train"]) {
             title = "Rest or Cross Train";
@@ -134,22 +134,22 @@ export default function ViewPlan() {
           activityEvents.push({
             title: title,
             allDay: true,
-            start: loop,
-            end: loop,
+            start: currentDate,
+            end: currentDate,
             type: enums.EventType.REST,
           });
 
           setActivityEvents(activityEvents);
         }
 
-        var newDate = loop.setDate(loop.getDate() + 1);
-        loop = new Date(newDate);
+        var newDate = currentDate.setDate(currentDate.getDate() + 1);
+        currentDate = new Date(newDate);
       }
     }
   }, [plan]);
 
-  function createEvent(item, index) {
-    const activityDate = new Date(item.date).toISOString();
+  function createEvent(activity, index) {
+    const activityDate = new Date(activity.date).toISOString();
     activityDates.push(activityDate);
 
     if (index === 0) {
@@ -170,20 +170,27 @@ export default function ViewPlan() {
       });
     }
 
+    var map_data = {};
+    if (activity.completed) {
+      map_data = {
+        polyline: decode(activity.polyline),
+        start_coord: activity.start_coord,
+        end_coord: activity.end_coord,
+      };
+    }
+
     activityEvents.push({
       id: index + 1,
-      title: capitalize(item.run_type) + " Run",
+      title: capitalize(activity.run_type) + " Run",
       allDay: true,
       start: activityDate,
       end: activityDate,
-      completed: item.completed,
-      missed: item.missed,
-      description: item.description,
-      time: item.time,
-      run_type: item.run_type,
-      polyline: decode(item.polyline),
-      start_coord: item.start_coord,
-      end_coord: item.end_coord,
+      completed: activity.completed,
+      missed: activity.missed,
+      description: activity.description,
+      time: activity.time,
+      run_type: activity.run_type,
+      map: map_data,
       type: enums.EventType.ACTIVITY,
     });
 
@@ -588,20 +595,27 @@ export default function ViewPlan() {
               <strong>Time:</strong> {selectedActivity.time} mins<br></br>
               <strong>Description:</strong> {selectedActivity.description}
             </div>
-
-            <MapContainer
-              center={selectedActivity.start_coord}
-              zoom={13}
-              scrollWheelZoom={true}
-            >
-              <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Polyline positions={selectedActivity.polyline} color="purple" />
-              <Marker position={selectedActivity.start_coord} title="Start" />
-              <Marker position={selectedActivity.end_coord} title="End" />
-            </MapContainer>
+            {selectedActivity.completed && (
+              <MapContainer
+                center={selectedActivity.map.start_coord}
+                zoom={13}
+                scrollWheelZoom={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Polyline
+                  positions={selectedActivity.map.polyline}
+                  color="purple"
+                />
+                <Marker
+                  position={selectedActivity.map.start_coord}
+                  title="Start"
+                />
+                <Marker position={selectedActivity.map.end_coord} title="End" />
+              </MapContainer>
+            )}
           </DialogContent>
         </Dialog>
       )}

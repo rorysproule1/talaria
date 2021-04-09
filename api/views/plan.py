@@ -21,7 +21,7 @@ def get_all_plans(athlete_id):
     """
 
     try:
-        cursor = mongo.db.plans.find({"athlete_id": athlete_id}).sort('finish_date', 1)
+        cursor = mongo.db.plans.find({"athlete_id": athlete_id}).sort("finish_date", 1)
     except Exception as e:
         return "An error occurred when getting athlete's plans", 500
 
@@ -38,7 +38,7 @@ def get_one_plan(athlete_id, plan_id):
 
     """
     This endpoint is used to get the specified training plan selected by the user.
-    Adds extra details that are displayed about each plan activity
+    It returns the core plan information aswell as updated information on the plan's activities
     """
 
     plan = mongo.db.plans.find_one({"_id": ObjectId(plan_id)})
@@ -60,7 +60,7 @@ def get_one_plan(athlete_id, plan_id):
                     "end_coord": activity["end_latlng"],
                 }
             )
-        
+
         for activity in plan["activities"]:
 
             # Set the completed and missed default values to False
@@ -68,30 +68,18 @@ def get_one_plan(athlete_id, plan_id):
             activity["missed"] = False
 
             # Check if the activity has been completed or missed
-            if activity["date"].date() in run_data:
-                activity["completed"] = True
-                polyline_data = next(
-                    (
-                        item["polyline"]
-                        for item in run_data
-                        if item["date"] == activity["date"].date()
-                    ),
-                    None,
-                )
-                activity["polyline"] = polyline_data["polyline"]
-                activity["start_coord"] = polyline_data["start_coord"]
-                activity["end_coord"] = polyline_data["end_coord"]
-            elif activity["date"].date() < date.today():
+            for run in run_data:
+                if run["date"] == activity["date"].date():
+                    activity["completed"] = True
+
+                    # Add map data for completed run
+                    activity["polyline"] = run["polyline"]
+                    activity["start_coord"] = run["start_coord"]
+                    activity["end_coord"] = run["end_coord"]
+                    break
+
+            if activity["date"].date() < date.today() and not activity["completed"]:
                 activity["missed"] = True
-                #TEMPORARY
-                activity["polyline"] = run_data[1]["polyline"]
-                activity["start_coord"] = run_data[1]["start_coord"]
-                activity["end_coord"] = run_data[1]["end_coord"]
-            # TEMPORARY
-            else:
-                activity["polyline"] = run_data[1]["polyline"]
-                activity["start_coord"] = run_data[1]["start_coord"]
-                activity["end_coord"] = run_data[1]["end_coord"]
 
         return plan, 200
     else:
