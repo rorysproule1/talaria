@@ -77,15 +77,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const now = new Date();
-let activityEvents = [];
-let activityDates = [];
+let eventsList = [];
+let dateList = [];
 
 export default function ViewPlan() {
   const classes = useStyles();
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
   const [plan, setPlan] = useState();
-  const [actEvents, setActivityEvents] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -126,34 +126,33 @@ export default function ViewPlan() {
       finishDate = new Date(finishDate);
       var currentDate = startDate;
       while (currentDate < finishDate) {
-        if (activityDates.includes(new Date(currentDate).toISOString())) {
+        if (!dateList.includes(new Date(currentDate).toISOString())) {
           var title = "Rest Day";
           if (plan["cross_train"]) {
             title = "Rest or Cross Train";
           }
-          activityEvents.push({
+          eventsList.push({
             title: title,
             allDay: true,
-            start: currentDate,
-            end: currentDate,
+            start: new Date(currentDate).toISOString(),
+            end: new Date(currentDate).toISOString(),
             type: enums.EventType.REST,
           });
-
-          setActivityEvents(activityEvents);
         }
 
         var newDate = currentDate.setDate(currentDate.getDate() + 1);
         currentDate = new Date(newDate);
       }
+      setEvents(eventsList);
     }
   }, [plan]);
 
   function createEvent(activity, index) {
     const activityDate = new Date(activity.date).toISOString();
-    activityDates.push(activityDate);
+    dateList.push(activityDate);
 
     if (index === 0) {
-      activityEvents.push({
+      eventsList.push({
         title: "PLAN START",
         allDay: true,
         start: activityDate,
@@ -161,7 +160,7 @@ export default function ViewPlan() {
         type: enums.EventType.MILESTONE,
       });
     } else if (index + 1 === plan.activities.length) {
-      activityEvents.push({
+      eventsList.push({
         title: "PLAN FINISH",
         allDay: true,
         start: activityDate,
@@ -179,22 +178,39 @@ export default function ViewPlan() {
       };
     }
 
-    activityEvents.push({
-      id: index + 1,
-      title: capitalize(activity.run_type) + " Run",
-      allDay: true,
-      start: activityDate,
-      end: activityDate,
-      completed: activity.completed,
-      missed: activity.missed,
-      description: activity.description,
-      time: activity.time,
-      run_type: activity.run_type,
-      map: map_data,
-      type: enums.EventType.ACTIVITY,
-    });
-
-    setActivityEvents(activityEvents);
+    if (activity.distance) {
+      eventsList.push({
+        id: index + 1,
+        title: capitalize(activity.run_type) + " Run",
+        allDay: true,
+        start: activityDate,
+        end: activityDate,
+        completed: activity.completed,
+        missed: activity.missed,
+        description: activity.description,
+        time: activity.time,
+        run_type: activity.run_type,
+        map: map_data,
+        type: enums.EventType.ACTIVITY,
+        distance: activity.distance,
+        pace: activity.average_pace,
+      });
+    } else {
+      eventsList.push({
+        id: index + 1,
+        title: capitalize(activity.run_type) + " Run",
+        allDay: true,
+        start: activityDate,
+        end: activityDate,
+        completed: activity.completed,
+        missed: activity.missed,
+        description: activity.description,
+        time: activity.time,
+        run_type: activity.run_type,
+        map: map_data,
+        type: enums.EventType.ACTIVITY,
+      });
+    }
   }
 
   function capitalize(str) {
@@ -450,7 +466,7 @@ export default function ViewPlan() {
                             component="h4"
                             align="center"
                           >
-                            None
+                            N/A
                           </Typography>
                         )}
                         {plan.blocked_days.length === 1 && (
@@ -504,8 +520,7 @@ export default function ViewPlan() {
                       </CardContent>
                     </Card>
                   </Grid>
-                  {plan.distance === enums.Distance.HALF_MARATHON ||
-                    (plan.distance === enums.Distance.MARATHON && (
+                  {(plan.distance === enums.Distance.HALF_MARATHON || plan.distance === enums.Distance.MARATHON) && (
                       <Grid item xs={4}>
                         <Card className={classes.paper} variant="outlined">
                           <CardHeader
@@ -519,12 +534,12 @@ export default function ViewPlan() {
                               component="h4"
                               align="center"
                             >
-                              {plan.long_run_day}
+                              {plan.long_run_day ? plan.long_run_day : "N/A"}
                             </Typography>
                           </CardContent>
                         </Card>
                       </Grid>
-                    ))}
+                    )}
                 </Grid>
               </Grid>
             </CardContent>
@@ -532,7 +547,7 @@ export default function ViewPlan() {
         )}
 
         <Calendar
-          events={actEvents}
+          events={events}
           startAccessor="start"
           endAccessor="end"
           defaultDate={moment().toDate()}
@@ -581,7 +596,9 @@ export default function ViewPlan() {
             )}
             {!selectedActivity.missed && !selectedActivity.completed && (
               <Alert severity="info" className={classes.padding}>
-                This is an upcoming event.
+                Due to this training plan being generated based off your real
+                life Strava runs, some of the details about this activity may
+                change before the day it is due to take place.
               </Alert>
             )}
             <div className={classes.padding}>
@@ -593,6 +610,12 @@ export default function ViewPlan() {
               <strong>Type:</strong> {capitalize(selectedActivity.run_type)} Run
               <br></br>
               <strong>Time:</strong> {selectedActivity.time} mins<br></br>
+              {selectedActivity.distance && (
+                <>
+                  <strong>Estimated Distance:</strong> {selectedActivity.distance}KM<br></br>
+                  <strong>Estimated Pace:</strong> {selectedActivity.pace} /KM <br></br>
+                </>
+              )}
               <strong>Description:</strong> {selectedActivity.description}
             </div>
             {selectedActivity.completed && (
