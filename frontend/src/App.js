@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import Dashboard from "./Dashboard/DashboardWrapper";
 import LogIn from "./LogIn/LogIn";
+import ViewPlan from "./ViewPlan/ViewPlan";
 import { Switch, Route } from "react-router-dom";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";
 import NotFound from "./assets/js/NotFound";
@@ -18,6 +19,7 @@ function App() {
           <Route exact path={urls.Login} component={LogIn} />
           <Route exact path={urls.Dashboard} component={Dashboard} />
           <Route exact path={urls.CreatePlan} component={CreatePlan} />
+          <Route exact path={urls.ViewPlan} component={ViewPlan} />
 
           {/* 404 page if the url doesn't match any of the URLs */}
           <Route component={NotFound} />

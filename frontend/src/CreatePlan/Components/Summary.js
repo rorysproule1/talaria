@@ -9,6 +9,8 @@ import Alert from "@material-ui/lab/Alert";
 import { Typography } from "@material-ui/core";
 import * as enums from "../../assets/utils/enums";
 import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
+import * as urls from "../../assets/utils/urls";
 
 const useStyles = makeStyles((theme) => ({
   capitalize: {
@@ -37,7 +39,11 @@ export default function Summary() {
     <React.Fragment>
       {state.planSubmitted && (
         <Alert severity="success" className={classes.info}>
-          SUCCESS: Your plan was created successfully!
+          SUCCESS: Your plan was created successfully! Click{" "}
+          <Link href={urls.ViewPlan}>
+            here
+          </Link>{" "}
+          to view it.
         </Alert>
       )}
       {state.planSubmittedError && (

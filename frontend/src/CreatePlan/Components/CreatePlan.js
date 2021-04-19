@@ -85,6 +85,9 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
     color: "orange",
   },
+  warningColor: {
+    backgroundColor: "rgb(255, 244, 229)",
+  },
 }));
 
 const steps = [
@@ -100,7 +103,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function CreatePlan({ athleteID }) {
+export default function CreatePlan() {
   const classes = useStyles();
   const LinkRouter = (props) => <Link {...props} component={RouterLink} />;
 
@@ -125,7 +128,7 @@ export default function CreatePlan({ athleteID }) {
      provide personalised suggestions
     */
     axios
-      .get(urls.StravaInsights, { params: { athlete_id: athleteID } })
+      .get(urls.StravaInsights, { params: { athlete_id: sessionStorage.athleteID } })
       .then((response) => {
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
@@ -161,11 +164,15 @@ export default function CreatePlan({ athleteID }) {
   }
 
   const handleSubmit = () => {
+    const body = document.querySelector("#root");
+    body.scrollIntoView();
+    
     const plan_data = {
-      athlete_id: athleteID,
+      athlete_id: sessionStorage.athleteID,
       distance: state.distance,
       goal_type: state.goalType,
       goal_time: state.goalTime,
+      start_date: state.startDate,
       finish_date: state.finishDate,
       runs_per_week: state.runsPerWeek,
       include_taper: state.includeTaper,
@@ -179,6 +186,7 @@ export default function CreatePlan({ athleteID }) {
       .post(urls.Plans, plan_data, {})
       .then((response) => {
         setState({ ...state, planSubmitted: true, planSubmittedError: false });
+        sessionStorage.setItem("planID", response.data)
       })
       .catch((error) => {
         console.error("Error while posting plan details");
@@ -251,7 +259,6 @@ export default function CreatePlan({ athleteID }) {
           color="inherit"
           to={{
             pathname: urls.Dashboard,
-            state: { athleteID: athleteID },
           }}
         >
           Home
@@ -299,11 +306,11 @@ export default function CreatePlan({ athleteID }) {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
-                disabled={
-                  state.planSubmitted &&
-                  !state.planSubmittedError &&
-                  state.step === steps.length - 1
-                }
+                // disabled={
+                //   state.planSubmitted &&
+                //   !state.planSubmittedError &&
+                //   state.step === steps.length - 1
+                // }
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>
@@ -324,7 +331,7 @@ export default function CreatePlan({ athleteID }) {
         </Dialog>
       )}
 
-      {/* Dialog box for insights loading */}
+      {/* Dialog box for insights loading error */}
       {loadingError && (
         <Dialog
           open={loadingError}
@@ -340,7 +347,6 @@ export default function CreatePlan({ athleteID }) {
             <LinkRouter
               to={{
                 pathname: urls.Dashboard,
-                state: { athleteID: athleteID },
               }}
             >
               <Button

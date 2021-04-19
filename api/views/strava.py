@@ -25,7 +25,7 @@ def get_strava_insights():
         return "An error occurred when getting the athlete's id", 400
 
     # Get all athlete activities from strava api
-    activities = get_activities(athlete_id)
+    activities = get_strava_activities(athlete_id)
     if not activities:
         return "An error occurred when requesting the athlete's activities", 500
 
@@ -161,7 +161,7 @@ def get_dashboard_data():
     if not athlete_id:
         return "An error occurred when getting the athlete's id", 400
 
-    activities = get_activities(athlete_id)
+    activities = get_strava_activities(athlete_id)
     if not activities:
         return "An error occurred when requesting the athlete's activities", 500
 
@@ -245,7 +245,7 @@ def get_dashboard_data():
     return {"latest_run": latest_run, "last_week": last_week}, 200
 
 
-def get_activities(athlete_id):
+def get_strava_activities(athlete_id):
 
     """
     Function to call the Strava API and return all the activities the athlete has recorded to date

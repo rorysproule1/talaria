@@ -32,9 +32,6 @@ def post_athlete():
                 "access_token": body["access_token"],
                 "refresh_token": body["refresh_token"],
                 "expires_at": convert_iso_to_datetime(body["expires_at"]),
-                "first_name": body["first_name"],
-                "last_name": body["last_name"],
-                "sex": body["sex"],
             }
         },
         upsert=True,

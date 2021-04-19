@@ -16,7 +16,6 @@ import * as urls from "../../assets/utils/urls";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 import { DashboardContext } from "../DashboardContext";
-import Typography from "@material-ui/core/Typography";
 import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard({ athleteID }) {
+export default function Dashboard() {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -76,7 +75,7 @@ export default function Dashboard({ athleteID }) {
   useEffect(() => {
     // On initial loading of the Dashboard, we request the user's plans and an insight into their recent Strava activity
     axios
-      .get(`${urls.Plans}/${athleteID}`, {})
+      .get(`${urls.Plans}/${sessionStorage.athleteID}`, {})
       .then((response) => {
         setPlans(response.data["plans"]);
       })
@@ -86,7 +85,7 @@ export default function Dashboard({ athleteID }) {
       });
 
     axios
-      .get(urls.DashboardActivities, { params: { athlete_id: athleteID } })
+      .get(urls.DashboardActivities, { params: { athlete_id: sessionStorage.athleteID } })
       .then((response) => {
         setDashboardStrava({
           ...dashboardStrava,
@@ -126,10 +125,10 @@ export default function Dashboard({ athleteID }) {
         <Redirect
           to={{
             pathname: urls.CreatePlan,
-            state: { athleteID: athleteID },
+            state: { athleteID: sessionStorage.athleteID },
           }}
         />
-      )}
+      )} 
       <Header connectToStrava={false} />
       <CssBaseline />
       <main className={classes.layout}>

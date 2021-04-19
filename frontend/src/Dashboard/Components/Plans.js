@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Title from "./Title";
@@ -7,11 +7,7 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import * as enums from "../../assets/utils/enums";
-import CircularProgress from "@material-ui/core/CircularProgress";
-
-function preventDefault(event) {
-  event.preventDefault();
-}
+import * as urls from "../../assets/utils/urls";
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
@@ -33,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     marginLeft: "auto",
     marginRight: "auto",
+  },
+  noPlans: {
+    textAlign: "center"
   }
 }));
 
@@ -44,15 +43,16 @@ export default function Plans() {
 
   return (
     <React.Fragment>
-      {state.dashboardError ? (
+      <Typography component="p" variant="h5" className={classes.divider}>
+        Training Plans
+      </Typography>
+      {state.dashboardError && (
         <Typography component="p" color="textSecondary">
           There was an error getting your training plans
         </Typography>
-      ) : state.plans ? (
+      )}
+      {state.plans && (
         <>
-          <Typography component="p" variant="h5" className={classes.divider}>
-            Training Plans
-          </Typography>
           {state.plans.map((plan) => (
             <Grid key={plan._id} item xs={12}>
               <Paper className={classes.paper}>
@@ -71,7 +71,11 @@ export default function Plans() {
                 </Typography>
 
                 <div className={classes.seeMore}>
-                  <Link color="primary" href="#" onClick={preventDefault}>
+                  <Link
+                    color="primary"
+                    href="/view-plan"
+                    onClick={(e) => sessionStorage.setItem("planID", plan._id)}
+                  >
                     View Plan
                   </Link>
                 </div>
@@ -79,8 +83,15 @@ export default function Plans() {
             </Grid>
           ))}
         </>
-      ) : (
-        <CircularProgress color="secondary" className={classes.loading} />
+      )}
+      {state.plans.length === 0 && (
+        <Grid key={1} item xs={12}>
+          <Typography className={classes.noPlans} color="textSecondary">
+            Sorry! You don't seem to have any plans created. Click{" "}<Link href={urls.CreatePlan}>
+            here
+          </Link>{" "}to get started.
+          </Typography>
+        </Grid>
       )}
     </React.Fragment>
   );

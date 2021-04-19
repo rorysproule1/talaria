@@ -23,3 +23,9 @@ export const Day = {
   SATURDAY: "Saturday",
   SUNDAY: "Sunday",
 };
+
+export const EventType = {
+  MILESTONE: "MILESTONE",
+  REST: "REST",
+  ACTIVITY: "ACTIVITY",
+};
