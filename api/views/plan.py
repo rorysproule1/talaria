@@ -57,6 +57,11 @@ def get_one_plan(athlete_id, plan_id):
                 avg_speed += activity["average_speed"]
                 number_of_runs += 1
 
+                # print(type(convert_iso_to_date(activity["start_date"])))
+                # print(type(convert_iso_to_date(plan["start_date"])))
+                if convert_iso_to_date(activity["start_date"]) > convert_iso_to_date(plan["start_date"]):
+                    print("HELLO")
+
                 run_data.append(
                     {
                         "id": activity["id"],
@@ -69,12 +74,12 @@ def get_one_plan(athlete_id, plan_id):
 
         # Calculate current paces and get their string equivalents
         avg_ms = avg_speed / number_of_runs
-        easy_pace = calculate_time_per_km(avg_ms * 1.1)
+        easy_pace = calculate_time_per_km(avg_ms * 0.9)
         steady_pace = calculate_time_per_km(avg_ms)
-        fast_pace = calculate_time_per_km(avg_ms * 0.9)
-        easy_pace_string = get_pace_string(avg_ms * 1.1)
+        fast_pace = calculate_time_per_km(avg_ms * 1.1)
+        easy_pace_string = get_pace_string(avg_ms * 0.9)
         steady_pace_string = get_pace_string(avg_ms)
-        fast_pace_string = get_pace_string(avg_ms * 0.9)
+        fast_pace_string = get_pace_string(avg_ms * 1.1)
 
         for activity in plan["activities"]:
 
