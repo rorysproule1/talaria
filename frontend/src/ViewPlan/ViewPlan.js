@@ -194,6 +194,7 @@ export default function ViewPlan() {
         type: enums.EventType.ACTIVITY,
         distance: activity.distance,
         pace: activity.average_pace,
+        date_string: activity.date_string,
       });
     } else {
       eventsList.push({
@@ -209,11 +210,17 @@ export default function ViewPlan() {
         run_type: activity.run_type,
         map: map_data,
         type: enums.EventType.ACTIVITY,
+        date_string: activity.date_string,
       });
     }
   }
 
   function capitalize(str) {
+    if (str === "HALF-MARATHON") {
+      return "Half-Marathon";
+    } else if (str === "5K" || str === "10K") {
+      return str;
+    }
     const lower = str.toLowerCase();
     return str.charAt(0).toUpperCase() + lower.slice(1);
   }
@@ -369,7 +376,7 @@ export default function ViewPlan() {
             <CardContent>
               <Grid container spacing={1}>
                 <Grid container item xs={12} spacing={3}>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Distance"
@@ -377,13 +384,13 @@ export default function ViewPlan() {
                         style={{ paddingBottom: "0px" }}
                       />
                       <CardContent>
-                        <Typography variant="h4" component="h4" align="center">
+                        <Typography variant="h6" component="h6" align="center">
                           {capitalize(plan.distance)}
                         </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Goal"
@@ -391,7 +398,7 @@ export default function ViewPlan() {
                         style={{ paddingBottom: "0px" }}
                       />
                       <CardContent>
-                        <Typography variant="h4" component="h4" align="center">
+                        <Typography variant="h6" component="h6" align="center">
                           {capitalize(plan.goal_type)}
                           {plan.goal_type === enums.GoalType.TIME && (
                             <Typography
@@ -407,7 +414,7 @@ export default function ViewPlan() {
                       </CardContent>
                     </Card>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Runs Per Week"
@@ -415,44 +422,33 @@ export default function ViewPlan() {
                         style={{ paddingBottom: "0px" }}
                       />
                       <CardContent>
-                        <Typography variant="h4" component="h4" align="center">
+                        <Typography variant="h6" component="h6" align="center">
                           {plan.runs_per_week}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Card className={classes.paper} variant="outlined">
+                      <CardHeader
+                        title="Finish Date"
+                        titleTypographyProps={{ variant: "overline" }}
+                        style={{ paddingBottom: "0px" }}
+                      />
+                      <CardContent>
+                        <Typography variant="h6" component="h6" align="center">
+                          {plan.finish_date &&
+                            plan.finish_date.substring(
+                              0,
+                              plan.finish_date.length - 12
+                            )}
                         </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12} spacing={3}>
-                  <Grid item xs={4}>
-                    <Card className={classes.paper} variant="outlined">
-                      <CardHeader
-                        title="Key Dates"
-                        titleTypographyProps={{ variant: "overline" }}
-                        style={{ paddingBottom: "0px" }}
-                      />
-                      <CardContent>
-                        <Typography variant="h5" component="h5" align="center">
-                          Start:{" "}
-                          {plan.start_date
-                            .toString()
-                            .substring(
-                              0,
-                              plan.start_date.toString().indexOf("T")
-                            )}
-                          <br></br>
-                          Finish:{" "}
-                          {plan.finish_date &&
-                            plan.finish_date
-                              .toString()
-                              .substring(
-                                0,
-                                plan.finish_date.toString().indexOf("T")
-                              )}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Blocked Days"
@@ -462,8 +458,8 @@ export default function ViewPlan() {
                       <CardContent>
                         {plan.blocked_days.length === 0 && (
                           <Typography
-                            variant="h4"
-                            component="h4"
+                            variant="h6"
+                            component="h6"
                             align="center"
                           >
                             N/A
@@ -471,8 +467,8 @@ export default function ViewPlan() {
                         )}
                         {plan.blocked_days.length === 1 && (
                           <Typography
-                            variant="h4"
-                            component="h4"
+                            variant="h6"
+                            component="h6"
                             align="center"
                           >
                             {plan.blocked_days}
@@ -490,7 +486,7 @@ export default function ViewPlan() {
                       </CardContent>
                     </Card>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Includes Taper"
@@ -498,15 +494,13 @@ export default function ViewPlan() {
                         style={{ paddingBottom: "0px" }}
                       />
                       <CardContent>
-                        <Typography variant="h4" component="h4" align="center">
+                        <Typography variant="h6" component="h6" align="center">
                           {plan.include_taper ? "Yes" : "No"}
                         </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
-                </Grid>
-                <Grid container item xs={12} spacing={3}>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <Card className={classes.paper} variant="outlined">
                       <CardHeader
                         title="Includes Cross Training"
@@ -514,32 +508,33 @@ export default function ViewPlan() {
                         style={{ paddingBottom: "0px" }}
                       />
                       <CardContent>
-                        <Typography variant="h4" component="h4" align="center">
+                        <Typography variant="h6" component="h6" align="center">
                           {plan.include_cross_train ? "Yes" : "No"}
                         </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
-                  {(plan.distance === enums.Distance.HALF_MARATHON || plan.distance === enums.Distance.MARATHON) && (
-                      <Grid item xs={4}>
-                        <Card className={classes.paper} variant="outlined">
-                          <CardHeader
-                            title="Long Run Day"
-                            titleTypographyProps={{ variant: "overline" }}
-                            style={{ paddingBottom: "0px" }}
-                          />
-                          <CardContent>
-                            <Typography
-                              variant="h4"
-                              component="h4"
-                              align="center"
-                            >
-                              {plan.long_run_day ? plan.long_run_day : "N/A"}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    )}
+                  {(plan.distance === enums.Distance.HALF_MARATHON ||
+                    plan.distance === enums.Distance.MARATHON) && (
+                    <Grid item xs={3}>
+                      <Card className={classes.paper} variant="outlined">
+                        <CardHeader
+                          title="Long Run Day"
+                          titleTypographyProps={{ variant: "overline" }}
+                          style={{ paddingBottom: "0px" }}
+                        />
+                        <CardContent>
+                          <Typography
+                            variant="h6"
+                            component="h6"
+                            align="center"
+                          >
+                            {plan.long_run_day ? plan.long_run_day : "N/A"}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </CardContent>
@@ -559,6 +554,7 @@ export default function ViewPlan() {
           components={{
             event: Event,
           }}
+          style={{ paddingBottom: "10px" }}
         />
       </div>
 
@@ -603,43 +599,57 @@ export default function ViewPlan() {
             )}
             <div className={classes.padding}>
               <strong>Date:</strong>{" "}
-              {selectedActivity.start
-                .toString()
-                .substring(0, selectedActivity.start.indexOf("T"))}
+              {selectedActivity.date_string.substring(
+                0,
+                selectedActivity.date_string.length - 12
+              )}
               <br></br>
               <strong>Type:</strong> {capitalize(selectedActivity.run_type)} Run
               <br></br>
               <strong>Time:</strong> {selectedActivity.time} mins<br></br>
               {selectedActivity.distance && (
                 <>
-                  <strong>Estimated Distance:</strong> {selectedActivity.distance}KM<br></br>
-                  <strong>Estimated Pace:</strong> {selectedActivity.pace} /KM <br></br>
+                  <strong>Estimated Distance:</strong>{" "}
+                  {selectedActivity.distance}KM<br></br>
+                  <strong>Estimated Pace:</strong> {selectedActivity.pace} /KM{" "}
+                  <br></br>
                 </>
               )}
               <strong>Description:</strong> {selectedActivity.description}
             </div>
             {selectedActivity.completed && (
-              <MapContainer
-                center={selectedActivity.map.start_coord}
-                zoom={13}
-                scrollWheelZoom={true}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Polyline
-                  positions={selectedActivity.map.polyline}
-                  color="purple"
-                />
-                <Marker
-                  position={selectedActivity.map.start_coord}
-                  title="Start"
-                />
-                <Marker position={selectedActivity.map.end_coord} title="End" />
-              </MapContainer>
+              <div style={{ textAlign: "-webkit-center" }}>
+                <Typography variant="h6" component="h6" align="center">
+                  Run Map
+                </Typography>
+                <MapContainer
+                  center={selectedActivity.map.start_coord}
+                  zoom={13}
+                  scrollWheelZoom={true}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Polyline
+                    positions={selectedActivity.map.polyline}
+                    color="purple"
+                  />
+                  <Marker
+                    position={selectedActivity.map.start_coord}
+                    title="Start"
+                  />
+                  <Marker
+                    position={selectedActivity.map.end_coord}
+                    title="End"
+                  />
+                </MapContainer>
+              </div>
             )}
           </DialogContent>
+          <DialogActions>
+            <br />
+          </DialogActions>
         </Dialog>
       )}
 
@@ -694,16 +704,14 @@ export default function ViewPlan() {
           open={showDeleteModal}
         >
           <DialogTitle className={classes.warningColor}>
-            <strong>
               <WarningRoundedIcon className={classes.icon} />
               Are you sure you would like to delete this plan?
-            </strong>
           </DialogTitle>
           <DialogActions className={classes.warningColor}>
-            <Button autoFocus onClick={onCancelHandler} color="primary">
+            <Button autoFocus onClick={onCancelHandler} color="secondary">
               No
             </Button>
-            <Button onClick={onDeleteHandler} color="primary">
+            <Button onClick={onDeleteHandler} color="secondary">
               Yes
             </Button>
           </DialogActions>

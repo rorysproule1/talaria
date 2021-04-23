@@ -27,8 +27,41 @@ def get_all_plans(athlete_id):
 
     plan_list = []
     for plan in cursor:
-        plan["_id"] = str(plan["_id"])
-        plan_list.append(plan)
+
+        # Check if the plan is completed
+        status = plan["status"]
+        if plan["status"] == "ACTIVE":
+            if plan["activities"][-1]["date"].date() < date.today():
+                status = "COMPLETED"
+                # Update the status of the plan in the database
+                mongo.db.plans.update_one(
+                    {"_id": ObjectId(plan["_id"])}, {"$set": {"status": "COMPLETED"}}
+                )
+
+        # Get the next activity if it's an active plan
+        upcoming_activity = {}
+        if status == "ACTIVE":
+            for activity in plan["activities"]:
+                if activity["date"].date() > date.today():
+                    upcoming_activity = {
+                        "type": activity["run_type"].capitalize(),
+                        "date": activity["date"],
+                    }
+                    break
+
+        # Only return the necessary plan data
+        plan_data = {
+            "_id": str(plan["_id"]),
+            "distance": plan["distance"],
+            "goal_type": plan["goal_type"],
+            "goal_time": plan["goal_time"],
+            "finish_date": plan["finish_date"],
+            "runs_per_week": plan["runs_per_week"],
+            "name": plan["name"],
+            "status": status,
+            "upcoming_activity": upcoming_activity,
+        }
+        plan_list.append(plan_data)
 
     return {"plans": plan_list}, 200
 
@@ -57,11 +90,6 @@ def get_one_plan(athlete_id, plan_id):
                 avg_speed += activity["average_speed"]
                 number_of_runs += 1
 
-                # print(type(convert_iso_to_date(activity["start_date"])))
-                # print(type(convert_iso_to_date(plan["start_date"])))
-                if convert_iso_to_date(activity["start_date"]) > convert_iso_to_date(plan["start_date"]):
-                    print("HELLO")
-
                 run_data.append(
                     {
                         "id": activity["id"],
@@ -86,6 +114,8 @@ def get_one_plan(athlete_id, plan_id):
             # Set the completed and missed default values to False
             activity["completed"] = False
             activity["missed"] = False
+
+            activity["date_string"] = convert_iso_to_datetime(str(activity["date"]))
 
             if activity.get("distance"):
                 if activity["run_type"] in ["LONG", "RECOVERY"]:
@@ -112,6 +142,8 @@ def get_one_plan(athlete_id, plan_id):
 
             if activity["date"].date() < date.today() and not activity["completed"]:
                 activity["missed"] = True
+
+        plan["start_date"] = convert_iso_to_datetime(plan["start_date"])
 
         return plan, 200
     else:
@@ -154,11 +186,10 @@ def post_plan():
 
     plan["activities"] = generate_plan_activities(plan, strava_activities)
     plan["confidence"] = calculate_plan_confidence(plan, strava_activities)
+    plan["status"] = "ACTIVE"
 
     if not plan["finish_date"]:
         plan["finish_date"] = plan["activities"][-1]["date"]
-
-    # return str("HI"), 201
 
     plan = mongo.db.plans.insert_one(plan)
 
@@ -166,6 +197,7 @@ def post_plan():
         return str(plan.inserted_id), 201
     else:
         return "An error occurred when adding the new plan", 500
+
 
 def calculate_plan_confidence(plan, strava_activities):
 
@@ -195,7 +227,7 @@ def validate_plan_data(body):
     blocked_days = body.get("blocked_days")
 
     if distance and goal_type and runs_per_week:
-        if distance not in ["5KM", "10KM", "HALF-MARATHON", "MARATHON"]:
+        if distance not in ["5K", "10K", "HALF-MARATHON", "MARATHON"]:
             return False
         if goal_type not in ["DISTANCE", "TIME"] or (
             goal_type == "TIME" and not goal_time

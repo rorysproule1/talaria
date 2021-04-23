@@ -11,7 +11,7 @@ def post_athlete():
     """
     This endpoint is used when logging in through Strava OAuth, the athlete data received is
     validated, stored in the db and their object id from the db is returned to be used on the
-    fronted
+    frontend
     """
     body = request.get_json()
     strava_id = body.get("strava_id")
@@ -56,23 +56,11 @@ def validate_athlete_data(body):
     access_token = body.get("access_token")
     refresh_token = body.get("refresh_token")
     expires_at = body.get("expires_at")
-    first_name = body.get("first_name")
-    last_name = body.get("last_name")
-    sex = body.get("sex")
 
-    if (
-        access_token
-        and refresh_token
-        and expires_at
-        and first_name
-        and last_name
-        and sex
-    ):
+    if access_token and refresh_token and expires_at:
         if not access_token.isalnum():
             return False
         if not refresh_token.isalnum():
-            return False
-        if not sex in ["M", "F"]:
             return False
         if datetime.now() > convert_iso_to_datetime(expires_at):
             return False

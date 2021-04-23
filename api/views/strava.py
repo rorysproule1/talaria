@@ -214,10 +214,11 @@ def get_dashboard_data():
         if activity["type"] == "Run":
 
             # If this run was in the last week, add it's data to the last week [{}]
-            for day in last_week:
-                if activity["start_date"].startswith(day["day"]):
-                    day["distance"] = round(activity["distance"] / 1000, 2)
-                    day["time"] = math.floor(activity["elapsed_time"] / 60)
+            if days_ago.days <= 7:
+                for day in last_week:
+                    if activity["start_date"].startswith(day["day"]):
+                        day["distance"] = round(activity["distance"] / 1000, 2)
+                        day["time"] = math.floor(activity["elapsed_time"] / 60)
 
             # If this is the first run found, add it's data as the latest run
             if not latest_run:
@@ -242,6 +243,12 @@ def get_dashboard_data():
                     "distance": distance,
                     "speed": speed,
                 }
+
+        for day in last_week:
+            date = datetime.strptime(day["day"], "%Y-%m-%d").date()
+            day["day"] = date.strftime('%d/%m/%Y')
+
+        
     return {"latest_run": latest_run, "last_week": last_week}, 200
 
 
