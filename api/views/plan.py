@@ -109,6 +109,8 @@ def get_one_plan(athlete_id, plan_id):
         steady_pace_string = get_pace_string(avg_ms)
         fast_pace_string = get_pace_string(avg_ms * 1.1)
 
+        num_missed = 0
+        total_runs_so_far = 0
         for activity in plan["activities"]:
 
             # Set the completed and missed default values to False
@@ -140,8 +142,30 @@ def get_one_plan(athlete_id, plan_id):
 
                     break
 
-            if activity["date"].date() < date.today() and not activity["completed"]:
-                activity["missed"] = True
+            if activity["date"].date() < date.today():
+                total_runs_so_far += 1
+                if not activity["completed"]:
+                    activity["missed"] = True
+                    num_missed += 1
+
+        # Recalculate % confidence of plan
+        confidence = calculate_plan_confidence(plan, strava_activities)
+        percentage_missed = 0
+        if total_runs_so_far != 0:
+            percentage_missed = round((num_missed / total_runs_so_far) * 100)
+        if percentage_missed > 50:
+            confidence -= 30
+        elif percentage_missed > 25:
+            confidence -= 15
+        elif percentage_missed > 10:
+            confidence -= 5
+        confidence = confidence if confidence <= 100 else 100
+        plan["confidence"] = confidence
+
+        # Insert new confidence value to database
+        mongo.db.plans.update_one(
+            {"_id": ObjectId(plan["_id"])}, {"$set": {"confidence": confidence}}
+        )
 
         plan["start_date"] = convert_iso_to_datetime(plan["start_date"])
 
@@ -170,6 +194,10 @@ def post_plan():
 
     plan = request.get_json()
     athlete_id = plan.get("athlete_id")
+    force_post = plan.get(
+        "force"
+    )  #  value used to force POST regardless of % confidence
+    del plan["force"]
 
     if athlete_id:
         if not validate_plan_data(plan):
@@ -192,12 +220,15 @@ def post_plan():
     if not plan["finish_date"]:
         plan["finish_date"] = plan["activities"][-1]["date"]
 
-    plan = mongo.db.plans.insert_one(plan)
-
-    if plan:
-        return str(plan.inserted_id), 201
+    print(plan["confidence"])
+    if plan["confidence"] >= 60 or force_post:
+        plan = mongo.db.plans.insert_one(plan)
+        if plan:
+            return str(plan.inserted_id), 201
+        else:
+            return "An error occurred when adding the new plan", 500
     else:
-        return "An error occurred when adding the new plan", 500
+        return "Are you sure you'd like to create this plan?", 200
 
 
 def calculate_plan_confidence(plan, strava_activities):
@@ -220,13 +251,13 @@ def calculate_plan_confidence(plan, strava_activities):
         if activity["type"] == "Run":
             # Last 12 weeks
             if convert_iso_to_date(activity["start_date"]) > twelve_weeks_ago:
-                if activity["distance"] >= plan_distance:
+                if activity["distance"] / 1000 >= plan_distance:
                     ran_distance_before = True
                     ran_distance_recently = True
 
                 num_runs += 1
 
-            if activity["distance"] >= plan_distance:
+            if activity["distance"] / 1000 >= plan_distance:
                 ran_distance_before = True
 
     avg_rpw = num_runs / 12
@@ -240,21 +271,20 @@ def calculate_plan_confidence(plan, strava_activities):
         avg_rpw = "6+"
 
     # deduct confidence if the athlete has selected a rpw above their current level
-    if (
-        (avg_rpw == "6+" and plan["runs_per_week"] in ["2-3", "4-5"])
-        or (avg_rpw == "4-5" and plan["runs_per_week"] == "6+")
-        or (avg_rpw == "2-3" and plan["runs_per_week"] == "4-5")
+    if (avg_rpw == "4-5" and plan["runs_per_week"] == "6+") or (
+        avg_rpw == "2-3" and plan["runs_per_week"] in ["4-5", "6+"]
     ):
+        print("too high a rpw")
         confidence = confidence - 20
 
     # deduct confidence if the athlete has selected a time goal for a distance they've never completed
-    if (not ran_distance_before and not ran_distance_recently) and (
-        plan["goal_type"] == "TIME"
-    ):
+    if (not ran_distance_before) and (plan["goal_type"] == "TIME"):
+        print("Not ran distance before and selected time ")
         confidence -= 30
 
     # deduct confidence if the athlete has selected a distance they've not ran recently
     if not ran_distance_recently:
+        print("Not ran recently")
         confidence -= 5
 
     print(confidence)

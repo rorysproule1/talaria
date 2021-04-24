@@ -29,6 +29,8 @@ import Alert from "@material-ui/lab/Alert";
 import Grid from "@material-ui/core/Grid";
 import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
 import CloseIcon from "@material-ui/icons/Close";
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 const localizer = momentLocalizer(moment);
 
@@ -89,6 +91,7 @@ export default function ViewPlan() {
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfidenceModal, setShowConfidenceModal] = useState(false);
   const [deleteStatus, setDeleteStatus] = useState("");
   const [selectedActivity, setSelectedActivity] = useState();
 
@@ -106,7 +109,9 @@ export default function ViewPlan() {
         console.log(response.data);
         setLoading(false);
         setPlan(response.data);
-
+        if (response.data.confidence <= 40) {
+          setShowConfidenceModal(true)
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -288,6 +293,7 @@ export default function ViewPlan() {
 
   const onCancelHandler = () => {
     setShowDeleteModal(false);
+    setShowConfidenceModal(false);
   };
 
   const onDeleteHandler = () => {
@@ -296,11 +302,13 @@ export default function ViewPlan() {
       .then((response) => {
         setDeleteStatus("DELETED");
         setShowDeleteModal(false);
+        setShowConfidenceModal(false);
       })
       .catch((error) => {
         console.log(error);
         setDeleteStatus("ERROR");
         setShowDeleteModal(false);
+        setShowConfidenceModal(false);
       });
   };
 
@@ -547,6 +555,33 @@ export default function ViewPlan() {
                     </Grid>
                   )}
                 </Grid>
+                <Grid container item xs={12} spacing={3}>
+                  <Grid item xs={3}>
+                    <Card className={classes.paper} variant="outlined">
+                      <CardHeader
+                        title="% Confidence"
+                        titleTypographyProps={{ variant: "overline" }}
+                        style={{ paddingBottom: "0px" }}
+                      />
+                      <CardContent style={{ textAlign: "-webkit-center" }}>
+                        <div style={{ width: 75, height: 75 }}>
+                          <CircularProgressbar
+                            value={plan.confidence}
+                            text={`${plan.confidence}%`}
+                            styles={{
+                              path: {
+                                stroke: plan.confidence >= 80 ? '#5dd423' : plan.confidence >= 40 ? "#ffb729" : "#f88",
+                              },
+                              text: {
+                                fill: plan.confidence >= 80 ? '#5dd423' : plan.confidence >= 40 ? "#ffb729" : "#f88",
+                              },                             
+                            }}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
               </Grid>
             </CardContent>
           </Card>
@@ -715,8 +750,8 @@ export default function ViewPlan() {
           open={showDeleteModal}
         >
           <DialogTitle className={classes.warningColor}>
-              <WarningRoundedIcon className={classes.icon} />
-              Are you sure you would like to delete this plan?
+            <WarningRoundedIcon className={classes.icon} />
+            Are you sure you would like to delete this plan?
           </DialogTitle>
           <DialogActions className={classes.warningColor}>
             <Button autoFocus onClick={onCancelHandler} color="secondary">
@@ -724,6 +759,35 @@ export default function ViewPlan() {
             </Button>
             <Button onClick={onDeleteHandler} color="secondary">
               Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Dialog box for plan confidence deletion */}
+      {showConfidenceModal <= 80 && (
+        <Dialog
+          disableBackdropClick
+          disableEscapeKeyDown
+          TransitionComponent={Transition}
+          open={showConfidenceModal}
+
+        >
+          <DialogTitle className={classes.warningColor}>
+            <WarningRoundedIcon className={classes.icon} />
+            We no longer believe you should continue with this plan.
+          </DialogTitle>
+          <DialogContent className={classes.warningColor} dividers>
+            Unfortunately, after monitoring your progress with this plan, our % confidence has fallen
+            below 40% which means we no longer advise you continue with this plan. We believe to give you
+            the best chance of completing this goal you should delete this plan and create a new one.
+          </DialogContent>
+          <DialogActions className={classes.warningColor}>
+            <Button autoFocus onClick={onCancelHandler} color="secondary">
+              Ignore
+            </Button>
+            <Button onClick={onDeleteHandler} color="secondary">
+              Delete
             </Button>
           </DialogActions>
         </Dialog>
