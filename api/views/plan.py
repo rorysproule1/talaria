@@ -184,6 +184,7 @@ def post_plan():
     # Get all the athlete's past strava activities for confidence and activity generation
     strava_activities = get_strava_activities(str(athlete_id))
 
+    # Add additional values to the plan
     plan["activities"] = generate_plan_activities(plan, strava_activities)
     plan["confidence"] = calculate_plan_confidence(plan, strava_activities)
     plan["status"] = "ACTIVE"
@@ -201,17 +202,63 @@ def post_plan():
 
 def calculate_plan_confidence(plan, strava_activities):
 
-    return 100
+    """
+    This function is used to calculate the confidence in the athlete completing the plan.
+    This looks at a range of parameters about the runner and lowers it's % everytime it sees
+    something that it perceives as a possible hinderence to the plan's completetion.
+    """
 
-    confidence = 0
+    confidence = 100
     ran_distance_before = False
+    ran_distance_recently = False
     avg_rpw = 0
+    num_runs = 0
     plan_distance = get_distance_float(plan["distance"])
+    twelve_weeks_ago = time.date.today() - time.timedelta(weeks=12)
 
     for activity in strava_activities:
         if activity["type"] == "Run":
+            # Last 12 weeks
+            if convert_iso_to_date(activity["start_date"]) > twelve_weeks_ago:
+                if activity["distance"] >= plan_distance:
+                    ran_distance_before = True
+                    ran_distance_recently = True
+
+                num_runs += 1
+
             if activity["distance"] >= plan_distance:
                 ran_distance_before = True
+
+    avg_rpw = num_runs / 12
+    if avg_rpw <= 3.5:
+        if avg_rpw < 1.0:
+            confidence -= 10  # deduct confidence if the athlete hasn't been active
+        avg_rpw = "2-3"
+    elif avg_rpw < 5.5:
+        avg_rpw = "4-5"
+    elif avg_rpw >= 5.5:
+        avg_rpw = "6+"
+
+    # deduct confidence if the athlete has selected a rpw above their current level
+    if (
+        (avg_rpw == "6+" and plan["runs_per_week"] in ["2-3", "4-5"])
+        or (avg_rpw == "4-5" and plan["runs_per_week"] == "6+")
+        or (avg_rpw == "2-3" and plan["runs_per_week"] == "4-5")
+    ):
+        confidence = confidence - 20
+
+    # deduct confidence if the athlete has selected a time goal for a distance they've never completed
+    if (not ran_distance_before and not ran_distance_recently) and (
+        plan["goal_type"] == "TIME"
+    ):
+        confidence -= 30
+
+    # deduct confidence if the athlete has selected a distance they've not ran recently
+    if not ran_distance_recently:
+        confidence -= 5
+
+    print(confidence)
+    return confidence
 
 
 def validate_plan_data(body):
@@ -274,7 +321,7 @@ def generate_plan_activities(plan, strava_activities):
     }
     plan["blocked_days"] = convert_blocked_days(plan["blocked_days"])
 
-    # Create insights from these activities to help in plan generation
+    # Create insights from these activities to help in activity generation
     insights = get_insights(strava_activities, plan["distance"])
 
     # Generate the activites for the plan based off both the plan details and strava insights

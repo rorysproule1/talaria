@@ -106,6 +106,7 @@ export default function ViewPlan() {
         console.log(response.data);
         setLoading(false);
         setPlan(response.data);
+
       })
       .catch((error) => {
         console.log(error);
@@ -350,6 +351,16 @@ export default function ViewPlan() {
               here
             </LinkRouter>{" "}
             to return to your Dashboard.
+          </Alert>
+        )}
+        {plan && plan.status === "COMPLETED" && (
+          <Alert severity="success" className={classes.padding}>
+            Congratulations! You managed to complete this plan successfully.
+          </Alert>
+        )}
+        {plan && plan.status === "FAILED" && (
+          <Alert severity="error" className={classes.padding}>
+            Unfortunately you didn't manage to complete this plan.
           </Alert>
         )}
         {deleteStatus === "ERROR" && (
