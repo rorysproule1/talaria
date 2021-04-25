@@ -110,7 +110,7 @@ export default function ViewPlan() {
         setLoading(false);
         setPlan(response.data);
         if (response.data.confidence <= 40) {
-          setShowConfidenceModal(true)
+          setShowConfidenceModal(true);
         }
       })
       .catch((error) => {
@@ -570,11 +570,21 @@ export default function ViewPlan() {
                             text={`${plan.confidence}%`}
                             styles={{
                               path: {
-                                stroke: plan.confidence >= 80 ? '#5dd423' : plan.confidence >= 40 ? "#ffb729" : "#f88",
+                                stroke:
+                                  plan.confidence >= 80
+                                    ? "#5dd423"
+                                    : plan.confidence >= 40
+                                    ? "#ffb729"
+                                    : "#f88",
                               },
                               text: {
-                                fill: plan.confidence >= 80 ? '#5dd423' : plan.confidence >= 40 ? "#ffb729" : "#f88",
-                              },                             
+                                fill:
+                                  plan.confidence >= 80
+                                    ? "#5dd423"
+                                    : plan.confidence >= 40
+                                    ? "#ffb729"
+                                    : "#f88",
+                              },
                             }}
                           />
                         </div>
@@ -771,16 +781,17 @@ export default function ViewPlan() {
           disableEscapeKeyDown
           TransitionComponent={Transition}
           open={showConfidenceModal}
-
         >
           <DialogTitle className={classes.warningColor}>
             <WarningRoundedIcon className={classes.icon} />
             We no longer believe you should continue with this plan.
           </DialogTitle>
           <DialogContent className={classes.warningColor} dividers>
-            Unfortunately, after monitoring your progress with this plan, our % confidence has fallen
-            below 40% which means we no longer advise you continue with this plan. We believe to give you
-            the best chance of completing this goal you should delete this plan and create a new one.
+            Unfortunately, after monitoring your progress with this plan, our %
+            confidence has fallen below 40% which means we no longer advise you
+            continue with this plan. We believe to give you the best chance of
+            completing this goal you should delete this plan and create a new
+            one.
           </DialogContent>
           <DialogActions className={classes.warningColor}>
             <Button autoFocus onClick={onCancelHandler} color="secondary">

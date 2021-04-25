@@ -97,6 +97,7 @@ def get_one_plan(athlete_id, plan_id):
                         "polyline": activity["map"].get("summary_polyline"),
                         "start_coord": activity["start_latlng"],
                         "end_coord": activity["end_latlng"],
+                        "distance": activity["distance"] / 1000,
                     }
                 )
 
@@ -160,7 +161,7 @@ def get_one_plan(athlete_id, plan_id):
         elif percentage_missed > 10:
             confidence -= 5
         confidence = confidence if confidence <= 100 else 100
-        plan["confidence"] = confidence
+        plan["confidence"] = 8
 
         # Insert new confidence value to database
         mongo.db.plans.update_one(
@@ -209,7 +210,7 @@ def post_plan():
     if not plan["name"]:
         plan["name"] = generate_plan_name(plan)
 
-    # Get all the athlete's past strava activities for confidence and activity generation
+    # Get all of the athlete's past strava activities for confidence and activity generation
     strava_activities = get_strava_activities(str(athlete_id))
 
     # Add additional values to the plan
@@ -219,8 +220,9 @@ def post_plan():
 
     if not plan["finish_date"]:
         plan["finish_date"] = plan["activities"][-1]["date"]
+    else:
+        plan["finish_date"] = convert_iso_to_datetime(plan["finish_date"])
 
-    print(plan["confidence"])
     if plan["confidence"] >= 60 or force_post:
         plan = mongo.db.plans.insert_one(plan)
         if plan:
@@ -274,20 +276,16 @@ def calculate_plan_confidence(plan, strava_activities):
     if (avg_rpw == "4-5" and plan["runs_per_week"] == "6+") or (
         avg_rpw == "2-3" and plan["runs_per_week"] in ["4-5", "6+"]
     ):
-        print("too high a rpw")
-        confidence = confidence - 20
+        confidence -= -20
 
     # deduct confidence if the athlete has selected a time goal for a distance they've never completed
     if (not ran_distance_before) and (plan["goal_type"] == "TIME"):
-        print("Not ran distance before and selected time ")
         confidence -= 30
 
     # deduct confidence if the athlete has selected a distance they've not ran recently
     if not ran_distance_recently:
-        print("Not ran recently")
         confidence -= 5
 
-    print(confidence)
     return confidence
 
 
@@ -313,7 +311,7 @@ def validate_plan_data(body):
         if runs_per_week not in ["2-3", "4-5", "6+"]:
             return False
         if finish_date:
-            if datetime.datetime.now() > convert_iso_to_datetime(finish_date):
+            if datetime.now() > convert_iso_to_datetime(finish_date):
                 return False
         if long_run_day:
             if long_run_day in blocked_days:
@@ -352,7 +350,7 @@ def generate_plan_activities(plan, strava_activities):
     plan["blocked_days"] = convert_blocked_days(plan["blocked_days"])
 
     # Create insights from these activities to help in activity generation
-    insights = get_insights(strava_activities, plan["distance"])
+    insights = get_insights(strava_activities, plan)
 
     # Generate the activites for the plan based off both the plan details and strava insights
     plan_activities = generate_activities(plan, insights)
@@ -363,14 +361,14 @@ def generate_plan_activities(plan, strava_activities):
     return plan_activities
 
 
-def get_insights(activities, plan_distance):
+def get_insights(activities, plan):
 
     twelve_weeks_ago = time.date.today() - time.timedelta(weeks=12)
     max_run_distance = 0
     total_distance = 0
     number_of_runs = 0
     ran_distance_before = False
-    plan_distance = get_distance_float(plan_distance)
+    plan_distance = get_distance_float(plan["distance"])
 
     for activity in activities:
         if activity["type"] == "Run":
@@ -387,6 +385,22 @@ def get_insights(activities, plan_distance):
 
     avg_distance = (total_distance / number_of_runs) / 1000
     long_run_distance = round((avg_distance + max_run_distance) / 2)
+
+    # Calculate distance multiplier if a finish date is explicitly given
+    max_long_run_distance = 16 if plan["distance"] == "HALF-MARATHON" else 32
+    multiplier = 1.1
+    if plan["finish_date"]:
+        weeks_between = round(
+            (
+                convert_iso_to_date(plan["finish_date"])
+                - convert_iso_to_date(plan["start_date"])
+            ).days
+            / 7
+        )
+
+        diff = max_long_run_distance - (round(long_run_distance / 1000))
+        multiplier = diff / weeks_between
+
     steady_run_distance = long_run_distance * 0.75
     recovery_run_distance = avg_distance if avg_distance < 5 else 5
 
@@ -395,6 +409,7 @@ def get_insights(activities, plan_distance):
         "recovery_distance": round(recovery_run_distance * 2) / 2,
         "steady_distance": round((steady_run_distance / 1000) * 2) / 2,
         "ran_distance_before": ran_distance_before,
+        "multiplier": multiplier,
     }
 
 
@@ -449,10 +464,10 @@ def generate_distance_plan(plan, insights):
             long_run_distance = insights["long_distance"]
             steady_run_distance = insights["steady_distance"]
             recovery_run_distance = insights["recovery_distance"]
+            goal_distance = 21.1 if plan["distance"] == "HALF-MARATHON" else 42.2
 
             while True:
                 if long_run_distance < max_long_run_distance:
-
                     # Add steady run to build mileage
                     activities.append(
                         {
@@ -520,9 +535,10 @@ def generate_distance_plan(plan, insights):
                         },
                     )
                     activity_id += 1
-
                     # Increment the distances of each run type
-                    long_run_distance = round((long_run_distance * 1.1) * 2) / 2
+                    long_run_distance = (
+                        round((long_run_distance * insights["multiplier"]) * 2) / 2
+                    )
                     steady_run_distance = round((long_run_distance * 0.75) * 2) / 2
 
                     # Add a recovery run after the previous long run if it isn't the final run
@@ -538,10 +554,93 @@ def generate_distance_plan(plan, insights):
                             },
                         )
                         activity_id += 1
+                    else:
+                        activities[-1]["distance"] = goal_distance
 
                 else:
                     break
 
+            if plan["include_taper"]:
+                # If a taper is included it reuses much of the same code as above, except for 3 weeks it
+                # decreases the distance by 25% each week
+
+                taper_week = 1
+                while taper_week <= 3:
+
+                    # Add steady run to build mileage
+                    activities.append(
+                        {
+                            "activity_id": activity_id,
+                            "run_type": "STEADY",
+                            "distance": steady_run_distance,
+                            "description": "This run is here to help build up your weekly mileage. Be sure to keep at a steady pace but don't overexert yourself.",
+                            "date": None,
+                        },
+                    )
+                    activity_id += 1
+
+                    # Add additioanl training if 4-5 or 6+ runs per week
+                    if plan["runs_per_week"] in ["4-5", "6+"]:
+
+                        # Add a tempo run
+                        activities.append(
+                            {
+                                "activity_id": activity_id,
+                                "run_type": "TEMPO",
+                                "distance": steady_run_distance
+                                if steady_run_distance < 5
+                                else 5,
+                                "description": "The tempo run is designed to improve your overall fitness level. Aim to run the whole time without breaks at your recommended pace.",
+                                "date": None,
+                            },
+                        )
+                        activity_id += 1
+
+                        # Add additional steady run
+                        activities.append(
+                            {
+                                "activity_id": activity_id,
+                                "run_type": "STEADY",
+                                "distance": steady_run_distance,
+                                "description": "This run is here to help build up your weekly mileage. Be sure to keep at a steady pace but don't overexert yourself.",
+                                "date": None,
+                            },
+                        )
+                        activity_id += 1
+
+                        # With 6+ run per week plans, we add an additional fartlek activity
+                        if plan["runs_per_week"] == "6+":
+                            activities.append(
+                                {
+                                    "activity_id": activity_id,
+                                    "run_type": "FARTLEK",
+                                    "distance": steady_run_distance
+                                    if steady_run_distance < 5
+                                    else 5,
+                                    "description": "The fartlek run helps improve your ability to running speed and anerobic fitness. Have fun with your pace on this run, with bursts of faster pace and also slower sections as you see fit.",
+                                    "date": None,
+                                },
+                            )
+                        activity_id += 1
+
+                    # Add long run to the end of the weeks activities
+                    activities.append(
+                        {
+                            "activity_id": activity_id,
+                            "run_type": "LONG",
+                            "distance": long_run_distance
+                            if taper_week != 3
+                            else goal_distance,
+                            "description": "The long run is the key to your success in this plan. It gives you the experience of sustaining running for longer periods of time which aids in both physical and mental progression. Remember to go easy on this run, taking walking breaks if you need them.",
+                            "date": None,
+                        },
+                    )
+                    activity_id += 1
+
+                    # Increment the distances of each run type
+                    long_run_distance = round((long_run_distance * 0.75) * 2) / 2
+                    steady_run_distance = round((long_run_distance * 0.75) * 2) / 2
+                    taper_week += 1
             return activities
 
         else:
@@ -575,8 +674,12 @@ def allocate_activity_dates(activities, plan):
         # Loop until the activity is assigned to a date
         while not activity_assigned:
 
-            if current_day not in plan["blocked_days"]:
+            # if a finish date is set, set the last activity as the finish date
+            if plan["finish_date"] and (activity_index + 1 == len(activities)):
+                activity["date"] = convert_iso_to_datetime(plan["finish_date"])
+                break
 
+            if current_day not in plan["blocked_days"]:
                 if long_run_day:
                     if activity["run_type"] == "LONG":
                         # if its a long run and the current date is the selected long run day, we asisgn as normal

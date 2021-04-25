@@ -121,7 +121,7 @@ export default function CreatePlan() {
 
   const onGoBackHandler = () => {
     setOpenRunsPerWeekWarning(false);
-    setConfirmSubmit(false)
+    setConfirmSubmit(false);
   };
 
   useEffect(() => {
@@ -130,7 +130,9 @@ export default function CreatePlan() {
      provide personalised suggestions
     */
     axios
-      .get(urls.StravaInsights, { params: { athlete_id: sessionStorage.athleteID } })
+      .get(urls.StravaInsights, {
+        params: { athlete_id: sessionStorage.athleteID },
+      })
       .then((response) => {
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
@@ -168,7 +170,7 @@ export default function CreatePlan() {
   const handleSubmit = () => {
     const body = document.querySelector("#root");
     body.scrollIntoView();
-    
+
     const plan_data = {
       athlete_id: sessionStorage.athleteID,
       distance: state.distance,
@@ -182,19 +184,22 @@ export default function CreatePlan() {
       long_run_day: state.longRunDay,
       blocked_days: state.blockedDays,
       name: state.planName,
-      force: false
+      force: false,
     };
 
     axios
       .post(urls.Plans, plan_data, {})
       .then((response) => {
         if (response.status === 200) {
-          setConfirmSubmit(true)
+          setConfirmSubmit(true);
         } else {
-          setState({ ...state, planSubmitted: true, planSubmittedError: false });
-          sessionStorage.setItem("planID", response.data)
+          setState({
+            ...state,
+            planSubmitted: true,
+            planSubmittedError: false,
+          });
+          sessionStorage.setItem("planID", response.data);
         }
-        
       })
       .catch((error) => {
         console.error("Error while posting plan details");
@@ -206,8 +211,8 @@ export default function CreatePlan() {
   const handleSubmitForce = () => {
     const body = document.querySelector("#root");
     body.scrollIntoView();
-    setConfirmSubmit(false)
-    
+    setConfirmSubmit(false);
+
     const plan_data = {
       athlete_id: sessionStorage.athleteID,
       distance: state.distance,
@@ -221,14 +226,14 @@ export default function CreatePlan() {
       long_run_day: state.longRunDay,
       blocked_days: state.blockedDays,
       name: state.planName,
-      force: true
+      force: true,
     };
 
     axios
       .post(urls.Plans, plan_data, {})
       .then((response) => {
         setState({ ...state, planSubmitted: true, planSubmittedError: false });
-        sessionStorage.setItem("planID", response.data)
+        sessionStorage.setItem("planID", response.data);
       })
       .catch((error) => {
         console.error("Error while posting plan details");
@@ -348,11 +353,11 @@ export default function CreatePlan() {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
-                // disabled={
-                //   state.planSubmitted &&
-                //   !state.planSubmittedError &&
-                //   state.step === steps.length - 1
-                // }
+                disabled={
+                  state.planSubmitted &&
+                  !state.planSubmittedError &&
+                  state.step === steps.length - 1
+                }
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>
@@ -419,7 +424,7 @@ export default function CreatePlan() {
             <Typography gutterBottom>
               <p>
                 Selecting a number of runs per week that is higher than your
-                current 6 week average greatly increases the chance of you
+                current 12 week average greatly increases the chance of you
                 injuring yourself and thus failing to complete this training
                 plan.
               </p>
@@ -455,9 +460,10 @@ export default function CreatePlan() {
           <DialogContent dividers className={classes.warningColor}>
             <Typography gutterBottom>
               <p>
-                Having analysed your desired plan and your Strava history, we aren't 100% sure
-                it is a good idea to attempt this plan. We highly recommend you folow the recommendations
-                we have made for you and we gradually build towards this goal.
+                Having analysed your desired plan and your Strava history, we
+                aren't 100% sure it is a good idea to attempt this plan. We
+                highly recommend you folow the recommendations we have made for
+                you and we gradually build towards this goal.
               </p>
             </Typography>
           </DialogContent>
