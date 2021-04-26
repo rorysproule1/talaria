@@ -92,7 +92,10 @@ export default function Header({ connectToStrava }) {
             axios
               .post(urls.Athletes, athlete_data, {})
               .then((response) => {
-                sessionStorage.setItem("athleteID", response.data["athlete_id"])
+                sessionStorage.setItem(
+                  "athleteID",
+                  response.data["athlete_id"]
+                );
                 setAthleteID(response.data["athlete_id"]);
                 setCredentialsAuthorized(true);
               })
@@ -133,7 +136,7 @@ export default function Header({ connectToStrava }) {
 
   function onLogOutHandler(e) {
     // clear session storage
-    sessionStorage.clear()
+    sessionStorage.clear();
     setLogOut(true);
   }
 

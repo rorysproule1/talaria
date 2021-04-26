@@ -7,7 +7,7 @@ export const StravaToken = "https://www.strava.com/oauth/token";
 export const StravaAuthorization = `https://www.strava.com/oauth/authorize?client_id=52053&redirect_uri=http://localhost:3000/login&response_type=code&scope=activity:read_all`; // TODO: Obtain client details from secure env variables
 
 // Talaria URLs
-export const ViewPlan = "/view-plan"
+export const ViewPlan = "/view-plan";
 export const CreatePlan = "/create-plan";
 export const Login = "/login";
 export const Dashboard = "/";

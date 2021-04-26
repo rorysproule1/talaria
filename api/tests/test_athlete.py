@@ -8,7 +8,6 @@ import flaskr
 
 @pytest.fixture
 def client():
-    a=1
     # Mock database
     db_fd, flaskr.app.config["DATABASE"] = tempfile.mkstemp()
     flaskr.app.config["TESTING"] = True

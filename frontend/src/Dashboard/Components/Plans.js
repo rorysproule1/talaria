@@ -98,7 +98,8 @@ export default function Plans() {
                       - {plan.runs_per_week} runs per week
                     </Typography>
                     <Typography color="textSecondary">
-                      - This plan {plan.status === "ACTIVE" ? "finishes" : "finished"} on{" "}
+                      - This plan{" "}
+                      {plan.status === "ACTIVE" ? "finishes" : "finished"} on{" "}
                       {plan.finish_date.substring(
                         0,
                         plan.finish_date.length - 12

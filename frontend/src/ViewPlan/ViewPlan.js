@@ -106,7 +106,6 @@ export default function ViewPlan() {
           sessionStorage.planID
       )
       .then((response) => {
-        console.log(response.data);
         setLoading(false);
         setPlan(response.data);
         if (response.data.confidence <= 40) {

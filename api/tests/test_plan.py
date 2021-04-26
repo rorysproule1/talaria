@@ -74,7 +74,7 @@ def test_post_plan_success(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=False
+            force=False,
         ),
     )
 
@@ -97,11 +97,12 @@ def test_post_plan_confidence_warning_success(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=False
+            force=False,
         ),
     )
 
     assert response.status == 200
+
 
 def test_post_plan_force_success(client):
     response = client.post(
@@ -119,11 +120,12 @@ def test_post_plan_force_success(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=True
+            force=True,
         ),
     )
 
     assert response.status == 201
+
 
 def test_post_plan_invalid_distance_failure(client):
     response = client.post(
@@ -141,7 +143,7 @@ def test_post_plan_invalid_distance_failure(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=True
+            force=True,
         ),
     )
 
@@ -164,11 +166,12 @@ def test_post_plan_invalid_goal_failure(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=True
+            force=True,
         ),
     )
 
     assert response.status == 400
+
 
 def test_post_plan_invalid_rpw_failure(client):
     response = client.post(
@@ -186,11 +189,12 @@ def test_post_plan_invalid_rpw_failure(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=True
+            force=True,
         ),
     )
 
     assert response.status == 400
+
 
 def test_post_plan_no_goal_time_in_time_plan_failure(client):
     response = client.post(
@@ -208,7 +212,7 @@ def test_post_plan_no_goal_time_in_time_plan_failure(client):
             name=None,
             include_cross_train=False,
             include_taper=False,
-            force=True
+            force=True,
         ),
     )
 
@@ -222,5 +226,3 @@ def test_post_plan_no_data_failure(client):
     )
 
     assert response.status == 400
-
-
