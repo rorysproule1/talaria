@@ -161,7 +161,7 @@ def get_one_plan(athlete_id, plan_id):
         elif percentage_missed > 10:
             confidence -= 5
         confidence = confidence if confidence <= 100 else 100
-        plan["confidence"] = 8
+        plan["confidence"] = confidence
 
         # Insert new confidence value to database
         mongo.db.plans.update_one(
