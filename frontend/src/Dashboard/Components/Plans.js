@@ -11,9 +11,6 @@ import * as urls from "../../assets/utils/urls";
 import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
-  seeMore: {
-    marginTop: theme.spacing(3),
-  },
   paper: {
     padding: theme.spacing(2),
     display: "flex",
@@ -123,15 +120,13 @@ export default function Plans() {
                   )}
                 </div>
 
-                <div className={classes.seeMore}>
-                  <Link
-                    color="primary"
-                    href="/view-plan"
-                    onClick={(e) => sessionStorage.setItem("planID", plan._id)}
-                  >
-                    View Plan
-                  </Link>
-                </div>
+                <Link
+                  color="primary"
+                  href="/view-plan"
+                  onClick={(e) => sessionStorage.setItem("planID", plan._id)}
+                >
+                  View Plan
+                </Link>
               </Paper>
             </Grid>
           ))}

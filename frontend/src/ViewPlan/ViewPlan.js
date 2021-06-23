@@ -108,7 +108,10 @@ export default function ViewPlan() {
       .then((response) => {
         setLoading(false);
         setPlan(response.data);
-        if (response.data.confidence <= 40) {
+        if (
+          response.data.confidence <= 40 &&
+          response.data.status === enums.PlanStatus.ACTIVE
+        ) {
           setShowConfidenceModal(true);
         }
       })
@@ -554,43 +557,45 @@ export default function ViewPlan() {
                     </Grid>
                   )}
                 </Grid>
-                <Grid container item xs={12} spacing={3}>
-                  <Grid item xs={3}>
-                    <Card className={classes.paper} variant="outlined">
-                      <CardHeader
-                        title="% Confidence"
-                        titleTypographyProps={{ variant: "overline" }}
-                        style={{ paddingBottom: "0px" }}
-                      />
-                      <CardContent style={{ textAlign: "-webkit-center" }}>
-                        <div style={{ width: 75, height: 75 }}>
-                          <CircularProgressbar
-                            value={plan.confidence}
-                            text={`${plan.confidence}%`}
-                            styles={{
-                              path: {
-                                stroke:
-                                  plan.confidence >= 80
-                                    ? "#5dd423"
-                                    : plan.confidence >= 40
-                                    ? "#ffb729"
-                                    : "#f88",
-                              },
-                              text: {
-                                fill:
-                                  plan.confidence >= 80
-                                    ? "#5dd423"
-                                    : plan.confidence >= 40
-                                    ? "#ffb729"
-                                    : "#f88",
-                              },
-                            }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
+                {plan && plan.status === enums.PlanStatus.ACTIVE && (
+                  <Grid container item xs={12} spacing={3}>
+                    <Grid item xs={3}>
+                      <Card className={classes.paper} variant="outlined">
+                        <CardHeader
+                          title="% Confidence"
+                          titleTypographyProps={{ variant: "overline" }}
+                          style={{ paddingBottom: "0px" }}
+                        />
+                        <CardContent style={{ textAlign: "-webkit-center" }}>
+                          <div style={{ width: 75, height: 75 }}>
+                            <CircularProgressbar
+                              value={plan.confidence}
+                              text={`${plan.confidence}%`}
+                              styles={{
+                                path: {
+                                  stroke:
+                                    plan.confidence >= 80
+                                      ? "#5dd423"
+                                      : plan.confidence >= 40
+                                      ? "#ffb729"
+                                      : "#f88",
+                                },
+                                text: {
+                                  fill:
+                                    plan.confidence >= 80
+                                      ? "#5dd423"
+                                      : plan.confidence >= 40
+                                      ? "#ffb729"
+                                      : "#f88",
+                                },
+                              }}
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Grid>
                   </Grid>
-                </Grid>
+                )}
               </Grid>
             </CardContent>
           </Card>
@@ -820,7 +825,7 @@ function decode(encoded) {
       shift = 0,
       result = 0;
     do {
-      b = encoded.charAt(index++).charCodeAt(0) - 63; //finds ascii                                                                                    //and substract it by 63
+      b = encoded.charAt(index++).charCodeAt(0) - 63; //finds ascii
       result |= (b & 0x1f) << shift;
       shift += 5;
     } while (b >= 0x20);

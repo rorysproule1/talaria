@@ -21,7 +21,7 @@ def get_all_plans(athlete_id):
     """
 
     try:
-        cursor = mongo.db.plans.find({"athlete_id": athlete_id}).sort("finish_date", 1)
+        cursor = mongo.db.plans.find({"athlete_id": athlete_id}).sort([("status", 1), ("finish_date", 1)])
     except Exception as e:
         return "An error occurred when getting athlete's plans", 500
 
@@ -149,24 +149,25 @@ def get_one_plan(athlete_id, plan_id):
                     activity["missed"] = True
                     num_missed += 1
 
-        # Recalculate % confidence of plan
-        confidence = calculate_plan_confidence(plan, strava_activities)
-        percentage_missed = 0
-        if total_runs_so_far != 0:
-            percentage_missed = round((num_missed / total_runs_so_far) * 100)
-        if percentage_missed > 50:
-            confidence -= 30
-        elif percentage_missed > 25:
-            confidence -= 15
-        elif percentage_missed > 10:
-            confidence -= 5
-        confidence = confidence if confidence <= 100 else 100
-        plan["confidence"] = confidence
+        # Recalculate % confidence of plan if the plan is active
+        if plan["status"] == "ACTIVE":
+            confidence = calculate_plan_confidence(plan, strava_activities)
+            percentage_missed = 0
+            if total_runs_so_far != 0:
+                percentage_missed = round((num_missed / total_runs_so_far) * 100)
+            if percentage_missed > 50:
+                confidence -= 30
+            elif percentage_missed > 25:
+                confidence -= 15
+            elif percentage_missed > 10:
+                confidence -= 5
+            confidence = confidence if confidence <= 100 else 100
+            plan["confidence"] = confidence
 
-        # Insert new confidence value to database
-        mongo.db.plans.update_one(
-            {"_id": ObjectId(plan["_id"])}, {"$set": {"confidence": confidence}}
-        )
+            # Insert new confidence value to database
+            mongo.db.plans.update_one(
+                {"_id": ObjectId(plan["_id"])}, {"$set": {"confidence": confidence}}
+            )
 
         plan["start_date"] = convert_iso_to_datetime(plan["start_date"])
 
@@ -276,14 +277,16 @@ def calculate_plan_confidence(plan, strava_activities):
     if (avg_rpw == "4-5" and plan["runs_per_week"] == "6+") or (
         avg_rpw == "2-3" and plan["runs_per_week"] in ["4-5", "6+"]
     ):
-        confidence -= -20
+        confidence -= 20
 
     # deduct confidence if the athlete has selected a time goal for a distance they've never completed
     if (not ran_distance_before) and (plan["goal_type"] == "TIME"):
         confidence -= 30
 
-    # deduct confidence if the athlete has selected a distance they've not ran recently
-    if not ran_distance_recently:
+    # deduct confidence if the athlete has selected a distance they've not ran before or recently
+    if not ran_distance_before:
+        confidence -= 10
+    elif not ran_distance_recently:
         confidence -= 5
 
     return confidence
@@ -673,10 +676,11 @@ def allocate_activity_dates(activities, plan):
         activity_assigned = False
         # Loop until the activity is assigned to a date
         while not activity_assigned:
-
             # if a finish date is set, set the last activity as the finish date
             if plan["finish_date"] and (activity_index + 1 == len(activities)):
+                print("END")
                 activity["date"] = convert_iso_to_datetime(plan["finish_date"])
+                activity_assigned = True
                 break
 
             if current_day not in plan["blocked_days"]:
