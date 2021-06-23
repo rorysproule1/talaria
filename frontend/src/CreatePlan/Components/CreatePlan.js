@@ -110,6 +110,7 @@ export default function CreatePlan() {
   const [state, setState] = useContext(CreatePlanContext);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
 
   const [openRunsPerWeekWarning, setOpenRunsPerWeekWarning] = useState(false);
 
@@ -120,6 +121,7 @@ export default function CreatePlan() {
 
   const onGoBackHandler = () => {
     setOpenRunsPerWeekWarning(false);
+    setConfirmSubmit(false);
   };
 
   useEffect(() => {
@@ -128,7 +130,9 @@ export default function CreatePlan() {
      provide personalised suggestions
     */
     axios
-      .get(urls.StravaInsights, { params: { athlete_id: sessionStorage.athleteID } })
+      .get(urls.StravaInsights, {
+        params: { athlete_id: sessionStorage.athleteID },
+      })
       .then((response) => {
         setLoading(false);
         const runsPerWeek = getRunsPerWeek(response.data["runs_per_week"]);
@@ -166,7 +170,7 @@ export default function CreatePlan() {
   const handleSubmit = () => {
     const body = document.querySelector("#root");
     body.scrollIntoView();
-    
+
     const plan_data = {
       athlete_id: sessionStorage.athleteID,
       distance: state.distance,
@@ -180,13 +184,56 @@ export default function CreatePlan() {
       long_run_day: state.longRunDay,
       blocked_days: state.blockedDays,
       name: state.planName,
+      force: false,
+    };
+
+    axios
+      .post(urls.Plans, plan_data, {})
+      .then((response) => {
+        if (response.status === 200) {
+          setConfirmSubmit(true);
+        } else {
+          setState({
+            ...state,
+            planSubmitted: true,
+            planSubmittedError: false,
+          });
+          sessionStorage.setItem("planID", response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error while posting plan details");
+        console.log(error);
+        setState({ ...state, planSubmitted: false, planSubmittedError: true });
+      });
+  };
+
+  const handleSubmitForce = () => {
+    const body = document.querySelector("#root");
+    body.scrollIntoView();
+    setConfirmSubmit(false);
+
+    const plan_data = {
+      athlete_id: sessionStorage.athleteID,
+      distance: state.distance,
+      goal_type: state.goalType,
+      goal_time: state.goalTime,
+      start_date: state.startDate,
+      finish_date: state.finishDate,
+      runs_per_week: state.runsPerWeek,
+      include_taper: state.includeTaper,
+      include_cross_train: state.includeCrossTrain,
+      long_run_day: state.longRunDay,
+      blocked_days: state.blockedDays,
+      name: state.planName,
+      force: true,
     };
 
     axios
       .post(urls.Plans, plan_data, {})
       .then((response) => {
         setState({ ...state, planSubmitted: true, planSubmittedError: false });
-        sessionStorage.setItem("planID", response.data)
+        sessionStorage.setItem("planID", response.data);
       })
       .catch((error) => {
         console.error("Error while posting plan details");
@@ -306,11 +353,11 @@ export default function CreatePlan() {
                 color="primary"
                 onClick={state.step === 5 ? handleSubmit : handleNext}
                 className={classes.button}
-                // disabled={
-                //   state.planSubmitted &&
-                //   !state.planSubmittedError &&
-                //   state.step === steps.length - 1
-                // }
+                disabled={
+                  state.planSubmitted &&
+                  !state.planSubmittedError &&
+                  state.step === steps.length - 1
+                }
               >
                 {state.step === steps.length - 1 ? "Create Plan" : "Next"}
               </Button>
@@ -377,7 +424,7 @@ export default function CreatePlan() {
             <Typography gutterBottom>
               <p>
                 Selecting a number of runs per week that is higher than your
-                current 6 week average greatly increases the chance of you
+                current 12 week average greatly increases the chance of you
                 injuring yourself and thus failing to complete this training
                 plan.
               </p>
@@ -393,6 +440,39 @@ export default function CreatePlan() {
             </Button>
             <Button onClick={onContinueHandler} color="primary">
               Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Dialog box for submit confirmation */}
+      {confirmSubmit && (
+        <Dialog
+          open={confirmSubmit}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={onGoBackHandler}
+        >
+          <DialogTitle className={classes.warningColor}>
+            <WarningRoundedIcon className={classes.icon} />
+            {`Are you sure you'd like to create this plan?`}
+          </DialogTitle>
+          <DialogContent dividers className={classes.warningColor}>
+            <Typography gutterBottom>
+              <p>
+                Having analysed your desired plan and your Strava history, we
+                aren't 100% sure it is a good idea to attempt this plan. We
+                highly recommend you folow the recommendations we have made for
+                you and we gradually build towards this goal.
+              </p>
+            </Typography>
+          </DialogContent>
+          <DialogActions className={classes.warningColor}>
+            <Button onClick={onGoBackHandler} color="primary">
+              Edit Plan
+            </Button>
+            <Button onClick={handleSubmitForce} color="primary">
+              Submit Plan
             </Button>
           </DialogActions>
         </Dialog>

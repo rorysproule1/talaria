@@ -40,10 +40,7 @@ export default function Summary() {
       {state.planSubmitted && (
         <Alert severity="success" className={classes.info}>
           SUCCESS: Your plan was created successfully! Click{" "}
-          <Link href={urls.ViewPlan}>
-            here
-          </Link>{" "}
-          to view it.
+          <Link href={urls.ViewPlan}>here</Link> to view it.
         </Alert>
       )}
       {state.planSubmittedError && (

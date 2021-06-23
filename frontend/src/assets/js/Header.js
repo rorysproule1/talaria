@@ -64,7 +64,6 @@ export default function Header({ connectToStrava }) {
       // on entry to the page, if we have been redirected with a code and correct scope in the URL, we can request an access token
       if (code && scope.includes("activity:read_all")) {
         const oauth_data = {
-          // TODO: Store client details securely as env variables
           client_id: 52053,
           client_secret: "652aa8ebedc48c9fcf061fb28f663b6eca0669a6",
           code: code,
@@ -87,16 +86,16 @@ export default function Header({ connectToStrava }) {
               refresh_token: response.data["refresh_token"],
               expires_at: expires_at,
               strava_id: response.data["athlete"]["id"],
-              first_name: response.data["athlete"]["firstname"],
-              last_name: response.data["athlete"]["lastname"],
-              sex: response.data["athlete"]["sex"],
             };
 
             // we then post these details to our API to be stored about the athlete
             axios
               .post(urls.Athletes, athlete_data, {})
               .then((response) => {
-                sessionStorage.setItem("athleteID", response.data["athlete_id"])
+                sessionStorage.setItem(
+                  "athleteID",
+                  response.data["athlete_id"]
+                );
                 setAthleteID(response.data["athlete_id"]);
                 setCredentialsAuthorized(true);
               })
@@ -130,14 +129,14 @@ export default function Header({ connectToStrava }) {
     }
   }, []); // empty list to ensure code is only executed on initial loading of the page
 
-  function onClickHandler(e) {
+  function onLogInHandler(e) {
     // redirect to Strava oAuth
     window.location.href = urls.StravaAuthorization;
   }
 
   function onLogOutHandler(e) {
     // clear session storage
-    sessionStorage.clear()
+    sessionStorage.clear();
     setLogOut(true);
   }
 
@@ -192,13 +191,13 @@ export default function Header({ connectToStrava }) {
               id="strava-connect"
               style={({ height: "96px" }, { width: "144px" })}
               src={strava_connect}
-              onClick={onClickHandler}
+              onClick={onLogInHandler}
             />
           ) : (
             <Button
               variant="outlined"
               size="small"
-              color="primary"
+              color="secondary"
               onClick={onLogOutHandler}
             >
               Log Out

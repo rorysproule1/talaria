@@ -37,8 +37,8 @@ export default function RunsPerWeekForm() {
     <React.Fragment>
       <Grid item xs={12} sm={8} md={10}>
         <Alert severity="info" className={classes.info}>
-          Looking at your Strava history over the past 6 weeks, we recommend you
-          select {state.avgRunsPerWeek} runs per week.
+          Looking at your Strava history over the past 12 weeks, we recommend
+          you select {state.avgRunsPerWeek} runs per week.
         </Alert>
 
         <Typography>

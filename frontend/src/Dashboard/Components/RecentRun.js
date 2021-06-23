@@ -36,7 +36,11 @@ export default function RecentRun() {
             {state.recentRun["title"]}
           </Typography>
           <Typography color="textSecondary">
-            on {state.recentRun["date"]}
+            on{" "}
+            {state.recentRun["date"].substring(
+              0,
+              state.recentRun["date"].length - 7
+            )}
           </Typography>
           <Divider style={{ marginTop: "8px" }} />
           <List>
@@ -50,7 +54,7 @@ export default function RecentRun() {
                 secondary="Time"
               />
               <ListItemText
-                primary={state.recentRun["speed"] + "/km"}
+                primary={state.recentRun["speed"] + "/KM"}
                 secondary="Pace"
               />
             </ListItem>

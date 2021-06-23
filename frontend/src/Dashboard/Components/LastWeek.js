@@ -58,13 +58,13 @@ export default function LastWeek() {
               <Legend />
               <Bar
                 yAxisId="left"
-                name="Distance (km)"
+                name="Distance (KM)"
                 dataKey="distance"
                 fill="#8884d8"
               />
               <Bar
                 yAxisId="right"
-                name="Time (mins)"
+                name="Time (Mins)"
                 dataKey="time"
                 fill="#82ca9d"
               />

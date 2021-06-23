@@ -29,3 +29,9 @@ export const EventType = {
   REST: "REST",
   ACTIVITY: "ACTIVITY",
 };
+
+export const PlanStatus = {
+  ACTIVE: "ACTIVE",
+  COMPLETED: "COMPLETED",
+  MISSED: "MISSED",
+}

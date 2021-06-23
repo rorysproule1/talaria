@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import Dashboard from "./Dashboard/DashboardWrapper";
 import LogIn from "./LogIn/LogIn";
-import ViewPlan from "./ViewPlan/ViewPlan";
+import ViewPlan from "./ViewPlan/ViewPlanWrapper";
 import { Switch, Route } from "react-router-dom";
 import CreatePlan from "./CreatePlan/CreatePlanWrapper";
 import NotFound from "./assets/js/NotFound";

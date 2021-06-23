@@ -51,7 +51,7 @@ def get_strava_insights():
     )
     date_5km, date_10km, date_half_marathon, date_marathon = None, None, None, None
     additional_activities = set()
-    six_weeks_ago = time.date.today() - time.timedelta(weeks=6)
+    twelve_weeks_ago = time.date.today() - time.timedelta(weeks=12)
     long_run_day_list = []
     long_run_day = 7
 
@@ -62,8 +62,8 @@ def get_strava_insights():
             run_date = convert_iso_to_date(activity["start_date"])
             run_distance = activity["distance"]
 
-            # If the run is in the last 6 weeks, add it to runs per week calculation
-            if run_date > six_weeks_ago:
+            # If the run is in the last 12 weeks, add it to runs per week calculation
+            if run_date > twelve_weeks_ago:
                 runs_per_week_total += 1
 
             # Check the distance of the run, and check if it is a PB or distance achievement
@@ -144,7 +144,7 @@ def get_strava_insights():
             "date": date_marathon,
         },
         "additional_activities": list(additional_activities),
-        "runs_per_week": round(runs_per_week_total / 6, 2),
+        "runs_per_week": round(runs_per_week_total / 12, 2),
         "long_run_day": get_day_string(long_run_day),
     }, 200
 
@@ -214,10 +214,11 @@ def get_dashboard_data():
         if activity["type"] == "Run":
 
             # If this run was in the last week, add it's data to the last week [{}]
-            for day in last_week:
-                if activity["start_date"].startswith(day["day"]):
-                    day["distance"] = round(activity["distance"] / 1000, 2)
-                    day["time"] = math.floor(activity["elapsed_time"] / 60)
+            if days_ago.days <= 7:
+                for day in last_week:
+                    if activity["start_date"].startswith(day["day"]):
+                        day["distance"] = round(activity["distance"] / 1000, 2)
+                        day["time"] = math.floor(activity["elapsed_time"] / 60)
 
             # If this is the first run found, add it's data as the latest run
             if not latest_run:
@@ -242,6 +243,11 @@ def get_dashboard_data():
                     "distance": distance,
                     "speed": speed,
                 }
+
+        for day in last_week:
+            date = datetime.strptime(day["day"], "%Y-%m-%d").date()
+            day["day"] = date.strftime("%d/%m/%Y")
+
     return {"latest_run": latest_run, "last_week": last_week}, 200
 
 

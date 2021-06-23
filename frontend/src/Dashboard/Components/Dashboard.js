@@ -85,7 +85,9 @@ export default function Dashboard() {
       });
 
     axios
-      .get(urls.DashboardActivities, { params: { athlete_id: sessionStorage.athleteID } })
+      .get(urls.DashboardActivities, {
+        params: { athlete_id: sessionStorage.athleteID },
+      })
       .then((response) => {
         setDashboardStrava({
           ...dashboardStrava,
@@ -128,7 +130,7 @@ export default function Dashboard() {
             state: { athleteID: sessionStorage.athleteID },
           }}
         />
-      )} 
+      )}
       <Header connectToStrava={false} />
       <CssBaseline />
       <main className={classes.layout}>
